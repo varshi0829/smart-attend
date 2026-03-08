@@ -1,6 +1,10 @@
 import os
+import socket
+import sys
 import time
 import traceback
+import platform
+from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from .config import MODEL_NAME, logger, EMBEDDINGS_DIR, THRESHOLD
@@ -9,6 +13,7 @@ from .matcher import load_student_embeddings, verify_face_match
 from .responses import standard_response
 
 app = FastAPI(title="SmartAttend Face Verification Service")
+model_warmup_ready = False
 
 # Allow any origin for local network access
 app.add_middleware(
@@ -18,6 +23,89 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def _validate_embeddings_dir() -> Path:
+    path = Path(EMBEDDINGS_DIR)
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Cannot create embeddings directory: {path}. Check permissions."
+        ) from exc
+
+    if not os.access(path, os.R_OK):
+        raise RuntimeError(f"Embeddings directory is not readable: {path}")
+    if not os.access(path, os.W_OK):
+        raise RuntimeError(f"Embeddings directory is not writable: {path}")
+
+    pkl_count = len(list(path.glob("*.pkl")))
+    logger.info(f"[STARTUP] Embeddings directory ready: {path} (files: {pkl_count})")
+    return path
+
+def _warmup_deepface_model() -> None:
+    from deepface import DeepFace
+
+    global model_warmup_ready
+    logger.info(f"[STARTUP] Warming up DeepFace model: {MODEL_NAME}")
+    try:
+        DeepFace.build_model(MODEL_NAME)
+        model_warmup_ready = True
+        logger.info(f"[STARTUP] DeepFace model warmup complete: {MODEL_NAME}")
+    except Exception as exc:
+        raise RuntimeError(
+            "DeepFace model warmup failed. Check tensorflow/deepface installation and model files."
+        ) from exc
+
+def _log_runtime_diagnostics() -> None:
+    logger.info(
+        "[STARTUP] Runtime: python=%s platform=%s",
+        sys.version.split(" ")[0],
+        platform.platform(),
+    )
+    try:
+        import tensorflow as tf
+        logger.info("[STARTUP] TensorFlow version: %s", tf.__version__)
+    except Exception as exc:
+        logger.warning("[STARTUP] TensorFlow version check failed: %s", exc)
+    try:
+        import deepface
+        logger.info("[STARTUP] DeepFace version: %s", getattr(deepface, "__version__", "unknown"))
+    except Exception as exc:
+        logger.warning("[STARTUP] DeepFace version check failed: %s", exc)
+
+def _validate_socket_runtime_permissions() -> None:
+    probe = None
+    try:
+        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except PermissionError as exc:
+        raise RuntimeError(
+            "Socket creation is blocked by the runtime environment. "
+            "This is not an app logic failure; check container/sandbox network permissions."
+        ) from exc
+    except OSError as exc:
+        raise RuntimeError(
+            f"Socket runtime check failed with OS error: {exc}. "
+            "Check host network policy and security restrictions."
+        ) from exc
+    finally:
+        if probe is not None:
+            probe.close()
+
+@app.on_event("startup")
+async def startup_preflight():
+    logger.info("[STARTUP] Face service preflight started.")
+    try:
+        _log_runtime_diagnostics()
+        _validate_socket_runtime_permissions()
+        _validate_embeddings_dir()
+        if os.getenv("FACE_SERVICE_SKIP_MODEL_WARMUP", "0") == "1":
+            logger.warning("[STARTUP] Skipping model warmup due to FACE_SERVICE_SKIP_MODEL_WARMUP=1")
+        else:
+            _warmup_deepface_model()
+    except Exception as exc:
+        logger.error(f"[STARTUP] Preflight failed: {exc}\n{traceback.format_exc()}")
+        raise
+    logger.info("[STARTUP] Face service preflight completed successfully.")
 
 @app.post("/verify-face")
 async def verify_face(roll_number: str = Form(...), image: UploadFile = File(...)):
@@ -108,4 +196,9 @@ async def verify_face_debug(roll_number: str = Form(...), image: UploadFile = Fi
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "model": MODEL_NAME}
+    return {
+        "status": "ok",
+        "model": MODEL_NAME,
+        "embeddings_dir": EMBEDDINGS_DIR,
+        "model_warmup_ready": model_warmup_ready or os.getenv("FACE_SERVICE_SKIP_MODEL_WARMUP", "0") == "1"
+    }

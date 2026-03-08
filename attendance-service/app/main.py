@@ -4,11 +4,15 @@ import httpx
 import time
 import logging
 import os
+import socket
+import sys
+import platform
+import traceback
 from datetime import datetime, timezone
 from .responses import standard_response
 from .integrations import verify_face, verify_qr
 from .storage import db
-from .config import FACE_SERVICE_URL, QR_SERVICE_URL, ENABLE_DAILY_LIMIT, ATTENDANCE_TIMEZONE, SERVICE_TIMEOUT, LOG_LEVEL
+from .config import FACE_SERVICE_URL, QR_SERVICE_URL, ENABLE_DAILY_LIMIT, ATTENDANCE_TIMEZONE, SERVICE_TIMEOUT, LOG_LEVEL, INTERNAL_TLS_VERIFY
 
 app = FastAPI(title="SmartAttend Attendance Orchestrator")
 
@@ -25,7 +29,7 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
 logger = logging.getLogger("Orchestrator")
 
 async def get_service_status(url: str):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=INTERNAL_TLS_VERIFY) as client:
         try:
             res = await client.get(f"{url}/health", timeout=2.0)
             return {
@@ -33,7 +37,56 @@ async def get_service_status(url: str):
                 "details": res.json() if res.status_code == 200 else None
             }
         except Exception as e:
-            return {"status": "DOWN", "error": str(e)}
+            return {"status": "DOWN", "error": repr(e)}
+
+def _log_runtime_diagnostics() -> None:
+    logger.info(
+        "[STARTUP] Runtime: python=%s platform=%s",
+        sys.version.split(" ")[0],
+        platform.platform(),
+    )
+    logger.info(
+        "[STARTUP] Config: FACE_SERVICE_URL=%s QR_SERVICE_URL=%s INTERNAL_TLS_VERIFY=%s",
+        FACE_SERVICE_URL,
+        QR_SERVICE_URL,
+        INTERNAL_TLS_VERIFY,
+    )
+
+def _validate_socket_runtime_permissions() -> None:
+    probe = None
+    try:
+        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except PermissionError as exc:
+        logger.warning(
+            "[STARTUP] Socket runtime check warning: %s. "
+            "Continuing startup; uvicorn bind step will report concrete bind errors if restricted.",
+            exc,
+        )
+        return
+    except OSError as exc:
+        logger.warning(
+            "[STARTUP] Socket runtime check warning (OS error): %s. "
+            "Continuing startup; uvicorn bind step will report concrete bind errors if restricted.",
+            exc,
+        )
+        return
+    finally:
+        if probe is not None:
+            probe.close()
+
+@app.on_event("startup")
+async def startup_preflight():
+    logger.info("[STARTUP] Attendance service preflight started.")
+    try:
+        _log_runtime_diagnostics()
+        _validate_socket_runtime_permissions()
+        face_status = await get_service_status(FACE_SERVICE_URL)
+        qr_status = await get_service_status(QR_SERVICE_URL)
+        logger.info("[STARTUP] Dependency health snapshot: face=%s qr=%s", face_status, qr_status)
+    except Exception as exc:
+        logger.error(f"[STARTUP] Preflight failed: {exc}\n{traceback.format_exc()}")
+        raise
+    logger.info("[STARTUP] Attendance service preflight completed successfully.")
 
 @app.get("/debug/pipeline")
 async def debug_pipeline():
@@ -45,7 +98,7 @@ async def debug_pipeline():
     
     if last and last.get("roll_number"):
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(verify=INTERNAL_TLS_VERIFY) as client:
                 res = await client.get(
                     f"{FACE_SERVICE_URL}/debug/student/{last['roll_number']}", 
                     timeout=SERVICE_TIMEOUT
@@ -175,4 +228,9 @@ def get_student_name(roll_number: str) -> str:
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "face_service_url": FACE_SERVICE_URL,
+        "qr_service_url": QR_SERVICE_URL,
+        "internal_tls_verify": INTERNAL_TLS_VERIFY,
+    }

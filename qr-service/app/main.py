@@ -1,11 +1,20 @@
-from fastapi import FastAPI, Query, Body
+import time
+from fastapi import FastAPI, Query, Body, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+import logging
+import platform
+import socket
+import sys
+import traceback
 from .session_store import store
 from .responses import standard_response
 from .config import QR_EXPIRY_SECONDS
 
 app = FastAPI(title="SmartAttend QR Session Service")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("QRService")
 
 # Allow any origin for local network access (development)
 app.add_middleware(
@@ -15,6 +24,86 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def _log_runtime_diagnostics() -> None:
+    logger.info(
+        "[STARTUP] Runtime: python=%s platform=%s qr_expiry=%s",
+        sys.version.split(" ")[0],
+        platform.platform(),
+        QR_EXPIRY_SECONDS,
+    )
+
+def _validate_socket_runtime_permissions() -> None:
+    probe = None
+    try:
+        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except PermissionError as exc:
+        logger.warning(
+            "[STARTUP] Socket runtime check warning: %s. "
+            "Continuing startup; uvicorn bind step will report concrete bind errors if restricted.",
+            exc,
+        )
+        return
+    except OSError as exc:
+        logger.warning(
+            "[STARTUP] Socket runtime check warning (OS error): %s. "
+            "Continuing startup; uvicorn bind step will report concrete bind errors if restricted.",
+            exc,
+        )
+        return
+    finally:
+        if probe is not None:
+            probe.close()
+
+@app.on_event("startup")
+async def startup_preflight():
+    logger.info("[STARTUP] QR service preflight started.")
+    try:
+        _log_runtime_diagnostics()
+        _validate_socket_runtime_permissions()
+    except Exception as exc:
+        logger.error(f"[STARTUP] Preflight failed: {exc}\n{traceback.format_exc()}")
+        raise
+    logger.info("[STARTUP] QR service preflight completed successfully.")
+
+@app.middleware("http")
+async def request_logging_middleware(request: Request, call_next):
+    started = time.time()
+    try:
+        response = await call_next(request)
+        elapsed_ms = int((time.time() - started) * 1000)
+        logger.info(
+            "[REQUEST] %s %s -> %s (%sms)",
+            request.method,
+            request.url.path,
+            response.status_code,
+            elapsed_ms,
+        )
+        return response
+    except Exception:
+        elapsed_ms = int((time.time() - started) * 1000)
+        logger.error(
+            "[REQUEST] %s %s -> EXCEPTION (%sms)\n%s",
+            request.method,
+            request.url.path,
+            elapsed_ms,
+            traceback.format_exc(),
+        )
+        raise
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.error(
+        "[UNHANDLED] %s %s failed: %r\n%s",
+        request.method,
+        request.url.path,
+        exc,
+        traceback.format_exc(),
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"success": False, "message": "Internal server error", "error_code": "SERVER_ERROR"},
+    )
 
 class SessionStartRequest(BaseModel):
     instructor_id: str = Field(..., min_length=1)
@@ -85,4 +174,4 @@ async def verify_qr(req: VerifyQRRequest):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "qr_expiry_seconds": QR_EXPIRY_SECONDS}

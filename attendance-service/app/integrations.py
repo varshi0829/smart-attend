@@ -1,13 +1,12 @@
 import httpx
 import logging
-import json
-from .config import FACE_SERVICE_URL, QR_SERVICE_URL, SERVICE_TIMEOUT
+from .config import FACE_SERVICE_URL, QR_SERVICE_URL, SERVICE_TIMEOUT, INTERNAL_TLS_VERIFY
 
 logger = logging.getLogger("Integrations")
 
 async def verify_face(roll_number: str, image_bytes: bytes, filename: str):
     """Call the Face Service API and preserve error details."""
-    async with httpx.AsyncClient(timeout=SERVICE_TIMEOUT) as client:
+    async with httpx.AsyncClient(timeout=SERVICE_TIMEOUT, verify=INTERNAL_TLS_VERIFY) as client:
         try:
             files = {'image': (filename or 'image.jpg', image_bytes, 'image/jpeg')}
             data = {'roll_number': roll_number}
@@ -30,8 +29,8 @@ async def verify_face(roll_number: str, image_bytes: bytes, filename: str):
             logger.error("[INTEGRATION] Face service request timed out")
             return {"success": False, "message": "Face service request timed out", "error_code": "TIMEOUT"}, 504
         except Exception as e:
-            logger.error(f"[INTEGRATION] Face service connection error: {e}")
-            return {"success": False, "message": f"Face service connection error: {str(e)}", "error_code": "CONNECTION_ERROR"}, 503
+            logger.error(f"[INTEGRATION] Face service connection error: {repr(e)}")
+            return {"success": False, "message": f"Face service connection error: {repr(e)}", "error_code": "CONNECTION_ERROR"}, 503
 
 async def verify_qr(roll_number: str, qr_token: str):
     """Call the QR Service API and preserve error details."""
@@ -39,7 +38,7 @@ async def verify_qr(roll_number: str, qr_token: str):
     token_len = len(qr_token) if qr_token else 0
     logger.info(f"[PIPELINE] QR verify: roll={roll_number}, token_len={token_len}")
     
-    async with httpx.AsyncClient(timeout=SERVICE_TIMEOUT) as client:
+    async with httpx.AsyncClient(timeout=SERVICE_TIMEOUT, verify=INTERNAL_TLS_VERIFY) as client:
         try:
             payload = {"roll_number": roll_number, "qr_token": qr_token}
             logger.info(f"[PIPELINE] Calling QR Service for {roll_number}")
@@ -57,5 +56,5 @@ async def verify_qr(roll_number: str, qr_token: str):
             logger.error("[PIPELINE] QR service request timed out")
             return {"success": False, "message": "QR service request timed out", "error_code": "TIMEOUT"}, 504
         except Exception as e:
-            logger.error(f"[PIPELINE] QR service error: {e}")
-            return {"success": False, "message": f"QR service connection error: {str(e)}", "error_code": "CONNECTION_ERROR"}, 503
+            logger.error(f"[PIPELINE] QR service error: {repr(e)}")
+            return {"success": False, "message": f"QR service connection error: {repr(e)}", "error_code": "CONNECTION_ERROR"}, 503
