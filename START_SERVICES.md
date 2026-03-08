@@ -1,111 +1,64 @@
 # Start Services - Commands
 
-## Terminal 1: Flask Face Service (Port 5001)
+## Prerequisites: Generate SSL Certificate
+For camera access to work over LAN, you must use HTTPS. Run this in the root folder:
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=192.168.19.90"
+```
+*(Replace 192.168.19.90 with your actual LAN IP)*
 
+---
+
+## Terminal 1: Face Service (Port 5001)
 ```bash
 cd face-service
-pip install -r requirements.txt
-python app.py
+source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 5001 --ssl-keyfile ../key.pem --ssl-certfile ../cert.pem
 ```
 
-Expected output:
-```
-* Running on http://0.0.0.0:5001
-```
-
----
-
-## Terminal 2: Node Backend (Port 5000)
-
+## Terminal 2: QR Service (Port 5002)
 ```bash
-cd backend
-npm install
-npm start
+cd qr-service
+source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 5002 --ssl-keyfile ../key.pem --ssl-certfile ../cert.pem
 ```
 
-Expected output:
-```
-Server running on port 5000
-MongoDB connected
-```
-
----
-
-## Verify Services
-
+## Terminal 3: Attendance Orchestrator (Port 5003)
 ```bash
-# Check Flask service
-curl http://localhost:5001/health
+cd attendance-service
+source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 5003 --ssl-keyfile ../key.pem --ssl-certfile ../cert.pem
+```
 
-# Check Node backend
-curl http://localhost:5000/api/health
+## Terminal 4: Student Frontend (Port 8001)
+```bash
+npx http-server ./frontend-student -p 8001 --ssl --cert cert.pem --key key.pem
+```
+
+## Terminal 5: Instructor Frontend (Port 8002)
+```bash
+npx http-server ./frontend-instructor -p 8002 --ssl --cert cert.pem --key key.pem
 ```
 
 ---
 
-## Configuration
-
-**backend/.env:**
-```
-FACE_SERVICE_URL=http://localhost:5001
-```
-
-**backend/package.json:**
-- axios dependency added
-
-**face-service/app.py:**
-- Port changed to 5001
+## Important for Demo
+When using self-signed certificates, your browser will show a warning. 
+**You MUST visit and "Proceed" for EVERY port once:**
+1. Open `https://<YOUR-IP>:8001` -> Advanced -> Proceed
+2. Open `https://<YOUR-IP>:8002` -> Advanced -> Proceed
+3. Open `https://<YOUR-IP>:5002/health` -> Advanced -> Proceed
+4. Open `https://<YOUR-IP>:5003/health` -> Advanced -> Proceed
 
 ---
 
-## Face Verification Flow
-
-1. Student sends: `POST /api/student/attendance/mark`
-   ```json
-   {
-     "qrToken": "...",
-     "faceImage": "data:image/jpeg;base64,..."
-   }
-   ```
-
-2. Backend calls: `POST http://localhost:5001/face/verify`
-   ```json
-   {
-     "studentId": "65f...",
-     "faceImage": "data:image/jpeg;base64,..."
-   }
-   ```
-
-3. Flask returns:
-   ```json
-   {
-     "verified": true,
-     "confidence": 0.87
-   }
-   ```
-
-4. If service unavailable → HTTP 503
-   ```json
-   {
-     "error": "Face verification service unavailable"
-   }
-   ```
-
-5. If verified = false → HTTP 400
-   ```json
-   {
-     "error": "Face verification failed",
-     "confidence": 0.42
-   }
-   ```
-
-6. If verified = true → Continue Phase 1B QR validation
-
----
-
-## All Phase 1B Rules Preserved ✓
-
-- QR expires in 45 seconds
-- Session must be active
-- QR must match current token
-- Duplicate attendance fails
+## Demo Safety Option (localtunnel)
+If HTTPS setup is too complex for the network, use localtunnel:
+```bash
+# In separate terminals
+lt --port 8001
+lt --port 8002
+lt --port 5002
+lt --port 5003
+```
+Update the URLs in the frontend HTML files to match the generated `.loca.lt` URLs.

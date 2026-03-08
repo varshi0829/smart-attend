@@ -12,19 +12,11 @@ from .config import FACE_SERVICE_URL, QR_SERVICE_URL, ENABLE_DAILY_LIMIT, ATTEND
 
 app = FastAPI(title="SmartAttend Attendance Orchestrator")
 
+# Allow any origin for local network access (development)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://localhost:8001",
-        "http://127.0.0.1:8001",
-        "http://localhost:8002",
-        "http://127.0.0.1:8002",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

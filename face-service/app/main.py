@@ -2,12 +2,22 @@ import os
 import time
 import traceback
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
 from .config import MODEL_NAME, logger, EMBEDDINGS_DIR, THRESHOLD
 from .utils import process_uploaded_image, get_embedding
 from .matcher import load_student_embeddings, verify_face_match
 from .responses import standard_response
 
 app = FastAPI(title="SmartAttend Face Verification Service")
+
+# Allow any origin for local network access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/verify-face")
 async def verify_face(roll_number: str = Form(...), image: UploadFile = File(...)):

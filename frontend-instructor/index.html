@@ -87,8 +87,10 @@
     </main>
 
     <script>
-        const QR_SERVICE = "http://localhost:5002";
-        const ATTENDANCE_SERVICE = "http://localhost:5003";
+        const HOST = window.location.hostname;
+        const PROTO = window.location.protocol;
+        const QR_SERVICE = `${PROTO}//${HOST}:5002`;
+        const ATTENDANCE_SERVICE = `${PROTO}//${HOST}:5003`;
         let state = { instructorId: null, activeSession: null, refreshInterval: null, attendanceInterval: null, timerInterval: null };
 
         function login() {
