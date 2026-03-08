@@ -63,6 +63,9 @@
                     <span class="text-xs text-slate-400 font-bold uppercase tracking-widest" id="scanner-status">Initializing...</span>
                 </div>
             </div>
+            <!-- Localized QR Error Message -->
+            <div id="qr-error" class="hidden text-center text-red-500 font-bold text-sm mt-2 animate-pulse"></div>
+            
             <button onclick="goToStep(1)" class="w-full text-slate-400 text-xs font-black uppercase">← Back</button>
         </div>
 
@@ -170,6 +173,13 @@
         }
         function hideError() { document.getElementById("errorAlert").classList.add("hidden"); }
 
+        function showQrError(msg) {
+            const el = document.getElementById("qr-error");
+            el.innerText = msg;
+            el.classList.remove("hidden");
+            setTimeout(() => { el.classList.add("hidden"); }, 3000);
+        }
+
         // --- QR SCANNER LOGIC ---
         async function startScanner() {
             const statusEl = document.getElementById("scanner-status");
@@ -186,6 +196,7 @@
                     // Filter: Only accept SmartAttend tokens
                     if (!trimmedToken.startsWith("SA_")) {
                         console.warn("[SCANNER] Non-SmartAttend QR ignored.");
+                        showQrError("Invalid QR Code. Please scan the instructor QR.");
                         state.qrLocked = false;
                         return;
                     }
@@ -218,13 +229,13 @@
                                 "SESSION_CLOSED": "The session has been ended."
                             }[data.error_code] || data.message || "QR verification failed.";
                             
-                            showError(errorMsg);
+                            showQrError(errorMsg);
                             statusEl.innerText = "Scanning QR Code...";
                         }
                     } catch (err) {
                         console.error("[SCANNER] Backend error:", err);
                         state.qrLocked = false;
-                        showError("Connection failed during QR verification.");
+                        showQrError("Connection failed during QR verification.");
                         statusEl.innerText = "Scanning QR Code...";
                     }
                 });
