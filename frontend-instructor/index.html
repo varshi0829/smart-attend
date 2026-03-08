@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Dashboard - SmartAttend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <style>
+        .qr-container canvas, .qr-container img {
+            margin: 0 auto;
+            border: 12px solid white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-slate-900">
+    
+    <nav class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-600">SmartAttend Instructor</h1>
+        <div id="userInfo" class="hidden flex items-center gap-4">
+            <span id="displayInstructor" class="text-gray-600 font-medium text-sm"></span>
+            <button onclick="logout()" class="text-xs text-red-500 font-bold uppercase hover:underline">Logout</button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6">
+        
+        <div id="loginView" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-lg border">
+            <h2 class="text-2xl font-bold mb-6 text-center">Instructor Access</h2>
+            <input type="text" id="instructorId" value="INST_001" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+            <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Enter Dashboard</button>
+        </div>
+
+        <div id="dashboardView" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1 space-y-6">
+                    <div id="startCard" class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">New Session</h3>
+                        <input type="text" id="className" placeholder="Class Name (e.g. CS101)" class="w-full px-4 py-2 border rounded-lg mb-4 outline-none">
+                        <button onclick="startSession()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold">Start Session</button>
+                    </div>
+
+                    <div id="activeInfoCard" class="hidden bg-white p-6 rounded-xl shadow-sm border border-green-100 bg-green-50/10">
+                        <h3 class="font-bold text-lg text-green-800" id="currentClassName"></h3>
+                        <p class="text-[10px] font-mono text-gray-400" id="currentSessionId"></p>
+                        <div class="py-10 flex flex-col items-center">
+                            <span class="text-xs text-gray-400 uppercase font-black tracking-widest mb-2">Verified Students</span>
+                            <span class="text-6xl font-black text-blue-600" id="presentCount">0</span>
+                        </div>
+                        <button onclick="stopSession()" class="w-full border-2 border-red-500 text-red-500 py-2 rounded-lg font-bold">End Session</button>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-sm border flex flex-col items-center justify-center min-h-[450px]">
+                    <div id="qrPlaceholder" class="text-center text-gray-300">
+                        <p class="font-medium text-slate-400">QR code will appear here when session starts.</p>
+                    </div>
+                    
+                    <div id="qrBox" class="hidden text-center w-full">
+                        <div class="flex items-center justify-between mb-8 border-b pb-4">
+                            <div class="text-left"><h3 class="text-xl font-black text-gray-800 tracking-tight text-slate-700">Dynamic Attendance QR</h3></div>
+                            <span class="text-[10px] text-blue-700 font-bold uppercase bg-blue-50 px-3 py-1 rounded" id="fetchStatus">Active</span>
+                        </div>
+                        <div class="inline-block p-4 bg-white rounded-2xl shadow-inner border border-slate-50"><div id="qrContainer" class="qr-container"></div></div>
+                        <p id="qrError" class="text-red-500 text-sm mt-4 font-bold"></p>
+                        <div class="mt-10 flex justify-center gap-12 border-t pt-6 border-slate-50">
+                            <div class="text-center"><p class="text-[10px] text-gray-400 font-black uppercase mb-1">Rotation</p><p class="text-sm font-bold text-gray-700">45s</p></div>
+                            <div class="text-center"><p class="text-[10px] text-gray-400 font-black uppercase mb-1">Next Token</p><p class="text-sm font-black text-blue-600" id="timer">--</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center"><h3 class="font-bold text-gray-700">Live Attendance Feed</h3></div>
+                <table class="w-full text-left">
+                    <thead class="text-[10px] uppercase bg-gray-50 text-gray-400 border-b font-black tracking-widest">
+                        <tr><th class="px-6 py-4">Roll Number</th><th class="px-6 py-4">Name</th><th class="px-6 py-4">Date</th><th class="px-6 py-4">Time</th></tr>
+                    </thead>
+                    <tbody id="attendanceBody" class="divide-y text-sm"></tbody>
+                </table>
+                <div id="emptyAttendance" class="py-20 text-center text-gray-300">No students recorded yet.</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const QR_SERVICE = "http://localhost:5002";
+        const ATTENDANCE_SERVICE = "http://localhost:5003";
+        let state = { instructorId: null, activeSession: null, refreshInterval: null, attendanceInterval: null, timerInterval: null };
+
+        function login() {
+            const id = document.getElementById("instructorId").value.trim();
+            if (!id) return;
+            state.instructorId = id;
+            document.getElementById("displayInstructor").innerText = "Instructor: " + id;
+            document.getElementById("userInfo").classList.remove("hidden");
+            document.getElementById("loginView").classList.add("hidden");
+            document.getElementById("dashboardView").classList.remove("hidden");
+            checkExistingSession();
+        }
+
+        async function checkExistingSession() {
+            try {
+                const res = await fetch(`${QR_SERVICE}/session/status?instructor_id=${state.instructorId}`);
+                const json = await res.json();
+                if (json.success && json.data.active) onSessionActive(json.data);
+            } catch (e) { console.error("Session check error"); }
+        }
+
+        async function startSession() {
+            const class_name = document.getElementById("className").value.trim();
+            if (!class_name) return alert("Enter class name");
+            try {
+                const res = await fetch(`${QR_SERVICE}/session/start`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ instructor_id: state.instructorId, class_name })
+                });
+                const json = await res.json();
+                if (json.success) onSessionActive({ session_id: json.data.session_id, class_name });
+                else alert(json.message);
+            } catch (e) { console.error("Start error"); }
+        }
+
+        async function refreshQR() {
+            if (!state.activeSession) return;
+            document.getElementById("fetchStatus").innerText = "Syncing...";
+            try {
+                const res = await fetch(`${QR_SERVICE}/session/current-qr?instructor_id=${state.instructorId}`);
+                const json = await res.json();
+                if (json.success && json.data.qr_token) {
+                    const token = json.data.qr_token.trim();
+                    renderQRCode(token);
+                    document.getElementById("fetchStatus").innerText = "Live";
+                    startCountdown(45);
+                }
+            } catch (e) { console.error("Token fetch error:", e); document.getElementById("fetchStatus").innerText = "Error"; }
+        }
+
+        function renderQRCode(token) {
+            try {
+                const container = document.getElementById("qrContainer");
+                container.innerHTML = "";
+                new QRCode(container, { text: token, width: 256, height: 256, correctLevel: QRCode.CorrectLevel.H });
+                document.getElementById("qrError").innerText = "";
+            } catch (err) {
+                console.error("QR render error:", err);
+                document.getElementById("qrError").innerText = "Render Error: " + err.message;
+            }
+        }
+
+        async function refreshAttendance() {
+            if (!state.activeSession) return;
+            try {
+                const res = await fetch(`${ATTENDANCE_SERVICE}/attendance/session/${state.activeSession.session_id}`);
+                const json = await res.json();
+                if (json.success && json.data) {
+                    const body = document.getElementById("attendanceBody");
+                    const empty = document.getElementById("emptyAttendance");
+                    if (json.data.length === 0) { empty.classList.remove("hidden"); body.innerHTML = ""; return; }
+                    empty.classList.add("hidden");
+                    document.getElementById("presentCount").innerText = json.data.length;
+                    body.innerHTML = json.data.map(r => `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-gray-800">${r.roll_number || ''}</td>
+                            <td class="px-6 py-4 text-gray-600">${r.name || 'Unknown Student'}</td>
+                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${r.date || ''}</td>
+                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${r.time || ''}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+
+        function onSessionActive(data) {
+            state.activeSession = data;
+            document.getElementById("currentClassName").innerText = data.class_name;
+            document.getElementById("currentSessionId").innerText = "SID: " + data.session_id;
+            document.getElementById("startCard").classList.add("hidden");
+            document.getElementById("activeInfoCard").classList.remove("hidden");
+            document.getElementById("qrPlaceholder").classList.add("hidden");
+            document.getElementById("qrBox").classList.remove("hidden");
+            refreshQR(); refreshAttendance();
+            state.refreshInterval = setInterval(refreshQR, 45000);
+            state.attendanceInterval = setInterval(refreshAttendance, 5000);
+        }
+
+        function stopSession() {
+            if(!confirm("End session?")) return;
+            fetch(`${QR_SERVICE}/session/stop`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instructor_id: state.instructorId }) })
+            .then(() => location.reload());
+        }
+
+        function startCountdown(s) {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            let r = s; const el = document.getElementById("timer"); el.innerText = r + "s";
+            state.timerInterval = setInterval(() => { r--; el.innerText = r + "s"; if (r <= 0) clearInterval(state.timerInterval); }, 1000);
+        }
+
+        function logout() { location.reload(); }
+    </script>
+</body>
+</html>

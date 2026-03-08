@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - SmartAttend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        #reader__scan_region video {
+            border-radius: 1.5rem;
+            object-fit: cover !important;
+        }
+        #facePreview {
+            transform: scaleX(-1); /* Mirror for UX only */
+            background: #000;
+        }
+        #reviewImg {
+            /* No mirror here - this is what the backend sees */
+            background: #000;
+        }
+        #reader {
+            border: none !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans flex flex-col">
+
+    <!-- Debug Status Overlay -->
+    <div class="fixed bottom-4 left-4 z-50 bg-black/80 text-[10px] text-green-400 p-3 rounded-lg font-mono border border-green-900/50 space-y-1 pointer-events-none">
+        <div class="flex justify-between gap-4"><span>Attendance API:</span> <span id="debug-att-api">checking...</span></div>
+        <div class="flex justify-between gap-4"><span>Scanner:</span> <span id="debug-scanner">idle</span></div>
+        <div class="flex justify-between gap-4"><span>Camera:</span> <span id="debug-cam">idle</span></div>
+    </div>
+
+    <header class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-lg font-black text-blue-600 tracking-tight">SmartAttend</h1>
+        <div id="stepLabel" class="text-[10px] font-black text-gray-400 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-widest">
+            Step 1: Identity
+        </div>
+    </header>
+
+    <main class="flex-grow p-6 flex flex-col items-center justify-center max-w-md mx-auto w-full">
+        
+        <div id="errorAlert" class="hidden w-full bg-red-100 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-start gap-3">
+            <p class="text-sm font-bold" id="errorAlertMsg"></p>
+        </div>
+
+        <!-- Step 1: Roll Number -->
+        <div id="step1" class="w-full space-y-8">
+            <div class="text-center"><h2 class="text-3xl font-black text-slate-800">Welcome.</h2><p class="text-slate-500 mt-2">Enter your roll number.</p></div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl space-y-6">
+                <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527" class="w-full px-5 py-4 border-2 border-slate-100 rounded-2xl outline-none text-xl font-mono tracking-tighter transition-all uppercase">
+                <button onclick="goToStep(2)" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-blue-200 shadow-lg">Get Started</button>
+            </div>
+        </div>
+
+        <!-- Step 2: QR Scanner -->
+        <div id="step2" class="hidden w-full space-y-6">
+            <div class="text-center"><h2 class="text-2xl font-black text-slate-800">Scan QR Code</h2><p class="text-sm text-slate-500 mt-1">Point your camera at the screen.</p></div>
+            <div class="bg-white p-3 rounded-3xl shadow-xl overflow-hidden relative">
+                <div id="reader" class="w-full rounded-2xl overflow-hidden min-h-[300px] bg-slate-100 flex items-center justify-center text-center p-4">
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-widest" id="scanner-status">Initializing...</span>
+                </div>
+            </div>
+            <button onclick="goToStep(1)" class="w-full text-slate-400 text-xs font-black uppercase">← Back</button>
+        </div>
+
+        <!-- Step 3: Selfie Capture -->
+        <div id="step3" class="hidden w-full space-y-6">
+            <div class="text-center">
+                <h2 class="text-2xl font-black text-slate-800">Face Verification</h2>
+                <p id="camStatus" class="text-[10px] text-blue-500 font-bold uppercase mt-1">Initializing camera...</p>
+            </div>
+            
+            <div class="bg-white p-3 rounded-3xl shadow-xl">
+                <!-- LIVE PREVIEW (Mirrored) -->
+                <div id="previewContainer" class="relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4]">
+                    <video id="facePreview" autoplay playsinline class="w-full h-full object-cover"></video>
+                </div>
+                <!-- CAPTURED REVIEW (True orientation) -->
+                <div id="reviewContainer" class="hidden relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4]">
+                    <img id="reviewImg" class="w-full h-full object-cover">
+                    <div class="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-lg text-center">
+                        <p class="text-[10px] text-white font-bold uppercase">Final Image - Verify Clarity</p>
+                    </div>
+                </div>
+                <canvas id="snapshotCanvas" class="hidden"></canvas>
+            </div>
+
+            <div class="space-y-3">
+                <button id="captureBtn" onclick="captureSelfie()" disabled class="w-full bg-blue-600 disabled:bg-slate-300 text-white py-5 rounded-2xl font-black text-lg shadow-lg">Capture Selfie</button>
+                <div id="reviewActions" class="hidden grid grid-cols-2 gap-3">
+                    <button onclick="retakeSelfie()" class="bg-slate-200 text-slate-700 py-4 rounded-2xl font-black">Retake</button>
+                    <button onclick="submitAttendance()" class="bg-green-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-green-100">Submit</button>
+                </div>
+            </div>
+            
+            <p id="debugRes" class="text-[9px] text-slate-400 font-mono text-center"></p>
+        </div>
+
+        <!-- Step 4: Final Results -->
+        <div id="step4" class="hidden w-full text-center">
+            <div id="loadingUI" class="space-y-6 py-12">
+                <div class="relative w-24 h-24 mx-auto"><div class="absolute inset-0 border-8 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>
+                <h2 class="text-2xl font-black text-slate-800">Verifying...</h2>
+            </div>
+            <div id="resultUI" class="hidden space-y-8 bg-white p-10 rounded-[3rem] shadow-2xl border-2 border-white">
+                <div id="resultIcon" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto scale-110"></div>
+                <h2 id="resultTitle" class="text-3xl font-black text-slate-800"></h2>
+                <p id="resultMsg" class="text-slate-500 font-medium"></p>
+                <div id="resultMeta" class="text-[10px] font-mono bg-slate-50 p-4 rounded-2xl text-left text-slate-400 hidden"></div>
+                <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black">Done</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = "http://localhost:5003";
+        const QR_SERVICE_URL = "http://localhost:5002"; // Added for direct verification
+        let state = { 
+            rollNumber: "", 
+            qrToken: "", 
+            faceBlob: null, 
+            stream: null, 
+            scanner: null,
+            qrLocked: false,
+            isCamReady: false
+        };
+
+        // ... rest of health monitor and goToStep ...
+
+        setInterval(async () => {
+            try { 
+                const r = await fetch(`${API_URL}/health`); 
+                document.getElementById('debug-att-api').innerText = r.ok ? "OK" : "FAIL"; 
+            } catch(e) { 
+                document.getElementById('debug-att-api').innerText = "OFFLINE"; 
+            }
+        }, 5000);
+
+        async function goToStep(step) {
+            hideError();
+            if (step !== 2) await stopScanner();
+            if (step !== 3) stopCamera();
+
+            [1, 2, 3, 4].forEach(s => document.getElementById(`step${s}`).classList.add("hidden"));
+            document.getElementById(`step${step}`).classList.remove("hidden");
+            document.getElementById("stepLabel").innerText = `Step ${step}: ${["Identity", "Scanner", "Selfie", "Final"][step-1]}`;
+
+            if (step === 2) {
+                state.qrLocked = false;
+                state.qrToken = ""; // Clear token on new scan
+                console.log("[SCANNER] State Reset - Token Cleared");
+                const roll = document.getElementById("rollNumber").value.trim();
+                if (!roll) return goToStep(1);
+                state.rollNumber = roll.toUpperCase();
+                setTimeout(startScanner, 100);
+            } else if (step === 3) {
+                state.isCamReady = false;
+                retakeSelfie(); // Ensure we are in capture mode
+                setTimeout(startCamera, 100);
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById("errorAlertMsg").innerText = msg;
+            document.getElementById("errorAlert").classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function hideError() { document.getElementById("errorAlert").classList.add("hidden"); }
+
+        // --- QR SCANNER LOGIC ---
+        async function startScanner() {
+            const statusEl = document.getElementById("scanner-status");
+            try {
+                if (!state.scanner) state.scanner = new Html5Qrcode("reader");
+                const config = { fps: 24, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 };
+                await state.scanner.start({ facingMode: "environment" }, config, async (text) => {
+                    if (state.qrLocked) return;
+                    state.qrLocked = true;
+                    
+                    const trimmedToken = text.trim();
+                    console.log("[SCANNER] Decoded Raw:", text);
+                    
+                    // Filter: Only accept SmartAttend tokens
+                    if (!trimmedToken.startsWith("SA_")) {
+                        console.warn("[SCANNER] Non-SmartAttend QR ignored.");
+                        state.qrLocked = false;
+                        return;
+                    }
+                    
+                    // Intermediate Backend Verification
+                    statusEl.innerText = "Verifying QR Code...";
+                    try {
+                        const res = await fetch(`${QR_SERVICE_URL}/session/verify-qr`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                roll_number: state.rollNumber, 
+                                qr_token: trimmedToken 
+                            })
+                        });
+                        const data = await res.json();
+                        
+                        if (data.success) {
+                            console.log("[SCANNER] Verification success.");
+                            state.qrToken = trimmedToken;
+                            await stopScanner();
+                            goToStep(3);
+                        } else {
+                            console.error("[SCANNER] Verification failed:", data.error_code);
+                            state.qrLocked = false;
+                            
+                            const errorMsg = {
+                                "QR_INVALID": "Invalid SmartAttend QR code.",
+                                "QR_EXPIRED": "QR code expired. Please scan the current one.",
+                                "SESSION_CLOSED": "The session has been ended."
+                            }[data.error_code] || data.message || "QR verification failed.";
+                            
+                            showError(errorMsg);
+                            statusEl.innerText = "Scanning QR Code...";
+                        }
+                    } catch (err) {
+                        console.error("[SCANNER] Backend error:", err);
+                        state.qrLocked = false;
+                        showError("Connection failed during QR verification.");
+                        statusEl.innerText = "Scanning QR Code...";
+                    }
+                });
+                document.getElementById('debug-scanner').innerText = "active";
+                statusEl.innerText = "Scanning QR Code...";
+            } catch (err) {
+                console.error("[SCANNER] Error:", err);
+                showError("QR Scanner failed to start.");
+            }
+        }
+        async function stopScanner() { if (state.scanner && state.scanner.isScanning) await state.scanner.stop(); }
+
+        // --- CAMERA LOGIC ---
+        async function startCamera() {
+            const statusEl = document.getElementById("camStatus");
+            const btn = document.getElementById("captureBtn");
+            const debugEl = document.getElementById("debugRes");
+            
+            console.log("[CAMERA] Requesting user camera...");
+            try {
+                const video = document.getElementById("facePreview");
+                const constraints = { 
+                    video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } 
+                };
+                
+                state.stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = state.stream;
+                
+                video.onloadedmetadata = () => {
+                    const label = state.stream.getVideoTracks()[0].label;
+                    console.log(`[CAMERA] Active: ${video.videoWidth}x${video.videoHeight} (${label})`);
+                    
+                    // Allow 500ms for auto-exposure to stabilize
+                    setTimeout(() => {
+                        state.isCamReady = true;
+                        btn.disabled = false;
+                        statusEl.innerText = "Camera Ready";
+                        statusEl.classList.replace("text-blue-500", "text-green-500");
+                        debugEl.innerText = `Camera: ${label}\nResolution: ${video.videoWidth}x${video.videoHeight}`;
+                        document.getElementById('debug-cam').innerText = "active";
+                    }, 500);
+                };
+            } catch (err) {
+                console.error("[CAMERA] Error:", err);
+                statusEl.innerText = "Camera Access Failed";
+                showError("Selfie camera access was denied or failed.");
+            }
+        }
+        function stopCamera() { if (state.stream) state.stream.getTracks().forEach(t => t.stop()); }
+
+        // --- CAPTURE & UPLOAD PIPELINE ---
+        function captureSelfie() {
+            if (!state.isCamReady) return;
+
+            const video = document.getElementById("facePreview");
+            const canvas = document.getElementById("snapshotCanvas");
+            const reviewImg = document.getElementById("reviewImg");
+            
+            // Set canvas to NATIVE resolution (Avoid scaling distortion)
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext("2d");
+            // Standard orientation (Unmirrored) - Matches registration
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob((blob) => { 
+                state.faceBlob = blob;
+                const url = URL.createObjectURL(blob);
+                reviewImg.src = url;
+                
+                // Switch UI to Review Mode
+                document.getElementById("previewContainer").classList.add("hidden");
+                document.getElementById("reviewContainer").classList.remove("hidden");
+                document.getElementById("captureBtn").classList.add("hidden");
+                document.getElementById("reviewActions").classList.remove("hidden");
+                
+                const kb = Math.round(blob.size / 1024);
+                document.getElementById("debugRes").innerText += `\nCapture: ${canvas.width}x${canvas.height}\nBlob: ${kb}KB`;
+                console.log(`[CAPTURE] Image ready: ${canvas.width}x${canvas.height}, ${kb}KB`);
+            }, "image/jpeg", 0.95);
+        }
+
+        function retakeSelfie() {
+            document.getElementById("previewContainer").classList.remove("hidden");
+            document.getElementById("reviewContainer").classList.add("hidden");
+            document.getElementById("captureBtn").classList.remove("hidden");
+            document.getElementById("reviewActions").classList.add("hidden");
+            state.faceBlob = null;
+        }
+
+        async function submitAttendance() {
+            // Precise Validation
+            if (!state.rollNumber || state.rollNumber.trim() === "") {
+                showError("Roll number missing. Please restart.");
+                return goToStep(1);
+            }
+            if (!state.qrToken || state.qrToken.trim() === "") {
+                showError("QR token missing. Please scan again.");
+                return goToStep(2);
+            }
+            if (!state.faceBlob) {
+                showError("Selfie capture missing. Please take a photo.");
+                return;
+            }
+            
+            const roll = state.rollNumber.trim().toUpperCase();
+            const token = state.qrToken.trim();
+            
+            goToStep(4); // Move to loading step
+
+            const form = new FormData();
+            form.append("roll_number", roll);
+            form.append("qr_token", token);
+            form.append("image", state.faceBlob, "selfie.jpg");
+
+            try {
+                const res = await fetch(`${API_URL}/attendance/mark`, { method: 'POST', body: form });
+                console.log("[NETWORK] Status:", res.status);
+                const data = await res.json();
+                console.log("[RESPONSE] Body:", data);
+                renderResult(data);
+            } catch (err) { 
+                console.error("[NETWORK] Error:", err);
+                renderResult({ success: false, message: "Server connection failed. Is the orchestrator running?" }); 
+            }
+        }
+
+        function renderResult(res) {
+            document.getElementById("loadingUI").classList.add("hidden");
+            document.getElementById("resultUI").classList.remove("hidden");
+            const icon = document.getElementById("resultIcon");
+            const meta = document.getElementById("resultMeta");
+            
+            if (res.success) {
+                document.getElementById("resultTitle").innerText = "Verified.";
+                document.getElementById("resultMsg").innerText = "Attendance recorded.";
+                icon.className = "w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-100";
+                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
+                meta.classList.remove("hidden");
+                meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%\nTIME: ${new Date(res.data.timestamp).toLocaleTimeString()}`;
+            } else {
+                document.getElementById("resultTitle").innerText = "Denied.";
+                
+                // Detailed Contract Error Mapping
+                let displayMsg = res.message || "Face could not be verified.";
+                
+                const errorMap = {
+                    "QR_INVALID": "Invalid QR code. Please scan again.",
+                    "QR_EXPIRED": "QR code expired. Please scan the latest one.",
+                    "SESSION_CLOSED": "The instructor has ended this session.",
+                    "FACE_MISMATCH": "Face mismatch. Please ensure your face is clear.",
+                    "NO_FACE": "No face detected. Please center your face in the frame.",
+                    "MULTIPLE_FACES": "Multiple faces detected. Please be alone in the frame.",
+                    "RECORD_NOT_FOUND": "Roll number not found in our records.",
+                    "DUPLICATE_ATTENDANCE": "Attendance already marked for this session.",
+                    "DAILY_LIMIT_REACHED": "Attendance already marked for today.",
+                    "INVALID_LIVE_CAPTURE": "Camera capture failed. Please try again.",
+                    "NO_VALID_COMPARABLE_EMBEDDINGS": "Technical error: No valid base embeddings found.",
+                    "CORRUPT_EMBEDDING_FILE": "Technical error: Your record file is unreadable."
+                };
+
+                if (res.error_code && errorMap[res.error_code]) {
+                    displayMsg = errorMap[res.error_code];
+                }
+
+                document.getElementById("resultMsg").innerText = displayMsg;
+                icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-200";
+                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                
+                meta.classList.remove("hidden");
+                meta.innerText = `ERROR: ${res.error_code || "UNKNOWN"}`;
+            }
+        }
+    </script>
+</body>
+</html>
