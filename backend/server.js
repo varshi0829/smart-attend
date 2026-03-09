@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const https = require('https');
+const fs = require('fs');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -29,6 +31,20 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✓ Server running on port ${PORT}`);
-});
+
+// Use HTTPS if certificates exist, fallback to HTTP
+if (fs.existsSync('./server.key') && fs.existsSync('./server.cert')) {
+  const options = {
+    key: fs.readFileSync('./server.key'),
+    cert: fs.readFileSync('./server.cert')
+  };
+  https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
+    console.log(`✓ HTTPS Server running on https://YOUR_IP:${PORT}`);
+  });
+} else {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✓ HTTP Server running on port ${PORT}`);
+    console.log(`  Run: openssl req -nodes -new -x509 -keyout server.key -out server.cert`);
+    console.log(`  Then restart to enable HTTPS`);
+  });
+}
