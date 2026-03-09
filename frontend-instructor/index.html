@@ -77,7 +77,7 @@
                 <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center"><h3 class="font-bold text-gray-700">Live Attendance Feed</h3></div>
                 <table class="w-full text-left">
                     <thead class="text-[10px] uppercase bg-gray-50 text-gray-400 border-b font-black tracking-widest">
-                        <tr><th class="px-6 py-4">Roll Number</th><th class="px-6 py-4">Name</th><th class="px-6 py-4">Date</th><th class="px-6 py-4">Time</th></tr>
+                        <tr><th class="px-6 py-4">Roll Number</th><th class="px-6 py-4">Name</th><th class="px-6 py-4">Timestamp</th></tr>
                     </thead>
                     <tbody id="attendanceBody" class="divide-y text-sm"></tbody>
                 </table>
@@ -164,16 +164,24 @@
                     if (json.data.length === 0) { empty.classList.remove("hidden"); body.innerHTML = ""; return; }
                     empty.classList.add("hidden");
                     document.getElementById("presentCount").innerText = json.data.length;
-                    body.innerHTML = json.data.map(r => `
+                    body.innerHTML = json.data.map(r => {
+                        const timestamp = r.timestamp ? utcToIst(new Date(r.timestamp)) : `${r.date} ${r.time}`;
+                        return `
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 font-bold text-gray-800">${r.roll_number || ''}</td>
                             <td class="px-6 py-4 text-gray-600">${r.name || 'Unknown Student'}</td>
-                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${r.date || ''}</td>
-                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${r.time || ''}</td>
+                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${timestamp}</td>
                         </tr>
-                    `).join('');
+                    `}).join('');
                 }
             } catch (e) {}
+        }
+
+        function utcToIst(date) {
+            const utcDate = new Date(date);
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const istDate = new Date(utcDate.getTime() + istOffset);
+            return istDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
         }
 
         function onSessionActive(data) {
