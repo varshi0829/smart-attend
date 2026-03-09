@@ -87,10 +87,13 @@
     </main>
 
     <script>
-        const URL_PARAMS = new URLSearchParams(window.location.search);
-        const BROWSER_HOST = URL_PARAMS.get("host") || window.location.hostname;
-        const QR_SERVICE = `https://${BROWSER_HOST}:5002`;
-        const ATTENDANCE_SERVICE = `https://${BROWSER_HOST}:5003`;
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const API = {
+            face: `${PROTOCOL}//${HOST}:5001`,
+            qr: `${PROTOCOL}//${HOST}:5002`,
+            attendance: `${PROTOCOL}//${HOST}:5003`
+        };
         let state = { instructorId: null, activeSession: null, refreshInterval: null, attendanceInterval: null, timerInterval: null };
 
         function login() {
@@ -106,7 +109,7 @@
 
         async function checkExistingSession() {
             try {
-                const res = await fetch(`${QR_SERVICE}/session/status?instructor_id=${state.instructorId}`);
+                const res = await fetch(`${API.qr}/session/status?instructor_id=${state.instructorId}`);
                 const json = await res.json();
                 if (json.success && json.data && json.data.active) {
                     onSessionActive(json.data);
@@ -123,7 +126,7 @@
             const class_name = document.getElementById("className").value.trim();
             if (!class_name) return alert("Enter class name");
             try {
-                const res = await fetch(`${QR_SERVICE}/session/start`, {
+                const res = await fetch(`${API.qr}/session/start`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ instructor_id: state.instructorId, class_name })
                 });
@@ -137,7 +140,7 @@
             if (!state.activeSession) return;
             document.getElementById("fetchStatus").innerText = "Syncing...";
             try {
-                const res = await fetch(`${QR_SERVICE}/session/current-qr?instructor_id=${state.instructorId}`);
+                const res = await fetch(`${API.qr}/session/current-qr?instructor_id=${state.instructorId}`);
                 if (res.status === 404) {
                     throw new Error("Session expired on backend.");
                 }
@@ -187,7 +190,7 @@
         async function refreshAttendance() {
             if (!state.activeSession) return;
             try {
-                const res = await fetch(`${ATTENDANCE_SERVICE}/attendance/session/${state.activeSession.session_id}`);
+                const res = await fetch(`${API.attendance}/attendance/session/${state.activeSession.session_id}`);
                 const json = await res.json();
                 if (json.success && json.data) {
                     const body = document.getElementById("attendanceBody");
@@ -222,7 +225,7 @@
 
         function stopSession() {
             if(!confirm("End session?")) return;
-            fetch(`${QR_SERVICE}/session/stop`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instructor_id: state.instructorId }) })
+            fetch(`${API.qr}/session/stop`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instructor_id: state.instructorId }) })
             .then(() => location.reload());
         }
 

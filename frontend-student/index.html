@@ -124,10 +124,13 @@
     </main>
 
     <script>
-        const URL_PARAMS = new URLSearchParams(window.location.search);
-        const BROWSER_HOST = URL_PARAMS.get("host") || window.location.hostname;
-        const API_URL = `https://${BROWSER_HOST}:5003`;
-        const QR_SERVICE_URL = `https://${BROWSER_HOST}:5002`;
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const API = {
+            face: `${PROTOCOL}//${HOST}:5001`,
+            qr: `${PROTOCOL}//${HOST}:5002`,
+            attendance: `${PROTOCOL}//${HOST}:5003`
+        };
         let state = { 
             step: 1,
             rollNumber: "", 
@@ -152,11 +155,16 @@
 
         // Health monitor
         setInterval(async () => {
+            const el = document.getElementById('debug-att-api');
+            const target = `${API.attendance}/health`;
             try { 
-                const r = await fetch(`${API_URL}/health`); 
-                document.getElementById('debug-att-api').innerText = r.ok ? "OK" : "FAIL"; 
+                const r = await fetch(target); 
+                el.innerText = r.ok ? "OK" : `FAIL(${r.status})`;
+                el.className = "text-green-400";
             } catch(e) { 
-                document.getElementById('debug-att-api').innerText = "OFFLINE"; 
+                // Displaying error name (e.g. TypeError) to confirm SSL/Network block
+                el.innerText = `${e.name} @ 5003`; 
+                el.className = "text-red-500 font-bold animate-pulse";
             }
         }, 5000);
 
@@ -452,7 +460,7 @@
             let timeoutId = null;
             try {
                 const payload = { roll_number: state.rollNumber, qr_token: token };
-                const verifyUrl = `${QR_SERVICE_URL}/session/verify-qr`;
+                const verifyUrl = `${API.qr}/session/verify-qr`;
                 console.log("[QR] Entering validation block.");
                 console.log("[QR] Validation request payload:", payload);
                 console.log("[QR] Validation request URL:", verifyUrl);
@@ -736,7 +744,7 @@
             form.append("image", state.faceBlob, "selfie.jpg");
 
             try {
-                const res = await fetch(`${API_URL}/attendance/mark`, { method: 'POST', body: form });
+                const res = await fetch(`${API.attendance}/attendance/mark`, { method: 'POST', body: form });
                 const data = await res.json();
                 console.log("[SUBMIT] Response:", data);
                 
