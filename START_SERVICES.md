@@ -17,31 +17,31 @@ openssl req -x509 -newkey rsa:4096 -nodes -days 365 \
 ```bash
 cd face-service
 source venv/bin/activate
-uvicorn app.main:app --host 0.0.0.0 --port 5001 --ssl-keyfile ../key.pem --ssl-certfile ../cert.pem
+uvicorn app.main:app --host 0.0.0.0 --port 5001 
 ```
 
 ## Terminal 2: QR Service (Port 5002)
 ```bash
 cd qr-service
 source venv/bin/activate
-uvicorn app.main:app --host 0.0.0.0 --port 5002 --ssl-keyfile ../key.pem --ssl-certfile ../cert.pem
+uvicorn app.main:app --host 0.0.0.0 --port 5002 
 ```
 
 ## Terminal 3: Attendance Orchestrator (Port 5003)
 ```bash
 cd attendance-service
 source venv/bin/activate
-uvicorn app.main:app --host 0.0.0.0 --port 5003 --ssl-keyfile ../key.pem --ssl-certfile ../cert.pem
+uvicorn app.main:app --host 0.0.0.0 --port 5003 
 ```
 
 ## Terminal 4: Student Frontend (Port 8001)
 ```bash
-npx http-server ./frontend-student -a 0.0.0.0 -p 8001 --ssl --cert cert.pem --key key.pem
+npx http-server frontend-student -a 0.0.0.0 -p 8001 
 ```
 
 ## Terminal 5: Instructor Frontend (Port 8002)
 ```bash
-npx http-server ./frontend-instructor -a 0.0.0.0 -p 8002 --ssl --cert cert.pem --key key.pem
+npx http-server frontend-instructor -a 0.0.0.0 -p 8002 
 ```
 
 ## Optional: Script-based Launch (Recommended)
