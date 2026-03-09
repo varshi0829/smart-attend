@@ -39,7 +39,7 @@ if (fs.existsSync('./server.key') && fs.existsSync('./server.cert')) {
     cert: fs.readFileSync('./server.cert')
   };
   https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
-    console.log(`✓ HTTPS Server running on https://YOUR_IP:${PORT}`);
+    console.log(`✓ HTTPS Server running on https://192.168.19.90:${PORT}`);
   });
 } else {
   app.listen(PORT, '0.0.0.0', () => {
