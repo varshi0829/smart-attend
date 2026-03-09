@@ -139,7 +139,9 @@
             camTimeout: null,
             camReadyTimeout: null,
             decodeFailCount: 0,
-            decodeLastLogTs: 0
+            decodeLastLogTs: 0,
+            zoomLevel: 1.0,
+            scanFailStreak: 0
         };
 
         // Health monitor
@@ -266,8 +268,8 @@
 
         async function buildScannerCandidates() {
             const candidates = [
-                { type: "config", value: { facingMode: { exact: "environment" } }, label: "back camera (exact)" },
-                { type: "config", value: { facingMode: "environment" }, label: "back camera" }
+                { type: "config", value: { facingMode: { exact: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, label: "back camera (exact)" },
+                { type: "config", value: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }, label: "back camera" }
             ];
 
             try {
@@ -281,7 +283,7 @@
                 console.warn("[SCANNER] Camera enumeration failed, continuing with facingMode fallback.", e);
             }
 
-            candidates.push({ type: "config", value: { facingMode: "user" }, label: "front camera fallback" });
+            candidates.push({ type: "config", value: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, label: "front camera fallback" });
             return candidates;
         }
 
@@ -385,6 +387,8 @@
                 setQrDebug("Scanner active. Point camera at instructor QR.");
                 state.decodeFailCount = 0;
                 state.decodeLastLogTs = Date.now();
+                state.zoomLevel = 1.0;
+                state.scanFailStreak = 0;
             } catch (err) {
                 if (state.step !== 2) return;
                 console.error("[SCANNER] Start Error:", err);
@@ -401,12 +405,42 @@
 
         function onScanFailure(errorMessage) {
             state.decodeFailCount += 1;
+            state.scanFailStreak += 1;
+            
+            // Auto-zoom every 2 failed attempts
+            if (state.scanFailStreak % 2 === 0 && state.zoomLevel < 3.0) {
+                state.zoomLevel = Math.min(3.0, state.zoomLevel + 0.5);
+                applyZoom(state.zoomLevel);
+            }
+            
             const now = Date.now();
             if (now - state.decodeLastLogTs > 2000) {
                 const msg = errorMessage ? String(errorMessage).slice(0, 80) : "No QR in frame yet";
-                console.log(`[QR] decode miss x${state.decodeFailCount}: ${msg}`);
-                setQrDebug(`Scanning... decode misses: ${state.decodeFailCount}`);
+                console.log(`[QR] decode miss x${state.decodeFailCount}: ${msg} (zoom: ${state.zoomLevel}x)`);
+                setQrDebug(`Scanning... decode misses: ${state.decodeFailCount} (zoom: ${state.zoomLevel}x)`);
                 state.decodeLastLogTs = now;
+            }
+        }
+
+        async function applyZoom(zoomLevel) {
+            try {
+                const video = document.querySelector("#reader video");
+                if (!video || !video.srcObject) return;
+                
+                const track = video.srcObject.getVideoTracks()[0];
+                if (!track) return;
+                
+                const capabilities = track.getCapabilities();
+                if (!capabilities.zoom) {
+                    console.log("[ZOOM] Camera does not support zoom");
+                    return;
+                }
+                
+                const clampedZoom = Math.max(capabilities.zoom.min, Math.min(capabilities.zoom.max, zoomLevel));
+                await track.applyConstraints({ advanced: [{ zoom: clampedZoom }] });
+                console.log(`[ZOOM] Applied zoom: ${clampedZoom}x`);
+            } catch (err) {
+                console.warn("[ZOOM] Failed to apply zoom:", err);
             }
         }
 
@@ -417,6 +451,11 @@
             console.log("[QR] onScanSuccess fired. raw=", text);
             setDebugResult("QR decoded.");
             setQrDebug("QR callback fired. Decoded text received.");
+
+            // Reset zoom immediately on successful scan
+            state.zoomLevel = 1.0;
+            state.scanFailStreak = 0;
+            applyZoom(1.0);
 
             const token = extractSmartAttendToken(text);
             if (!token) {

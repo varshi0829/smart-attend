@@ -37,3 +37,5 @@ coverage.xml
 Thumbs.db
 
 .kiro/
+backend/server.cert
+backend/server.key
