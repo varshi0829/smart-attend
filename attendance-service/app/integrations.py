@@ -58,3 +58,33 @@ async def verify_qr(roll_number: str, qr_token: str):
         except Exception as e:
             logger.error(f"[PIPELINE] QR service error: {repr(e)}")
             return {"success": False, "message": f"QR service connection error: {repr(e)}", "error_code": "CONNECTION_ERROR"}, 503
+
+async def verify_grant(grant_id: str, roll_number: str, session_id: str):
+    """Verify the scan grant with QR service."""
+    async with httpx.AsyncClient(timeout=SERVICE_TIMEOUT, verify=INTERNAL_TLS_VERIFY) as client:
+        try:
+            payload = {
+                "grant_id": grant_id,
+                "roll_number": roll_number,
+                "session_id": session_id
+            }
+            response = await client.post(f"{QR_SERVICE_URL}/session/verify-grant", json=payload)
+            try:
+                return response.json(), response.status_code
+            except Exception:
+                return {"success": False, "message": "QR service returned invalid response", "error_code": "INVALID_RESPONSE"}, 502
+        except Exception as e:
+            return {"success": False, "message": f"QR service error: {repr(e)}", "error_code": "CONNECTION_ERROR"}, 503
+
+async def consume_grant(grant_id: str):
+    """Consume the scan grant with QR service."""
+    async with httpx.AsyncClient(timeout=SERVICE_TIMEOUT, verify=INTERNAL_TLS_VERIFY) as client:
+        try:
+            payload = {"grant_id": grant_id}
+            response = await client.post(f"{QR_SERVICE_URL}/session/consume-grant", json=payload)
+            try:
+                return response.json(), response.status_code
+            except Exception:
+                return {"success": False, "message": "QR service returned invalid response", "error_code": "INVALID_RESPONSE"}, 502
+        except Exception as e:
+            return {"success": False, "message": f"QR service error: {repr(e)}", "error_code": "CONNECTION_ERROR"}, 503

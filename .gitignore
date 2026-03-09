@@ -35,6 +35,8 @@ coverage.xml
 # OS
 .DS_Store
 Thumbs.db
+*.pem
+.pids/
 
 .kiro/
 backend/server.cert

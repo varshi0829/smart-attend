@@ -19,8 +19,12 @@ def process_photos():
     print(f"Found {len(student_folders)} students. Starting bulk registration...")
 
     for student_id in tqdm(student_folders, desc="Processing Students"):
+        save_path = os.path.join(EMBEDDINGS_DIR, f'{student_id}.pkl')
+        if os.path.exists(save_path):
+            continue
+
         student_path = os.path.join(PHOTOS_DIR, student_id)
-        image_files = [f for f in os.listdir(student_path) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        image_files = [f for f in os.listdir(student_path) if f.lower().endswith(('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'))]
         
         embeddings = []
         for img_name in image_files:

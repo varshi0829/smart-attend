@@ -113,6 +113,14 @@ class VerifyQRRequest(BaseModel):
     roll_number: str = Field(..., min_length=1)
     qr_token: str = Field(..., min_length=1)
 
+class VerifyGrantRequest(BaseModel):
+    grant_id: str = Field(..., min_length=1)
+    roll_number: str = Field(..., min_length=1)
+    session_id: str = Field(..., min_length=1)
+
+class ConsumeGrantRequest(BaseModel):
+    grant_id: str = Field(..., min_length=1)
+
 @app.post("/session/start")
 async def start_session(req: SessionStartRequest):
     session, error = store.start_session(req.instructor_id, req.class_name)
@@ -153,6 +161,7 @@ async def stop_session(instructor_id: str = Body(..., embed=True)):
 async def verify_qr(req: VerifyQRRequest):
     # Strip whitespace from token
     token = req.qr_token.strip()
+    roll_no = req.roll_number.upper().strip()
     
     # Verify the code against the backend store
     session, error = store.verify_code(token)
@@ -165,12 +174,37 @@ async def verify_qr(req: VerifyQRRequest):
     if error == "SESSION_CLOSED":
         return standard_response(False, "The instructor has ended this session.", error_code="SESSION_CLOSED", status_code=400)
 
-    # Return required payload for attendance-service
+    # Create a scan grant for this student
+    grant = store.create_grant(roll_no, session["id"], session["instructor_id"])
+
+    # Return required payload including the new grant_id, nested in data
     return standard_response(True, "QR validated successfully", {
-        "session_id": session["id"],
-        "instructor_id": session["instructor_id"],
-        "roll_number": req.roll_number.upper()
+        "grant_id": grant["grant_id"],
+        "session_id": grant["session_id"],
+        "instructor_id": grant["instructor_id"],
+        "roll_number": grant["roll_number"],
+        "expires_in": 30
     })
+
+@app.post("/session/verify-grant")
+async def verify_grant(req: VerifyGrantRequest):
+    grant, error = store.verify_grant(req.grant_id, req.roll_number, req.session_id)
+    if error:
+        return standard_response(False, f"Grant verification failed: {error}", error_code=error, status_code=401)
+    
+    return standard_response(True, "Grant is valid", {
+        "grant_id": grant["grant_id"],
+        "session_id": grant["session_id"],
+        "instructor_id": grant["instructor_id"],
+        "roll_number": grant["roll_number"]
+    })
+
+@app.post("/session/consume-grant")
+async def consume_grant(req: ConsumeGrantRequest):
+    success = store.consume_grant(req.grant_id)
+    if not success:
+        return standard_response(False, "Failed to consume grant", error_code="GRANT_CONSUMPTION_FAILED", status_code=400)
+    return standard_response(True, "Grant consumed successfully")
 
 @app.get("/health")
 async def health():
