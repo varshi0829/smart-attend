@@ -74,6 +74,10 @@
         <div id="step3" class="hidden w-full space-y-6">
             <div class="text-center">
                 <h2 class="text-2xl font-black text-slate-800">Face Verification</h2>
+                <div id="grantTimerContainer" class="flex items-center justify-center gap-2 mt-1">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Grant Expires In:</span>
+                    <span id="grantTimer" class="text-sm font-black text-blue-600 font-mono">30s</span>
+                </div>
                 <p id="camStatus" class="text-[10px] text-blue-500 font-bold uppercase mt-1">Initializing camera...</p>
             </div>
             
@@ -128,6 +132,10 @@
             step: 1,
             rollNumber: "", 
             qrToken: "", 
+            grantId: "",
+            sessionId: "",
+            grantExpiresAt: null,
+            grantInterval: null,
             faceBlob: null, 
             stream: null, 
             scanner: null,
@@ -171,6 +179,9 @@
                 await stopScanner(); 
                 state.qrLocked = false;
                 state.qrToken = "";
+                state.grantId = "";
+                state.sessionId = "";
+                if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
                 const roll = document.getElementById("rollNumber").value.trim();
                 if (!roll) return goToStep(1);
                 state.rollNumber = roll.toUpperCase();
@@ -183,6 +194,10 @@
             } else {
                 await stopScanner();
                 stopCamera();
+                if (state.grantInterval && step !== 4) { 
+                    clearInterval(state.grantInterval); 
+                    state.grantInterval = null; 
+                }
             }
         }
 
@@ -469,11 +484,21 @@
 
                 if (data.success && state.step === 2) {
                     state.qrToken = token;
+                    state.grantId = data.data.grant_id;
+                    state.sessionId = data.data.session_id;
+                    
+                    // Prefer relative expires_in to avoid clock sync issues
+                    const ttl = data.data.expires_in || 30;
+                    state.grantExpiresAt = new Date(Date.now() + (ttl * 1000));
+                    
                     console.log("[QR] Validation success. Preparing face-step transition.");
                     setDebugResult("QR valid. Moving to face step...");
                     setQrDebug("QR valid.");
                     console.log("[QR] Calling stopScanner()...");
                     await stopScanner();
+                    
+                    startGrantCountdown();
+                    
                     setQrDebug("Moving to face step...");
                     console.log("[QR] Calling goToStep(3)...");
                     await goToStep(3);
@@ -502,6 +527,44 @@
             } finally {
                 if (timeoutId) clearTimeout(timeoutId);
             }
+        }
+
+        function startGrantCountdown() {
+            if (state.grantInterval) clearInterval(state.grantInterval);
+            
+            const timerEl = document.getElementById("grantTimer");
+            if (!timerEl) return;
+            
+            // Reset timer UI
+            timerEl.innerText = "30s";
+            timerEl.classList.replace("text-red-600", "text-blue-600");
+            
+            state.grantInterval = setInterval(() => {
+                const now = new Date();
+                const diff = state.grantExpiresAt - now;
+                
+                if (diff <= 0) {
+                    clearInterval(state.grantInterval);
+                    state.grantInterval = null;
+                    timerEl.innerText = "EXPIRED";
+                    timerEl.classList.replace("text-blue-600", "text-red-600");
+                    
+                    if (state.step === 3) {
+                        showError("QR verification expired. Please scan again.");
+                        setTimeout(() => goToStep(2), 2000);
+                    }
+                    return;
+                }
+                
+                const seconds = Math.ceil(diff / 1000);
+                timerEl.innerText = `${seconds}s`;
+                
+                if (seconds <= 5) {
+                    timerEl.classList.replace("text-blue-600", "text-red-600");
+                } else {
+                    timerEl.classList.replace("text-red-600", "text-blue-600");
+                }
+            }, 1000);
         }
 
         async function stopScanner() { 
@@ -611,18 +674,36 @@
         }
 
         async function submitAttendance() {
-            if (!state.rollNumber || !state.qrToken || !state.faceBlob) return goToStep(1);
+            if (!state.rollNumber || !state.grantId || !state.sessionId || !state.faceBlob) return goToStep(1);
+            
+            // Check if grant is expired before submitting
+            if (new Date() > state.grantExpiresAt) {
+                showError("Scan grant expired. Please scan again.");
+                return goToStep(2);
+            }
+
             goToStep(4);
             const form = new FormData();
             form.append("roll_number", state.rollNumber.trim().toUpperCase());
-            form.append("qr_token", state.qrToken.trim());
+            form.append("grant_id", state.grantId);
+            form.append("session_id", state.sessionId);
             form.append("image", state.faceBlob, "selfie.jpg");
 
             try {
                 const res = await fetch(`${API_URL}/attendance/mark`, { method: 'POST', body: form });
                 const data = await res.json();
+                
+                if (state.grantInterval) {
+                    clearInterval(state.grantInterval);
+                    state.grantInterval = null;
+                }
+                
                 renderResult(data);
             } catch (err) { 
+                if (state.grantInterval) {
+                    clearInterval(state.grantInterval);
+                    state.grantInterval = null;
+                }
                 renderResult({ success: false, message: "Connection failed." }); 
             }
         }

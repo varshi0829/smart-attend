@@ -10,7 +10,7 @@ import platform
 import traceback
 from datetime import datetime, timezone
 from .responses import standard_response
-from .integrations import verify_face, verify_qr
+from .integrations import verify_face, verify_qr, verify_grant, consume_grant
 from .storage import db
 from .config import FACE_SERVICE_URL, QR_SERVICE_URL, ENABLE_DAILY_LIMIT, ATTENDANCE_TIMEZONE, SERVICE_TIMEOUT, LOG_LEVEL, INTERNAL_TLS_VERIFY
 
@@ -125,51 +125,46 @@ async def debug_pipeline():
 @app.post("/attendance/mark")
 async def mark_attendance(
     roll_number: str = Form(...),
-    qr_token: str = Form(...),
+    grant_id: str = Form(...),
+    session_id: str = Form(...),
     image: UploadFile = File(...)
 ):
     start_time = time.time()
     roll_no = roll_number.strip().upper()
-    qr_tkn = qr_token.strip()
+    grant_id = grant_id.strip()
+    session_id = session_id.strip()
     
-    if not roll_no or not qr_tkn:
-        return standard_response(False, "Roll number and QR token are required.", error_code="INVALID_INPUT", status_code=400)
+    if not roll_no or not grant_id or not session_id:
+        return standard_response(False, "Roll number, Grant ID, and Session ID are required.", error_code="INVALID_INPUT", status_code=400)
     
     image_bytes = await image.read()
     if not image_bytes:
         return standard_response(False, "Image file is empty.", error_code="INVALID_INPUT", status_code=400)
 
-    # QR Verification
-    logger.info(f"[PIPELINE] Starting QR verification for roll={roll_no}, token_len={len(qr_tkn)}")
-    qr_res, qr_status = await verify_qr(roll_no, qr_tkn)
-    if qr_status != 200 or not qr_res.get("success"):
-        error_code = qr_res.get("error_code", "QR_VALIDATION_FAILED")
-        msg = qr_res.get("message", "QR validation failed")
-        logger.warning(f"[PIPELINE] QR verification FAILED: error_code={error_code}, msg={msg}")
-        db.set_last_attempt(roll_no, "FAILED_QR", {"error_code": error_code, "msg": msg})
-        return standard_response(False, msg, error_code=error_code, status_code=qr_status if qr_status < 500 else 503)
+    # Grant Verification (replaces QR verification for this final step)
+    logger.info(f"[PIPELINE] Starting Grant verification for roll={roll_no}, grant_id={grant_id}")
+    g_res, g_status = await verify_grant(grant_id, roll_no, session_id)
+    if g_status != 200 or not g_res.get("success"):
+        error_code = g_res.get("error_code", "GRANT_VALIDATION_FAILED")
+        msg = g_res.get("message", "Scan grant validation failed")
+        logger.warning(f"[PIPELINE] Grant verification FAILED: error_code={error_code}, msg={msg}")
+        db.set_last_attempt(roll_no, "FAILED_GRANT", {"error_code": error_code, "msg": msg})
+        return standard_response(False, msg, error_code=error_code, status_code=g_status if g_status < 500 else 503)
 
     # Face Verification
+    logger.info(f"[PIPELINE] Starting Face verification for roll={roll_no}")
     face_res, face_status = await verify_face(roll_no, image_bytes, image.filename)
     if face_status != 200 or not face_res.get("success"):
         error_code = face_res.get("error_code", "FACE_VERIFICATION_FAILED")
         msg = face_res.get("message", "Face verification failed")
+        # NOTE: We do NOT consume the grant on face failure so student can retry
         db.set_last_attempt(roll_no, "FAILED_FACE", {"error_code": error_code, "msg": msg})
         return standard_response(False, msg, error_code=error_code, status_code=face_status if face_status < 500 else 503)
 
-    qr_data = qr_res.get("data", {})
-    session_id = qr_data.get("session_id")
-    instructor_id = qr_data.get("instructor_id", "UNKNOWN")
+    grant_data = g_res.get("data", {})
+    instructor_id = grant_data.get("instructor_id", "UNKNOWN")
 
-    if not session_id:
-        return standard_response(
-            False,
-            "Invalid session info.",
-            error_code="INTEGRATION_ERROR",
-            status_code=502
-        )
-
-    # Atomic Save
+    # Atomic Save Attendance
     record, error = db.mark_attendance_atomic(
         roll_no, 
         session_id, 
@@ -179,9 +174,21 @@ async def mark_attendance(
     )
 
     if error:
+        # If it's a known conflict, consume the grant to mark this attempt as 'done' 
+        # and prevent replay, then return the conflict error.
+        if error in ["DUPLICATE_ATTENDANCE", "DAILY_LIMIT_REACHED"]:
+            await consume_grant(grant_id)
+            
         db.set_last_attempt(roll_no, "DENIED", {"error_code": error})
         msg = "Attendance already marked for this session." if error == "DUPLICATE_ATTENDANCE" else "Attendance already marked for today."
         return standard_response(False, msg, error_code=error, status_code=400)
+
+    # Success! Now consume the grant to finalize.
+    c_res, c_status = await consume_grant(grant_id)
+    if c_status != 200 or not c_res.get("success"):
+        # This is a rare edge case where attendance saved but grant consumption failed.
+        # Since attendance IS saved, we still return success to the student.
+        logger.error(f"[PIPELINE] Attendance saved but grant consumption failed: {grant_id}")
 
     proc_time = round(time.time() - start_time, 2)
     db.set_last_attempt(roll_no, "SUCCESS", {"attendance_id": record["attendance_id"]})
