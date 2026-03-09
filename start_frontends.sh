@@ -54,7 +54,7 @@ start_http_server() {
   : > "$log_file"
   (
     cd "$ROOT_DIR"
-    nohup npx http-server "$dir" \
+    nohup http-server "$dir" \
       -a 0.0.0.0 \
       -p "$port" \
       --ssl \
@@ -72,7 +72,6 @@ start_http_server() {
 
 require_file "$KEY_FILE" "SSL key"
 require_file "$CERT_FILE" "SSL certificate"
-require_cmd npx
 
 start_http_server "frontend-student" "./frontend-student" "$STUDENT_PORT"
 start_http_server "frontend-instructor" "./frontend-instructor" "$INSTRUCTOR_PORT"

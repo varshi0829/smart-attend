@@ -165,7 +165,7 @@
                     empty.classList.add("hidden");
                     document.getElementById("presentCount").innerText = json.data.length;
                     body.innerHTML = json.data.map(r => {
-                        const timestamp = r.timestamp ? utcToIst(new Date(r.timestamp)) : `${r.date} ${r.time}`;
+                        const timestamp = utcToIst(r.date, r.time);
                         return `
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 font-bold text-gray-800">${r.roll_number || ''}</td>
@@ -177,11 +177,29 @@
             } catch (e) {}
         }
 
-        function utcToIst(date) {
-            const utcDate = new Date(date);
-            const istOffset = 5.5 * 60 * 60 * 1000;
-            const istDate = new Date(utcDate.getTime() + istOffset);
-            return istDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        function utcToIst(dateString, timeString) {
+            // The backend sends UTC date/time strings - parse them as UTC and convert to IST
+            const utcDateTimeString = `${dateString}T${timeString}Z`;
+            const utcDate = new Date(utcDateTimeString);
+            
+            // Check if date parsing was successful
+            if (isNaN(utcDate.getTime())) {
+                return `${dateString} ${timeString} IST`;
+            }
+
+            // Format to "DD Mon YYYY, HH:MM IST" in Asia/Kolkata timezone
+            const options = {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Kolkata'
+            };
+            const formattedDate = utcDate.toLocaleString('en-IN', options);
+
+            return `${formattedDate.replace(',', '')} IST`;
         }
 
         function onSessionActive(data) {
