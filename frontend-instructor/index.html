@@ -87,12 +87,10 @@
     </main>
 
     <script>
-        const HOST = window.location.hostname;
-        const PROTOCOL = window.location.protocol;
         const API = {
-            face: `${PROTOCOL}//${HOST}:5001`,
-            qr: `${PROTOCOL}//${HOST}:5002`,
-            attendance: `${PROTOCOL}//${HOST}:5003`
+            face: "/api/face",
+            qr: "/api/qr",
+            attendance: "/api/attendance"
         };
         let state = { instructorId: null, activeSession: null, refreshInterval: null, attendanceInterval: null, timerInterval: null };
 

@@ -15,6 +15,7 @@ SERVICES=(
   "face-service:face-service:5001"
   "qr-service:qr-service:5002"
   "attendance-service:attendance-service:5003"
+  "gateway-service:gateway-service:8000"
 )
 
 mkdir -p "$LOG_DIR" "$PID_DIR"
