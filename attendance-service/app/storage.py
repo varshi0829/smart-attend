@@ -1,7 +1,11 @@
 import uuid
 import threading
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from typing import Dict, List, Optional, Tuple
+from .config import ATTENDANCE_TIMEZONE
+
+LOCAL_TZ = ZoneInfo(ATTENDANCE_TIMEZONE)
 
 class AttendanceStore:
     def __init__(self):
@@ -22,7 +26,7 @@ class AttendanceStore:
             self.last_attempt = {
                 "roll_number": roll_number,
                 "status": status,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(LOCAL_TZ).isoformat(),
                 "details": details
             }
 
@@ -47,7 +51,7 @@ class AttendanceStore:
         Returns: (record, error_code)
         """
         roll_no = roll_number.strip().upper()
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d")
         
         with self._lock:
             # 1. Session Duplicate Check
@@ -68,7 +72,7 @@ class AttendanceStore:
                 "roll_number": roll_no,
                 "session_id": session_id,
                 "instructor_id": instructor_id,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(LOCAL_TZ).isoformat(),
                 "identity_verified": True,
                 "confidence": confidence,
                 "status": "marked"

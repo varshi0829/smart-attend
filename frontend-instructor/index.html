@@ -108,8 +108,15 @@
             try {
                 const res = await fetch(`${QR_SERVICE}/session/status?instructor_id=${state.instructorId}`);
                 const json = await res.json();
-                if (json.success && json.data.active) onSessionActive(json.data);
-            } catch (e) { console.error("Session check error"); }
+                if (json.success && json.data && json.data.active) {
+                    onSessionActive(json.data);
+                } else {
+                    resetSessionUI();
+                }
+            } catch (e) { 
+                console.error("Session check error", e); 
+                resetSessionUI();
+            }
         }
 
         async function startSession() {
@@ -131,14 +138,38 @@
             document.getElementById("fetchStatus").innerText = "Syncing...";
             try {
                 const res = await fetch(`${QR_SERVICE}/session/current-qr?instructor_id=${state.instructorId}`);
+                if (res.status === 404) {
+                    throw new Error("Session expired on backend.");
+                }
                 const json = await res.json();
-                if (json.success && json.data.qr_token) {
+                if (json.success && json.data && json.data.qr_token) {
                     const token = json.data.qr_token.trim();
                     renderQRCode(token);
                     document.getElementById("fetchStatus").innerText = "Live";
                     startCountdown(45);
+                } else {
+                    throw new Error(json.message || "Failed to fetch QR.");
                 }
-            } catch (e) { console.error("Token fetch error:", e); document.getElementById("fetchStatus").innerText = "Error"; }
+            } catch (e) { 
+                console.error("Token fetch error:", e); 
+                document.getElementById("fetchStatus").innerText = "Error";
+                alert("Session expired or service restarted. Please start a new session.");
+                resetSessionUI();
+            }
+        }
+
+        function resetSessionUI() {
+            state.activeSession = null;
+            if (state.refreshInterval) clearInterval(state.refreshInterval);
+            if (state.attendanceInterval) clearInterval(state.attendanceInterval);
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            
+            document.getElementById("startCard").classList.remove("hidden");
+            document.getElementById("activeInfoCard").classList.add("hidden");
+            document.getElementById("qrPlaceholder").classList.remove("hidden");
+            document.getElementById("qrBox").classList.add("hidden");
+            document.getElementById("attendanceBody").innerHTML = "";
+            document.getElementById("presentCount").innerText = "0";
         }
 
         function renderQRCode(token) {

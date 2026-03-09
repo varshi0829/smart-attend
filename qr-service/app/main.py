@@ -177,13 +177,12 @@ async def verify_qr(req: VerifyQRRequest):
     # Create a scan grant for this student
     grant = store.create_grant(roll_no, session["id"], session["instructor_id"])
 
-    # Return required payload including the new grant_id
+    # Return required payload including the new grant_id, nested in data
     return standard_response(True, "QR validated successfully", {
         "grant_id": grant["grant_id"],
         "session_id": grant["session_id"],
         "instructor_id": grant["instructor_id"],
         "roll_number": grant["roll_number"],
-        "expires_at": grant["expires_at"].isoformat(),
         "expires_in": 30
     })
 

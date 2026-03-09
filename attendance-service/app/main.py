@@ -203,7 +203,9 @@ async def get_session_history(session_id: str):
         dt = None
         if ts:
             try:
-                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                # Robust parsing for ISO format with Z or numerical offset
+                parsed_ts = ts.replace("Z", "+00:00")
+                dt = datetime.fromisoformat(parsed_ts)
             except Exception:
                 pass
         date_str = dt.strftime("%Y-%m-%d") if dt else ""

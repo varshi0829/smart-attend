@@ -478,17 +478,32 @@
                 let data = null;
                 try {
                     data = JSON.parse(raw);
+                    console.log("[QR] FULL verify-qr response:", data);
                 } catch (_) {
                     data = { success: false, message: "QR service returned invalid JSON", error_code: "INVALID_RESPONSE" };
                 }
 
                 if (data.success && state.step === 2) {
                     state.qrToken = token;
-                    state.grantId = data.data.grant_id;
-                    state.sessionId = data.data.session_id;
                     
-                    // Prefer relative expires_in to avoid clock sync issues
-                    const ttl = data.data.expires_in || 30;
+                    // Robust payload extraction (backend standard_response wraps in 'data')
+                    const payload = data.data || data;
+                    state.grantId = payload.grant_id || "";
+                    state.sessionId = payload.session_id || "";
+                    const ttl = payload.expires_in || 30;
+
+                    console.log("[QR] grantId after store:", state.grantId);
+                    console.log("[QR] sessionId after store:", state.sessionId);
+
+                    // Verification guard
+                    if (!state.grantId || !state.sessionId) {
+                        console.error("[QR] Missing grant details in success response!", payload);
+                        showError("QR verification succeeded but grant details were missing.");
+                        state.qrLocked = false;
+                        setScannerStatus("Scanning QR Code...");
+                        return;
+                    }
+
                     state.grantExpiresAt = new Date(Date.now() + (ttl * 1000));
                     
                     console.log("[QR] Validation success. Preparing face-step transition.");
@@ -674,15 +689,46 @@
         }
 
         async function submitAttendance() {
-            if (!state.rollNumber || !state.grantId || !state.sessionId || !state.faceBlob) return goToStep(1);
+            console.log("[SUBMIT] Starting submission. Current state:", {
+                rollNumber: state.rollNumber,
+                grantId: state.grantId,
+                sessionId: state.sessionId,
+                hasFaceBlob: !!state.faceBlob,
+                step: state.step
+            });
+
+            // Final safety check: if rollNumber is missing from state but present in DOM, recover it
+            if (!state.rollNumber) {
+                const rollInput = document.getElementById("rollNumber");
+                if (rollInput && rollInput.value.trim()) {
+                    state.rollNumber = rollInput.value.trim().toUpperCase();
+                    console.log("[SUBMIT] Recovered rollNumber from DOM:", state.rollNumber);
+                }
+            }
+
+            if (!state.rollNumber || !state.grantId || !state.sessionId || !state.faceBlob) {
+                const missing = [];
+                if (!state.rollNumber) missing.push("Roll Number");
+                if (!state.grantId) missing.push("Grant ID");
+                if (!state.sessionId) missing.push("Session ID");
+                if (!state.faceBlob) missing.push("Selfie Image");
+                
+                console.error("[SUBMIT] Guard triggered. Missing:", missing.join(", "));
+                showError(`Missing required information: ${missing.join(", ")}. Please ensure you scanned the QR and took a selfie.`);
+                return;
+            }
             
             // Check if grant is expired before submitting
-            if (new Date() > state.grantExpiresAt) {
-                showError("Scan grant expired. Please scan again.");
+            const now = new Date();
+            if (now > state.grantExpiresAt) {
+                console.warn("[SUBMIT] Grant expired!");
+                showError("Scan grant expired. Please scan the instructor QR again.");
                 return goToStep(2);
             }
 
+            console.log("[SUBMIT] Proceeding to verify attendance...");
             goToStep(4);
+            
             const form = new FormData();
             form.append("roll_number", state.rollNumber.trim().toUpperCase());
             form.append("grant_id", state.grantId);
@@ -692,6 +738,7 @@
             try {
                 const res = await fetch(`${API_URL}/attendance/mark`, { method: 'POST', body: form });
                 const data = await res.json();
+                console.log("[SUBMIT] Response:", data);
                 
                 if (state.grantInterval) {
                     clearInterval(state.grantInterval);
@@ -700,11 +747,12 @@
                 
                 renderResult(data);
             } catch (err) { 
+                console.error("[SUBMIT] Network error:", err);
                 if (state.grantInterval) {
                     clearInterval(state.grantInterval);
                     state.grantInterval = null;
                 }
-                renderResult({ success: false, message: "Connection failed." }); 
+                renderResult({ success: false, message: "Connection failed. Please check your network." }); 
             }
         }
 
