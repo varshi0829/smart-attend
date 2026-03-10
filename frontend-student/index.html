@@ -154,6 +154,7 @@
         // Health monitor
         setInterval(async () => {
             const el = document.getElementById('debug-att-api');
+            if (!el) return;
             const target = `${API.attendance}/health`;
             try { 
                 const r = await fetch(target); 
@@ -177,9 +178,17 @@
             if (state.camReadyTimeout) { clearTimeout(state.camReadyTimeout); state.camReadyTimeout = null; }
             
             // UI Transition
-            [1, 2, 3, 4].forEach(s => document.getElementById(`step${s}`).classList.add("hidden"));
-            document.getElementById(`step${step}`).classList.remove("hidden");
-            document.getElementById("stepLabel").innerText = `Step ${step}: ${["Identity", "Scanner", "Selfie", "Final"][step-1]}`;
+            [1, 2, 3, 4].forEach(s => {
+                const el = document.getElementById(`step${s}`);
+                if (el) el.classList.add("hidden");
+            });
+            const nextStepEl = document.getElementById(`step${step}`);
+            if (nextStepEl) nextStepEl.classList.remove("hidden");
+            
+            const stepLabel = document.getElementById("stepLabel");
+            if (stepLabel) {
+                stepLabel.innerText = `Step ${step}: ${["Identity", "Scanner", "Selfie", "Final"][step-1]}`;
+            }
 
             if (step === 2) {
                 await stopScanner(); 
@@ -188,7 +197,8 @@
                 state.grantId = "";
                 state.sessionId = "";
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
-                const roll = document.getElementById("rollNumber").value.trim();
+                const rollInput = document.getElementById("rollNumber");
+                const roll = rollInput ? rollInput.value.trim() : "";
                 if (!roll) return goToStep(1);
                 state.rollNumber = roll.toUpperCase();
                 state.scannerTimeout = setTimeout(startScanner, 300); 
@@ -208,26 +218,35 @@
         }
 
         function showError(msg) {
-            document.getElementById("errorAlertMsg").innerText = msg;
-            document.getElementById("errorAlert").classList.remove("hidden");
+            const msgEl = document.getElementById("errorAlertMsg");
+            if (msgEl) msgEl.innerText = msg;
+            const alertEl = document.getElementById("errorAlert");
+            if (alertEl) alertEl.classList.remove("hidden");
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        function hideError() { document.getElementById("errorAlert").classList.add("hidden"); }
-        function showPersistentError(msg) {
+        function hideError() { 
             const el = document.getElementById("errorAlert");
-            document.getElementById("errorAlertMsg").innerText = msg;
-            el.classList.remove("hidden");
+            if (el) el.classList.add("hidden"); 
+        }
+        function showPersistentError(msg) {
+            const alertEl = document.getElementById("errorAlert");
+            const msgEl = document.getElementById("errorAlertMsg");
+            if (msgEl) msgEl.innerText = msg;
+            if (alertEl) alertEl.classList.remove("hidden");
         }
 
         function showQrError(msg) {
             const el = document.getElementById("qr-error");
-            el.innerText = msg;
-            el.classList.remove("hidden");
-            setTimeout(() => { el.classList.add("hidden"); }, 3000);
+            if (el) {
+                el.innerText = msg;
+                el.classList.remove("hidden");
+                setTimeout(() => { if (el) el.classList.add("hidden"); }, 3000);
+            }
         }
 
         function setDebugResult(msg) {
-            document.getElementById("debugRes").innerText = msg;
+            const el = document.getElementById("debugRes");
+            if (el) el.innerText = msg;
         }
 
         function setQrDebug(msg) {
@@ -347,9 +366,9 @@
             
             try {
                 console.log("[SCANNER] Starting instance...");
-                statusEl.innerText = "Initializing Scanner...";
-                debugScanner.innerText = "starting...";
-                debugCam.innerText = "starting(scanner)";
+                if (statusEl) statusEl.innerText = "Initializing Scanner...";
+                if (debugScanner) debugScanner.innerText = "starting...";
+                if (debugCam) debugCam.innerText = "starting(scanner)";
 
                 if (state.scanner) await stopScanner();
                 state.scanner = new Html5Qrcode("reader");
@@ -371,7 +390,7 @@
                     config.supportedScanTypes = [Html5QrcodeScanType.SCAN_TYPE_CAMERA];
                 }
                 
-                statusEl.innerText = "Requesting Camera...";
+                if (statusEl) statusEl.innerText = "Requesting Camera...";
                 setQrDebug("Requesting camera access...");
                 const candidates = await buildScannerCandidates();
                 let started = false;
@@ -399,9 +418,9 @@
                 
                 if (state.step !== 2) return await stopScanner();
                 
-                debugScanner.innerText = "active";
-                debugCam.innerText = "active(scanner)";
-                statusEl.innerText = "Scanning QR Code...";
+                if (debugScanner) debugScanner.innerText = "active";
+                if (debugCam) debugCam.innerText = "active(scanner)";
+                if (statusEl) statusEl.innerText = "Scanning QR Code...";
                 setDebugResult("Scanner ready.");
                 setQrDebug("Scanner active. Point camera at instructor QR.");
                 state.decodeFailCount = 0;
@@ -409,10 +428,10 @@
             } catch (err) {
                 if (state.step !== 2) return;
                 console.error("[SCANNER] Start Error:", err);
-                debugScanner.innerText = "ERROR";
-                debugCam.innerText = "error(scanner)";
+                if (debugScanner) debugScanner.innerText = "ERROR";
+                if (debugCam) debugCam.innerText = "error(scanner)";
                 showError(mapCameraError(err));
-                statusEl.innerText = "Scanner Failed";
+                if (statusEl) statusEl.innerText = "Scanner Failed";
                 setDebugResult(`Scanner failed: ${err?.name || "Unknown"}`);
                 setQrDebug(`Scanner failed: ${err?.name || "Unknown"}`);
             } finally {
@@ -597,9 +616,11 @@
                 try { await state.scanner.clear(); } catch(e) {}
                 state.scanner = null;
             }
-            document.getElementById('debug-scanner').innerText = "idle";
+            const debugScanner = document.getElementById('debug-scanner');
+            if (debugScanner) debugScanner.innerText = "idle";
             if (state.step !== 3) {
-                document.getElementById('debug-cam').innerText = "idle";
+                const debugCam = document.getElementById('debug-cam');
+                if (debugCam) debugCam.innerText = "idle";
             }
             setQrDebug("");
         }
@@ -630,18 +651,21 @@
                 }
 
                 state.stream = stream;
-                video.srcObject = stream;
+                if (video) video.srcObject = stream;
                 
                 // Explicitly call play() to ensure playback starts on all mobile browsers
-                await video.play();
+                if (video) await video.play();
                 
                 state.camReadyTimeout = setTimeout(() => {
                     if (state.step !== 3) return;
                     state.isCamReady = true;
-                    btn.disabled = false;
-                    statusEl.innerText = "Camera Ready";
-                    statusEl.classList.replace("text-blue-500", "text-green-500");
-                    document.getElementById('debug-cam').innerText = "active";
+                    if (btn) btn.disabled = false;
+                    if (statusEl) {
+                        statusEl.innerText = "Camera Ready";
+                        statusEl.classList.replace("text-blue-500", "text-green-500");
+                    }
+                    const debugCam = document.getElementById('debug-cam');
+                    if (debugCam) debugCam.innerText = "active";
                     state.isStartingCamera = false; // Release only after camera is ready
                 }, 500);
                 
@@ -649,9 +673,10 @@
                 state.isStartingCamera = false;
                 if (state.step !== 3) return;
                 console.error("[CAMERA] Access error:", err);
-                statusEl.innerText = "Camera Access Failed";
+                if (statusEl) statusEl.innerText = "Camera Access Failed";
                 showError(mapCameraError(err));
-                document.getElementById('debug-cam').innerText = "error";
+                const debugCam = document.getElementById('debug-cam');
+                if (debugCam) debugCam.innerText = "error";
             }
         }
 
@@ -662,7 +687,8 @@
                 state.stream = null;
             }
             state.isCamReady = false;
-            document.getElementById('debug-cam').innerText = "idle";
+            const debugCam = document.getElementById('debug-cam');
+            if (debugCam) debugCam.innerText = "idle";
         }
 
         function captureSelfie() {
@@ -670,6 +696,8 @@
             const video = document.getElementById("facePreview");
             const canvas = document.getElementById("snapshotCanvas");
             const reviewImg = document.getElementById("reviewImg");
+            
+            if (!video || !canvas || !reviewImg) return;
             
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -679,18 +707,26 @@
             canvas.toBlob((blob) => { 
                 state.faceBlob = blob;
                 reviewImg.src = URL.createObjectURL(blob);
-                document.getElementById("previewContainer").classList.add("hidden");
-                document.getElementById("reviewContainer").classList.remove("hidden");
-                document.getElementById("captureBtn").classList.add("hidden");
-                document.getElementById("reviewActions").classList.remove("hidden");
+                const prevCont = document.getElementById("previewContainer");
+                if (prevCont) prevCont.classList.add("hidden");
+                const revCont = document.getElementById("reviewContainer");
+                if (revCont) revCont.classList.remove("hidden");
+                const captBtn = document.getElementById("captureBtn");
+                if (captBtn) captBtn.classList.add("hidden");
+                const revAct = document.getElementById("reviewActions");
+                if (revAct) revAct.classList.remove("hidden");
             }, "image/jpeg", 0.95);
         }
 
         function retakeSelfie() {
-            document.getElementById("previewContainer").classList.remove("hidden");
-            document.getElementById("reviewContainer").classList.add("hidden");
-            document.getElementById("captureBtn").classList.remove("hidden");
-            document.getElementById("reviewActions").classList.add("hidden");
+            const prevCont = document.getElementById("previewContainer");
+            if (prevCont) prevCont.classList.remove("hidden");
+            const revCont = document.getElementById("reviewContainer");
+            if (revCont) revCont.classList.add("hidden");
+            const captBtn = document.getElementById("captureBtn");
+            if (captBtn) captBtn.classList.remove("hidden");
+            const revAct = document.getElementById("reviewActions");
+            if (revAct) revAct.classList.add("hidden");
             state.faceBlob = null;
         }
 
@@ -763,24 +799,37 @@
         }
 
         function renderResult(res) {
-            document.getElementById("loadingUI").classList.add("hidden");
-            document.getElementById("resultUI").classList.remove("hidden");
+            const loadUI = document.getElementById("loadingUI");
+            if (loadUI) loadUI.classList.add("hidden");
+            const resUI = document.getElementById("resultUI");
+            if (resUI) resUI.classList.remove("hidden");
             const icon = document.getElementById("resultIcon");
             const meta = document.getElementById("resultMeta");
+            const title = document.getElementById("resultTitle");
+            const msg = document.getElementById("resultMsg");
+            
             if (res.success) {
-                document.getElementById("resultTitle").innerText = "Verified.";
-                document.getElementById("resultMsg").innerText = "Attendance recorded.";
-                icon.className = "w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto";
-                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
-                meta.classList.remove("hidden");
-                meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%`;
+                if (title) title.innerText = "Verified.";
+                if (msg) msg.innerText = "Attendance recorded.";
+                if (icon) {
+                    icon.className = "w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto";
+                    icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
+                }
+                if (meta) {
+                    meta.classList.remove("hidden");
+                    meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%`;
+                }
             } else {
-                document.getElementById("resultTitle").innerText = "Denied.";
-                document.getElementById("resultMsg").innerText = res.message || "Face could not be verified.";
-                icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto";
-                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                meta.classList.remove("hidden");
-                meta.innerText = `ERROR: ${res.error_code || "UNKNOWN"}`;
+                if (title) title.innerText = "Denied.";
+                if (msg) msg.innerText = res.message || "Face could not be verified.";
+                if (icon) {
+                    icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto";
+                    icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                }
+                if (meta) {
+                    meta.classList.remove("hidden");
+                    meta.innerText = `ERROR: ${res.error_code || "UNKNOWN"}`;
+                }
             }
         }
     </script>
