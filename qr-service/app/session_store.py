@@ -25,12 +25,14 @@ class SessionStore:
                 self.sessions_db.pop(old_sid, None)
 
             session_id = str(uuid.uuid4())
+            now = datetime.now(timezone.utc)
             session_data = {
                 "id": session_id,
                 "instructor_id": instructor_id,
                 "class_name": class_name,
                 "status": "active",
-                "created_at": datetime.now(timezone.utc),
+                "created_at": now,
+                "start_time": now,  # For Excel report
             }
             
             self.instructor_to_session[instructor_id] = session_id
@@ -159,8 +161,10 @@ class SessionStore:
             
             session = self.sessions_db.get(session_id)
             if session:
+                now = datetime.now(timezone.utc)
                 session["status"] = "stopped"
-                session["ended_at"] = datetime.now(timezone.utc)
+                session["ended_at"] = now
+                session["end_time"] = now  # For Excel report
                 
                 # Invalidate all codes for this session
                 codes_to_remove = [c for c, data in self.active_codes.items() if data["session_id"] == session_id]
@@ -193,5 +197,10 @@ class SessionStore:
                 return None, "SESSION_CLOSED"
                 
             return session, None
+
+    def get_session_by_id(self, session_id: str) -> Optional[dict]:
+        """Get session data by session ID (for Excel generation)."""
+        with self._lock:
+            return self.sessions_db.get(session_id)
 
 store = SessionStore()

@@ -1,4 +1,5 @@
 import time
+import httpx
 from fastapi import FastAPI, Query, Body, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -155,7 +156,19 @@ async def stop_session(instructor_id: str = Body(..., embed=True)):
     session, error = store.stop_session(instructor_id)
     if error:
         return standard_response(False, error, status_code=404)
-    return standard_response(True, "Session stopped", {"session_id": session["id"]})
+    
+    # Trigger Excel generation in attendance service
+    session_id = session["id"]
+    try:
+        async with httpx.AsyncClient(verify=False, timeout=5.0) as client:
+            await client.post(
+                f"https://127.0.0.1:5003/attendance/session/{session_id}/generate-report"
+            )
+            logger.info(f"[SESSION] Excel generation triggered for session: {session_id}")
+    except Exception as e:
+        logger.error(f"[SESSION] Failed to trigger Excel generation: {e}")
+    
+    return standard_response(True, "Session stopped", {"session_id": session_id})
 
 @app.post("/session/verify-qr")
 async def verify_qr(req: VerifyQRRequest):
@@ -205,6 +218,21 @@ async def consume_grant(req: ConsumeGrantRequest):
     if not success:
         return standard_response(False, "Failed to consume grant", error_code="GRANT_CONSUMPTION_FAILED", status_code=400)
     return standard_response(True, "Grant consumed successfully")
+
+@app.get("/session/{session_id}")
+async def get_session(session_id: str):
+    """Get session metadata for Excel generation."""
+    session = store.get_session_by_id(session_id)
+    if not session:
+        return standard_response(False, "Session not found", status_code=404)
+    
+    # Convert datetime objects to ISO format strings for JSON serialization
+    session_copy = session.copy()
+    for key in ["created_at", "start_time", "ended_at", "end_time"]:
+        if key in session_copy and session_copy[key]:
+            session_copy[key] = session_copy[key].isoformat()
+    
+    return standard_response(True, "Session found", session_copy)
 
 @app.get("/health")
 async def health():

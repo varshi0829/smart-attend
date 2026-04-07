@@ -28,7 +28,20 @@ async def proxy(target_url: str, request: Request):
     """Generic proxy handler"""
     client = httpx.AsyncClient(verify=VERIFY_TLS)
     
-    url = f"{target_url}{request.url.path.replace('/api/face', '').replace('/api/qr', '').replace('/api/attendance', '')}"
+    # Path mapping: remove the gateway's prefix to reach the internal service path
+    # Example: /api/face/health -> /health
+    # Example: /api/attendance/session/123 -> /attendance/session/123 (if attendance service has /attendance prefix)
+    
+    path = request.url.path
+    if path.startswith("/api/face"):
+        url = f"{target_url}{path.replace('/api/face', '')}"
+    elif path.startswith("/api/qr"):
+        url = f"{target_url}{path.replace('/api/qr', '')}"
+    elif path.startswith("/api/attendance"):
+        url = f"{target_url}{path.replace('/api/attendance', '')}"
+    else:
+        url = f"{target_url}{path}"
+        
     if request.query_params:
         url = f"{url}?{request.query_params}"
 
