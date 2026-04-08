@@ -328,6 +328,7 @@
                 if (json.success) {
                     const endTime = new Date();
                     state.lastSessionId = currentSession.session_id;
+                    const lastClassName = currentSession.class_name;
                     
                     // Update History
                     state.sessionHistory.unshift({
@@ -346,7 +347,7 @@
                     document.getElementById("downloadTime").innerText = `Ended at: ${endTime.toLocaleTimeString()}`;
                     
                     resetSessionUI();
-                    setTimeout(() => downloadReport(), 1500);
+                    setTimeout(() => downloadReport(2, lastClassName), 1500);
                 }
             } catch (e) { 
                 console.error("Stop error", e); 
@@ -355,7 +356,7 @@
             }
         }
 
-        async function downloadReport(retries = 2) {
+        async function downloadReport(retries = 2, className = null) {
             if (!state.lastSessionId) return;
             
             const statusText = document.getElementById("downloadStatus");
@@ -378,7 +379,8 @@
                     const dlUrl = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = dlUrl;
-                    a.download = `Attendance_${state.activeSession?.class_name || 'Report'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    const filename = className ? `Attendance_${className}_${new Date().toISOString().split('T')[0]}.xlsx` : `Attendance_Report_${state.lastSessionId.substring(0,8)}.xlsx`;
+                    a.download = filename;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();

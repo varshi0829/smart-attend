@@ -122,6 +122,14 @@ class VerifyGrantRequest(BaseModel):
 class ConsumeGrantRequest(BaseModel):
     grant_id: str = Field(..., min_length=1)
 
+class IncrementRetryRequest(BaseModel):
+    grant_id: str = Field(..., min_length=1)
+
+@app.post("/session/increment-retry")
+async def increment_retry(req: IncrementRetryRequest):
+    count = store.increment_grant_retry(req.grant_id)
+    return standard_response(True, "Retry incremented", {"retry_count": count})
+
 @app.post("/session/start")
 async def start_session(req: SessionStartRequest):
     session, error = store.start_session(req.instructor_id, req.class_name)

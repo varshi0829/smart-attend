@@ -26,13 +26,6 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans flex flex-col">
 
-    <!-- Debug Status Overlay -->
-    <div class="fixed bottom-4 left-4 z-50 bg-black/80 text-[10px] text-green-400 p-3 rounded-lg font-mono border border-green-900/50 space-y-1 pointer-events-none">
-        <div class="flex justify-between gap-4"><span>Attendance API:</span> <span id="debug-att-api">checking...</span></div>
-        <div class="flex justify-between gap-4"><span>Scanner:</span> <span id="debug-scanner">idle</span></div>
-        <div class="flex justify-between gap-4"><span>Camera:</span> <span id="debug-cam">idle</span></div>
-    </div>
-
     <header class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <h1 class="text-lg font-black text-blue-600 tracking-tight">SmartAttend</h1>
         <div id="stepLabel" class="text-[10px] font-black text-gray-400 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-widest">
@@ -65,7 +58,6 @@
             </div>
             <!-- Localized QR Error Message -->
             <div id="qr-error" class="hidden text-center text-red-500 font-bold text-sm mt-2 animate-pulse"></div>
-            <div id="qr-debug" class="text-center text-[11px] text-slate-500 font-mono mt-1 min-h-[16px]"></div>
             
             <button onclick="goToStep(1)" class="w-full text-slate-400 text-xs font-black uppercase">← Back</button>
         </div>
@@ -103,8 +95,6 @@
                     <button onclick="submitAttendance()" class="bg-green-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-green-100">Submit</button>
                 </div>
             </div>
-            
-            <p id="debugRes" class="text-[9px] text-slate-400 font-mono text-center"></p>
         </div>
 
         <!-- Step 4: Final Results -->
@@ -146,38 +136,17 @@
             isStartingCamera: false,
             scannerTimeout: null,
             camTimeout: null,
-            camReadyTimeout: null,
-            decodeFailCount: 0,
-            decodeLastLogTs: 0
+            camReadyTimeout: null
         };
 
-        // Health monitor
-        setInterval(async () => {
-            const el = document.getElementById('debug-att-api');
-            if (!el) return;
-            const target = `${API.attendance}/health`;
-            try { 
-                const r = await fetch(target); 
-                el.innerText = r.ok ? "OK" : `FAIL(${r.status})`;
-                el.className = "text-green-400";
-            } catch(e) { 
-                // Displaying error name (e.g. TypeError) to confirm SSL/Network block
-                el.innerText = `${e.name} @ 5003`; 
-                el.className = "text-red-500 font-bold animate-pulse";
-            }
-        }, 5000);
-
         async function goToStep(step) {
-            console.log(`[NAV] goToStep(${step})`);
             state.step = step;
             hideError();
             
-            // Clear all pending timeouts
             if (state.scannerTimeout) { clearTimeout(state.scannerTimeout); state.scannerTimeout = null; }
             if (state.camTimeout) { clearTimeout(state.camTimeout); state.camTimeout = null; }
             if (state.camReadyTimeout) { clearTimeout(state.camReadyTimeout); state.camReadyTimeout = null; }
             
-            // UI Transition
             [1, 2, 3, 4].forEach(s => {
                 const el = document.getElementById(`step${s}`);
                 if (el) el.classList.add("hidden");
@@ -244,26 +213,11 @@
             }
         }
 
-        function setDebugResult(msg) {
-            const el = document.getElementById("debugRes");
-            if (el) el.innerText = msg;
-        }
-
-        function setQrDebug(msg) {
-            const el = document.getElementById("qr-debug");
-            if (el) el.innerText = msg;
-        }
-
         function setScannerStatus(msg) {
             const el = document.getElementById("scanner-status");
-            if (el) {
-                el.innerText = msg;
-            } else {
-                console.warn("[QR] scanner-status element not found; status update skipped:", msg);
-            }
+            if (el) el.innerText = msg;
         }
 
-        // Camera APIs require secure context on remote devices.
         if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) {
             showPersistentError("Open this page over HTTPS using LAN IP. Camera access is blocked on insecure origins.");
         }
@@ -271,22 +225,9 @@
         function mapCameraError(err) {
             const name = err?.name || "";
             const msg = (err?.message || "").toLowerCase();
-
-            if (name === "NotAllowedError" || name === "SecurityError") {
-                return "Camera permission denied. Allow camera access in Chrome site settings.";
-            }
-            if (name === "NotReadableError" || msg.includes("in use") || msg.includes("device busy")) {
-                return "Camera is busy. Close other camera apps/tabs and try again.";
-            }
-            if (name === "OverconstrainedError" || name === "ConstraintNotSatisfiedError") {
-                return "Requested camera mode is not available. Retrying with a compatible camera.";
-            }
-            if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-                return "No camera device found on this phone.";
-            }
-            if (name === "AbortError") {
-                return "Camera start was interrupted. Please retry.";
-            }
+            if (name === "NotAllowedError" || name === "SecurityError") return "Camera permission denied. Allow camera access in Chrome site settings.";
+            if (name === "NotReadableError" || msg.includes("in use") || msg.includes("device busy")) return "Camera is busy. Close other camera apps/tabs and try again.";
+            if (name === "NotFoundError" || name === "DevicesNotFoundError") return "No camera device found on this phone.";
             return `Camera start failed: ${err?.message || name || "Unknown error"}`;
         }
 
@@ -298,30 +239,21 @@
                 video.muted = true;
                 await video.play();
                 return !!video.srcObject && video.readyState >= 2;
-            } catch (e) {
-                console.warn("[SCANNER] Video play() failed:", e);
-                return false;
-            }
+            } catch (e) { return false; }
         }
 
         async function buildScannerCandidates() {
             const candidates = [
-                { type: "config", value: { facingMode: { exact: "environment" } }, label: "back camera (exact)" },
-                { type: "config", value: { facingMode: "environment" }, label: "back camera" }
+                { type: "config", value: { facingMode: { exact: "environment" } }, label: "back" },
+                { type: "config", value: { facingMode: "environment" }, label: "back" }
             ];
-
             try {
                 const cameras = await Html5Qrcode.getCameras();
                 if (Array.isArray(cameras) && cameras.length > 0) {
-                    const back = cameras.find(c => /back|rear|environment/i.test(c.label || ""));
-                    if (back) candidates.push({ type: "id", value: back.id, label: "back camera id" });
-                    candidates.push({ type: "id", value: cameras[0].id, label: "generic camera id" });
+                    candidates.push({ type: "id", value: cameras[0].id, label: "default" });
                 }
-            } catch (e) {
-                console.warn("[SCANNER] Camera enumeration failed, continuing with facingMode fallback.", e);
-            }
-
-            candidates.push({ type: "config", value: { facingMode: "user" }, label: "front camera fallback" });
+            } catch (e) {}
+            candidates.push({ type: "config", value: { facingMode: "user" }, label: "front" });
             return candidates;
         }
 
@@ -329,18 +261,6 @@
             const raw = (decodedText || "").trim();
             if (!raw) return null;
             if (raw.startsWith("SA_")) return raw;
-
-            // Accept URLs that embed token in query params or path.
-            try {
-                const url = new URL(raw);
-                const qp = url.searchParams.get("token") || url.searchParams.get("qr_token");
-                if (qp && qp.trim().startsWith("SA_")) return qp.trim();
-                const pathMatch = url.pathname.match(/(SA_[A-Za-z0-9_\-]+)/);
-                if (pathMatch) return pathMatch[1];
-            } catch (_) {
-                // Not a URL, continue regex extraction.
-            }
-
             const tokenMatch = raw.match(/(SA_[A-Za-z0-9_\-]+)/);
             return tokenMatch ? tokenMatch[1] : null;
         }
@@ -350,345 +270,121 @@
             if (code === "QR_EXPIRED") return "QR expired. Please scan the latest code.";
             if (code === "QR_INVALID") return "Invalid QR code. Scan the active SmartAttend QR.";
             if (code === "SESSION_CLOSED") return "Session is closed. Ask instructor to start session.";
-            if (statusCode === 401) return "QR expired or invalid. Scan a fresh QR.";
-            if (statusCode >= 500) return "QR service unavailable. Please retry.";
             return data?.message || "QR verification failed.";
         }
 
-        // --- QR SCANNER LOGIC ---
         async function startScanner() {
             if (state.isStartingScanner || state.step !== 2) return;
             state.isStartingScanner = true;
-
             const statusEl = document.getElementById("scanner-status");
-            const debugScanner = document.getElementById('debug-scanner');
-            const debugCam = document.getElementById('debug-cam');
-            
             try {
-                console.log("[SCANNER] Starting instance...");
                 if (statusEl) statusEl.innerText = "Initializing Scanner...";
-                if (debugScanner) debugScanner.innerText = "starting...";
-                if (debugCam) debugCam.innerText = "starting(scanner)";
-
                 if (state.scanner) await stopScanner();
                 state.scanner = new Html5Qrcode("reader");
-                
-                const config = { 
-                    fps: 20,
-                    qrbox: (viewfinderWidth, viewfinderHeight) => {
-                        const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                        // Tighter ROI improves mobile decode consistency for screen QR.
-                        const qrboxSize = Math.max(180, Math.min(320, Math.floor(minEdge * 0.55)));
-                        return { width: qrboxSize, height: qrboxSize };
-                    },
-                    aspectRatio: 1.0,
-                    disableFlip: false,
-                    rememberLastUsedCamera: true,
-                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-                };
-                if (window.Html5QrcodeScanType) {
-                    config.supportedScanTypes = [Html5QrcodeScanType.SCAN_TYPE_CAMERA];
-                }
-                
-                if (statusEl) statusEl.innerText = "Requesting Camera...";
-                setQrDebug("Requesting camera access...");
+                const config = { fps: 20, qrbox: (vw, vh) => { const s = Math.max(180, Math.min(320, Math.floor(Math.min(vw, vh) * 0.55))); return { width: s, height: s }; }, aspectRatio: 1.0, disableFlip: false };
                 const candidates = await buildScannerCandidates();
                 let started = false;
-                let lastError = null;
-                for (const candidate of candidates) {
-                    if (state.step !== 2) return await stopScanner();
+                for (const cand of candidates) {
+                    if (state.step !== 2) break;
                     try {
-                        console.log(`[SCANNER] Attempting ${candidate.label}...`);
-                        await state.scanner.start(candidate.value, config, onScanSuccess, onScanFailure);
-                        const videoReady = await ensureScannerVideoPlaying();
-                        if (!videoReady) {
-                            throw new Error("Scanner camera stream did not reach playing state");
-                        }
-                        started = true;
-                        break;
-                    } catch (e) {
-                        lastError = e;
-                        console.warn(`[SCANNER] ${candidate.label} failed:`, e);
-                        if (state.scanner?.isScanning) {
-                            try { await state.scanner.stop(); } catch (_) {}
-                        }
-                    }
+                        await state.scanner.start(cand.value, config, onScanSuccess);
+                        if (await ensureScannerVideoPlaying()) { started = true; break; }
+                    } catch (e) { if (state.scanner?.isScanning) await state.scanner.stop(); }
                 }
-                if (!started) throw lastError || new Error("Unable to start any camera mode.");
-                
-                if (state.step !== 2) return await stopScanner();
-                
-                if (debugScanner) debugScanner.innerText = "active";
-                if (debugCam) debugCam.innerText = "active(scanner)";
+                if (!started && state.step === 2) throw new Error("Unable to start camera.");
                 if (statusEl) statusEl.innerText = "Scanning QR Code...";
-                setDebugResult("Scanner ready.");
-                setQrDebug("Scanner active. Point camera at instructor QR.");
-                state.decodeFailCount = 0;
-                state.decodeLastLogTs = Date.now();
             } catch (err) {
-                if (state.step !== 2) return;
-                console.error("[SCANNER] Start Error:", err);
-                if (debugScanner) debugScanner.innerText = "ERROR";
-                if (debugCam) debugCam.innerText = "error(scanner)";
-                showError(mapCameraError(err));
-                if (statusEl) statusEl.innerText = "Scanner Failed";
-                setDebugResult(`Scanner failed: ${err?.name || "Unknown"}`);
-                setQrDebug(`Scanner failed: ${err?.name || "Unknown"}`);
-            } finally {
-                state.isStartingScanner = false;
-            }
-        }
-
-        function onScanFailure(errorMessage) {
-            state.decodeFailCount += 1;
-            const now = Date.now();
-            if (now - state.decodeLastLogTs > 2000) {
-                const msg = errorMessage ? String(errorMessage).slice(0, 80) : "No QR in frame yet";
-                console.log(`[QR] decode miss x${state.decodeFailCount}: ${msg}`);
-                setQrDebug(`Scanning... decode misses: ${state.decodeFailCount}`);
-                state.decodeLastLogTs = now;
-            }
+                if (state.step === 2) showError(mapCameraError(err));
+            } finally { state.isStartingScanner = false; }
         }
 
         async function onScanSuccess(text) {
-            if (state.step !== 2) return;
-            if (state.qrLocked) return; // validation already in progress
-
-            console.log("[QR] onScanSuccess fired. raw=", text);
-            setDebugResult("QR decoded.");
-            setQrDebug("QR callback fired. Decoded text received.");
-
+            if (state.step !== 2 || state.qrLocked) return;
             const token = extractSmartAttendToken(text);
-            if (!token) {
-                console.warn("[QR] Could not extract SmartAttend token from decoded text.");
-                showQrError("Invalid QR format. Use SmartAttend QR.");
-                setDebugResult("Invalid QR format.");
-                setQrDebug("Decoded text does not contain SmartAttend token.");
-                return;
-            }
-
-            console.log("[QR] Extracted token:", token);
-            setQrDebug(`Extracted token: ${token.slice(0, 14)}...`);
-
-            // Lock only when validation starts, so decode stage can complete reliably.
+            if (!token) { showQrError("Invalid QR format. Use SmartAttend QR."); return; }
             state.qrLocked = true;
-
             setScannerStatus("Verifying...");
-            let timeoutId = null;
             try {
-                const payload = { roll_number: state.rollNumber, qr_token: token };
-                const verifyUrl = `${API.qr}/session/verify-qr`;
-                console.log("[QR] Entering validation block.");
-                console.log("[QR] Validation request payload:", payload);
-                console.log("[QR] Validation request URL:", verifyUrl);
-                setDebugResult(`Validating token: ${token.slice(0, 10)}...`);
-                setQrDebug("Starting validation request...");
-
-                const controller = new AbortController();
-                timeoutId = setTimeout(() => controller.abort(), 8000);
-                setQrDebug("Waiting for QR service response...");
-                const res = await fetch(verifyUrl, {
+                const res = await fetch(`${API.qr}/session/verify-qr`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    signal: controller.signal
+                    body: JSON.stringify({ roll_number: state.rollNumber, qr_token: token })
                 });
-                setQrDebug(`Validation response received (${res.status})`);
-
-                console.log("[QR] Response object received, reading body text...");
-                const raw = await res.text();
-                console.log("[QR] Validation response status:", res.status, "body:", raw);
-                setQrDebug("Validation response body received.");
-
-                let data = null;
-                try {
-                    data = JSON.parse(raw);
-                    console.log("[QR] FULL verify-qr response:", data);
-                } catch (_) {
-                    data = { success: false, message: "QR service returned invalid JSON", error_code: "INVALID_RESPONSE" };
-                }
-
+                const data = await res.json();
                 if (data.success && state.step === 2) {
-                    state.qrToken = token;
-                    
-                    // Robust payload extraction (backend standard_response wraps in 'data')
                     const payload = data.data || data;
-                    state.grantId = payload.grant_id || "";
-                    state.sessionId = payload.session_id || "";
-                    const ttl = payload.expires_in || 30;
-
-                    console.log("[QR] grantId after store:", state.grantId);
-                    console.log("[QR] sessionId after store:", state.sessionId);
-
-                    // Verification guard
-                    if (!state.grantId || !state.sessionId) {
-                        console.error("[QR] Missing grant details in success response!", payload);
-                        showError("QR verification succeeded but grant details were missing.");
-                        state.qrLocked = false;
-                        setScannerStatus("Scanning QR Code...");
-                        return;
-                    }
-
-                    state.grantExpiresAt = new Date(Date.now() + (ttl * 1000));
-                    
-                    console.log("[QR] Validation success. Preparing face-step transition.");
-                    setDebugResult("QR valid. Moving to face step...");
-                    setQrDebug("QR valid.");
-                    console.log("[QR] Calling stopScanner()...");
+                    state.grantId = payload.grant_id;
+                    state.sessionId = payload.session_id;
+                    state.grantExpiresAt = new Date(Date.now() + ((payload.expires_in || 30) * 1000));
                     await stopScanner();
-                    
                     startGrantCountdown();
-                    
-                    setQrDebug("Moving to face step...");
-                    console.log("[QR] Calling goToStep(3)...");
                     await goToStep(3);
-                    console.log("[QR] goToStep(3) completed.");
                 } else {
                     state.qrLocked = false;
-                    const msg = mapQrValidationError(data, res.status);
-                    showQrError(msg);
-                    setDebugResult(`QR rejected: ${data.error_code || res.status}`);
-                    setQrDebug(`Validation failed: ${data.error_code || res.status}`);
+                    showQrError(mapQrValidationError(data, res.status));
                     setScannerStatus("Scanning QR Code...");
                 }
             } catch (err) {
                 state.qrLocked = false;
-                console.error("[QR] Validation request failed:", err);
-                if (err?.name === "AbortError") {
-                    showQrError("QR validation timed out. Scan again.");
-                    setDebugResult("QR validation timeout.");
-                    setQrDebug("Validation timeout. Scan the active QR again.");
-                } else {
-                    showQrError("Connection failed.");
-                    setDebugResult(`QR validation error: ${err?.name || "Unknown"}`);
-                    setQrDebug(`Validation failed: ${err?.name || "Unknown"}`);
-                }
+                showQrError("Connection failed.");
                 setScannerStatus("Scanning QR Code...");
-            } finally {
-                if (timeoutId) clearTimeout(timeoutId);
             }
         }
 
         function startGrantCountdown() {
             if (state.grantInterval) clearInterval(state.grantInterval);
-            
             const timerEl = document.getElementById("grantTimer");
             if (!timerEl) return;
-            
-            // Reset timer UI
-            timerEl.innerText = "30s";
-            timerEl.classList.replace("text-red-600", "text-blue-600");
-            
             state.grantInterval = setInterval(() => {
-                const now = new Date();
-                const diff = state.grantExpiresAt - now;
-                
+                const diff = state.grantExpiresAt - new Date();
                 if (diff <= 0) {
                     clearInterval(state.grantInterval);
-                    state.grantInterval = null;
                     timerEl.innerText = "EXPIRED";
-                    timerEl.classList.replace("text-blue-600", "text-red-600");
-                    
-                    if (state.step === 3) {
-                        showError("QR verification expired. Please scan again.");
-                        setTimeout(() => goToStep(2), 2000);
-                    }
+                    if (state.step === 3) { showError("QR verification expired. Please scan again."); setTimeout(() => goToStep(2), 2000); }
                     return;
                 }
-                
-                const seconds = Math.ceil(diff / 1000);
-                timerEl.innerText = `${seconds}s`;
-                
-                if (seconds <= 5) {
-                    timerEl.classList.replace("text-blue-600", "text-red-600");
-                } else {
-                    timerEl.classList.replace("text-red-600", "text-blue-600");
-                }
+                const sec = Math.ceil(diff / 1000);
+                timerEl.innerText = `${sec}s`;
+                timerEl.classList.toggle("text-red-600", sec <= 5);
             }, 1000);
         }
 
         async function stopScanner() { 
-            console.log("[SCANNER] Releasing resources...");
             if (state.scanner) {
-                if (state.scanner.isScanning) {
-                    try { await state.scanner.stop(); } catch(e) {}
-                }
+                if (state.scanner.isScanning) try { await state.scanner.stop(); } catch(e) {}
                 try { await state.scanner.clear(); } catch(e) {}
                 state.scanner = null;
             }
-            const debugScanner = document.getElementById('debug-scanner');
-            if (debugScanner) debugScanner.innerText = "idle";
-            if (state.step !== 3) {
-                const debugCam = document.getElementById('debug-cam');
-                if (debugCam) debugCam.innerText = "idle";
-            }
-            setQrDebug("");
         }
 
-        // --- CAMERA LOGIC ---
         async function startCamera() {
             if (state.isStartingCamera || state.step !== 3) return;
             state.isStartingCamera = true;
-
             const statusEl = document.getElementById("camStatus");
             const btn = document.getElementById("captureBtn");
             const video = document.getElementById("facePreview");
-            
-            console.log("[CAMERA] Starting user camera...");
             try {
-                stopCamera(); // Ensure previous stream is fully released before requesting camera again.
-                const constraints = { 
-                    video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } 
-                };
-                
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                // Guard: Did the user leave the step while waiting for hardware?
-                if (state.step !== 3) {
-                    stream.getTracks().forEach(t => t.stop());
-                    state.isStartingCamera = false;
-                    return;
-                }
-
+                stopCamera();
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } });
+                if (state.step !== 3) { stream.getTracks().forEach(t => t.stop()); return; }
                 state.stream = stream;
-                if (video) video.srcObject = stream;
-                
-                // Explicitly call play() to ensure playback starts on all mobile browsers
-                if (video) await video.play();
-                
+                if (video) { video.srcObject = stream; await video.play(); }
                 state.camReadyTimeout = setTimeout(() => {
                     if (state.step !== 3) return;
                     state.isCamReady = true;
                     if (btn) btn.disabled = false;
-                    if (statusEl) {
-                        statusEl.innerText = "Camera Ready";
-                        statusEl.classList.replace("text-blue-500", "text-green-500");
-                    }
-                    const debugCam = document.getElementById('debug-cam');
-                    if (debugCam) debugCam.innerText = "active";
-                    state.isStartingCamera = false; // Release only after camera is ready
+                    if (statusEl) { statusEl.innerText = "Camera Ready"; statusEl.classList.replace("text-blue-500", "text-green-500"); }
+                    state.isStartingCamera = false;
                 }, 500);
-                
             } catch (err) {
                 state.isStartingCamera = false;
-                if (state.step !== 3) return;
-                console.error("[CAMERA] Access error:", err);
-                if (statusEl) statusEl.innerText = "Camera Access Failed";
-                showError(mapCameraError(err));
-                const debugCam = document.getElementById('debug-cam');
-                if (debugCam) debugCam.innerText = "error";
+                if (state.step === 3) showError(mapCameraError(err));
             }
         }
 
         function stopCamera() { 
-            console.log("[CAMERA] Releasing tracks...");
-            if (state.stream) {
-                state.stream.getTracks().forEach(t => t.stop());
-                state.stream = null;
-            }
+            if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
             state.isCamReady = false;
-            const debugCam = document.getElementById('debug-cam');
-            if (debugCam) debugCam.innerText = "idle";
         }
 
         function captureSelfie() {
@@ -696,140 +392,71 @@
             const video = document.getElementById("facePreview");
             const canvas = document.getElementById("snapshotCanvas");
             const reviewImg = document.getElementById("reviewImg");
-            
             if (!video || !canvas || !reviewImg) return;
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
             canvas.toBlob((blob) => { 
                 state.faceBlob = blob;
                 reviewImg.src = URL.createObjectURL(blob);
-                const prevCont = document.getElementById("previewContainer");
-                if (prevCont) prevCont.classList.add("hidden");
-                const revCont = document.getElementById("reviewContainer");
-                if (revCont) revCont.classList.remove("hidden");
-                const captBtn = document.getElementById("captureBtn");
-                if (captBtn) captBtn.classList.add("hidden");
-                const revAct = document.getElementById("reviewActions");
-                if (revAct) revAct.classList.remove("hidden");
+                document.getElementById("previewContainer").classList.add("hidden");
+                document.getElementById("reviewContainer").classList.remove("hidden");
+                document.getElementById("captureBtn").classList.add("hidden");
+                document.getElementById("reviewActions").classList.remove("hidden");
             }, "image/jpeg", 0.95);
         }
 
         function retakeSelfie() {
-            const prevCont = document.getElementById("previewContainer");
-            if (prevCont) prevCont.classList.remove("hidden");
-            const revCont = document.getElementById("reviewContainer");
-            if (revCont) revCont.classList.add("hidden");
-            const captBtn = document.getElementById("captureBtn");
-            if (captBtn) captBtn.classList.remove("hidden");
-            const revAct = document.getElementById("reviewActions");
-            if (revAct) revAct.classList.add("hidden");
+            document.getElementById("previewContainer").classList.remove("hidden");
+            document.getElementById("reviewContainer").classList.add("hidden");
+            document.getElementById("captureBtn").classList.remove("hidden");
+            document.getElementById("reviewActions").classList.add("hidden");
             state.faceBlob = null;
         }
 
         async function submitAttendance() {
-            console.log("[SUBMIT] Starting submission. Current state:", {
-                rollNumber: state.rollNumber,
-                grantId: state.grantId,
-                sessionId: state.sessionId,
-                hasFaceBlob: !!state.faceBlob,
-                step: state.step
-            });
-
-            // Final safety check: if rollNumber is missing from state but present in DOM, recover it
             if (!state.rollNumber) {
-                const rollInput = document.getElementById("rollNumber");
-                if (rollInput && rollInput.value.trim()) {
-                    state.rollNumber = rollInput.value.trim().toUpperCase();
-                    console.log("[SUBMIT] Recovered rollNumber from DOM:", state.rollNumber);
-                }
+                const input = document.getElementById("rollNumber");
+                if (input && input.value.trim()) state.rollNumber = input.value.trim().toUpperCase();
             }
-
             if (!state.rollNumber || !state.grantId || !state.sessionId || !state.faceBlob) {
-                const missing = [];
-                if (!state.rollNumber) missing.push("Roll Number");
-                if (!state.grantId) missing.push("Grant ID");
-                if (!state.sessionId) missing.push("Session ID");
-                if (!state.faceBlob) missing.push("Selfie Image");
-                
-                console.error("[SUBMIT] Guard triggered. Missing:", missing.join(", "));
-                showError(`Missing required information: ${missing.join(", ")}. Please ensure you scanned the QR and took a selfie.`);
+                showError("Missing required information. Please scan the QR and take a selfie again.");
                 return;
             }
-            
-            // Check if grant is expired before submitting
-            const now = new Date();
-            if (now > state.grantExpiresAt) {
-                console.warn("[SUBMIT] Grant expired!");
-                showError("Scan grant expired. Please scan the instructor QR again.");
-                return goToStep(2);
-            }
-
-            console.log("[SUBMIT] Proceeding to verify attendance...");
+            if (new Date() > state.grantExpiresAt) { showError("Scan grant expired. Please scan the instructor QR again."); return goToStep(2); }
             goToStep(4);
-            
             const form = new FormData();
             form.append("roll_number", state.rollNumber.trim().toUpperCase());
             form.append("grant_id", state.grantId);
             form.append("session_id", state.sessionId);
             form.append("image", state.faceBlob, "selfie.jpg");
-
             try {
                 const res = await fetch(`${API.attendance}/attendance/mark`, { method: 'POST', body: form });
                 const data = await res.json();
-                console.log("[SUBMIT] Response:", data);
-                
-                if (state.grantInterval) {
-                    clearInterval(state.grantInterval);
-                    state.grantInterval = null;
-                }
-                
+                if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
                 renderResult(data);
             } catch (err) { 
-                console.error("[SUBMIT] Network error:", err);
-                if (state.grantInterval) {
-                    clearInterval(state.grantInterval);
-                    state.grantInterval = null;
-                }
+                if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
                 renderResult({ success: false, message: "Connection failed. Please check your network." }); 
             }
         }
 
         function renderResult(res) {
-            const loadUI = document.getElementById("loadingUI");
-            if (loadUI) loadUI.classList.add("hidden");
-            const resUI = document.getElementById("resultUI");
-            if (resUI) resUI.classList.remove("hidden");
+            document.getElementById("loadingUI").classList.add("hidden");
+            document.getElementById("resultUI").classList.remove("hidden");
             const icon = document.getElementById("resultIcon");
             const meta = document.getElementById("resultMeta");
             const title = document.getElementById("resultTitle");
             const msg = document.getElementById("resultMsg");
-            
             if (res.success) {
-                if (title) title.innerText = "Verified.";
-                if (msg) msg.innerText = "Attendance recorded.";
-                if (icon) {
-                    icon.className = "w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto";
-                    icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
-                }
-                if (meta) {
-                    meta.classList.remove("hidden");
-                    meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%`;
-                }
+                title.innerText = "Verified."; msg.innerText = "Attendance recorded.";
+                icon.className = "w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto";
+                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%`; }
             } else {
-                if (title) title.innerText = "Denied.";
-                if (msg) msg.innerText = res.message || "Face could not be verified.";
-                if (icon) {
-                    icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto";
-                    icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                }
-                if (meta) {
-                    meta.classList.remove("hidden");
-                    meta.innerText = `ERROR: ${res.error_code || "UNKNOWN"}`;
-                }
+                title.innerText = "Denied."; msg.innerText = res.message || "Face could not be verified.";
+                icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto";
+                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ERROR: ${res.error_code || "UNKNOWN"}`; }
             }
         }
     </script>

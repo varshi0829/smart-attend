@@ -5,9 +5,9 @@ import time
 import traceback
 import platform
 from pathlib import Path
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from .config import MODEL_NAME, logger, EMBEDDINGS_DIR, THRESHOLD
+from .config import MODEL_NAME, logger, EMBEDDINGS_DIR, THRESHOLD, MAX_CONTENT_LENGTH, PRODUCTION_MODE
 from .utils import process_uploaded_image, get_embedding
 from .matcher import load_student_embeddings, verify_face_match
 from .responses import standard_response
@@ -52,9 +52,8 @@ def _warmup_deepface_model() -> None:
         model_warmup_ready = True
         logger.info(f"[STARTUP] DeepFace model warmup complete: {MODEL_NAME}")
     except Exception as exc:
-        raise RuntimeError(
-            "DeepFace model warmup failed. Check tensorflow/deepface installation and model files."
-        ) from exc
+        logger.error(f"[STARTUP] DeepFace model warmup failed: {exc}")
+        raise RuntimeError("DeepFace model warmup failed") from exc
 
 def _log_runtime_diagnostics() -> None:
     logger.info(
@@ -104,7 +103,7 @@ async def startup_preflight():
             _warmup_deepface_model()
     except Exception as exc:
         logger.error(f"[STARTUP] Preflight failed: {exc}\n{traceback.format_exc()}")
-        raise
+        raise RuntimeError("Face service startup preflight failed") from exc
     logger.info("[STARTUP] Face service preflight completed successfully.")
 
 @app.post("/verify-face")
@@ -121,6 +120,11 @@ async def verify_face(roll_number: str = Form(...), image: UploadFile = File(...
 
         # Process Live
         content = await image.read()
+        
+        # Enforce image size limit
+        if len(content) > MAX_CONTENT_LENGTH:
+            return standard_response(False, roll_no, f"Image too large (max {MAX_CONTENT_LENGTH//(1024*1024)}MB)", error_code="PAYLOAD_TOO_LARGE", status_code=413)
+
         img_array = process_uploaded_image(content)
         emb_result = get_embedding(img_array)
         
@@ -140,59 +144,60 @@ async def verify_face(roll_number: str = Form(...), image: UploadFile = File(...
         logger.error(f"[API] VERIFY Error for {roll_no}: {e}\n{traceback.format_exc()}")
         return standard_response(False, roll_no, f"Internal error: {str(e)}", error_code="SERVER_ERROR", status_code=500)
 
-@app.get("/debug/student/{roll_number}")
-async def debug_student(roll_number: str):
-    """Diagnostic endpoint to inspect stored embeddings."""
-    roll_no = roll_number.strip().upper()
-    file_path = os.path.join(EMBEDDINGS_DIR, f"{roll_no}.pkl")
-    exists = os.path.exists(file_path)
-    
-    stored, err_code, _ = load_student_embeddings(roll_no)
-    
-    count = 0
-    shapes = []
-    if stored:
-        count = len(stored)
-        shapes = [list(s.shape) for s in stored]
+if not PRODUCTION_MODE:
+    @app.get("/debug/student/{roll_number}")
+    async def debug_student(roll_number: str):
+        """Diagnostic endpoint to inspect stored embeddings."""
+        roll_no = roll_number.strip().upper()
+        file_path = os.path.join(EMBEDDINGS_DIR, f"{roll_no}.pkl")
+        exists = os.path.exists(file_path)
         
-    return {
-        "roll_number": roll_no,
-        "exists": exists,
-        "count": count,
-        "shapes": shapes,
-        "error_code": err_code if not stored else None,
-        "file_path": file_path
-    }
-
-@app.post("/verify-face-debug")
-async def verify_face_debug(roll_number: str = Form(...), image: UploadFile = File(...)):
-    """Advanced diagnostic endpoint for mismatch debugging."""
-    roll_no = roll_number.strip().upper()
-    try:
-        stored, err_code, err_msg = load_student_embeddings(roll_no)
-        if not stored: return {"success": False, "error_code": err_code, "message": err_msg}
-
-        content = await image.read()
-        img_array = process_uploaded_image(content)
-        emb_result = get_embedding(img_array)
-        if emb_result["status"] != "ok": return {"success": False, "error_code": emb_result["status"].upper(), "message": emb_result["message"]}
-
-        res = verify_face_match(emb_result["embedding"], stored)
-        is_match, best_score, match_error, all_scores, stored_shapes = res
-
+        stored, err_code, _ = load_student_embeddings(roll_no)
+        
+        count = 0
+        shapes = []
+        if stored:
+            count = len(stored)
+            shapes = [list(s.shape) for s in stored]
+            
         return {
-            "success": is_match,
             "roll_number": roll_no,
-            "error_code": match_error,
-            "threshold": THRESHOLD,
-            "best_score": round(best_score, 4),
-            "live_shape": list(emb_result["embedding"].shape),
-            "stored_count": len(stored),
-            "stored_shapes": stored_shapes,
-            "all_scores": all_scores
+            "exists": exists,
+            "count": count,
+            "shapes": shapes,
+            "error_code": err_code if not stored else None,
+            "file_path": file_path
         }
-    except Exception as e:
-        return {"success": False, "error": str(e), "trace": traceback.format_exc()}
+
+    @app.post("/verify-face-debug")
+    async def verify_face_debug(roll_number: str = Form(...), image: UploadFile = File(...)):
+        """Advanced diagnostic endpoint for mismatch debugging."""
+        roll_no = roll_number.strip().upper()
+        try:
+            stored, err_code, err_msg = load_student_embeddings(roll_no)
+            if not stored: return {"success": False, "error_code": err_code, "message": err_msg}
+
+            content = await image.read()
+            img_array = process_uploaded_image(content)
+            emb_result = get_embedding(img_array)
+            if emb_result["status"] != "ok": return {"success": False, "error_code": emb_result["status"].upper(), "message": emb_result["message"]}
+
+            res = verify_face_match(emb_result["embedding"], stored)
+            is_match, best_score, match_error, all_scores, stored_shapes = res
+
+            return {
+                "success": is_match,
+                "roll_number": roll_no,
+                "error_code": match_error,
+                "threshold": THRESHOLD,
+                "best_score": round(best_score, 4),
+                "live_shape": list(emb_result["embedding"].shape),
+                "stored_count": len(stored),
+                "stored_shapes": stored_shapes,
+                "all_scores": all_scores
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e), "trace": traceback.format_exc()}
 
 @app.get("/health")
 async def health():

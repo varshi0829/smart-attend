@@ -21,6 +21,9 @@ from .config import FACE_SERVICE_URL, QR_SERVICE_URL, BACKEND_URL, ENABLE_DAILY_
 
 app = FastAPI(title="SmartAttend Attendance Orchestrator")
 
+# Global student record cache
+STUDENT_CACHE = None
+
 # Allow any origin for local network access (development)
 app.add_middleware(
     CORSMiddleware,
@@ -79,12 +82,31 @@ def _validate_socket_runtime_permissions() -> None:
         if probe is not None:
             probe.close()
 
+def cleanup_old_reports():
+    """Delete reports older than 7 days."""
+    try:
+        now = time.time()
+        if not os.path.exists(REPORTS_DIR):
+            return
+        count = 0
+        for f in os.listdir(REPORTS_DIR):
+            fpath = os.path.join(REPORTS_DIR, f)
+            if os.path.isfile(fpath) and os.stat(fpath).st_mtime < now - (7 * 86400):
+                os.remove(fpath)
+                count += 1
+        if count > 0:
+            logger.info(f"[STARTUP] Cleaned up {count} old report(s).")
+    except Exception as e:
+        logger.error(f"Cleanup failed: {e}")
+
 @app.on_event("startup")
 async def startup_preflight():
     logger.info("[STARTUP] Attendance service preflight started.")
     try:
-        # Ensure reports directory exists
+        # Ensure reports directory exists and cleanup old ones
         os.makedirs(REPORTS_DIR, exist_ok=True)
+        cleanup_old_reports()
+        
         _log_runtime_diagnostics()
         _validate_socket_runtime_permissions()
         face_status = await get_service_status(FACE_SERVICE_URL)
@@ -96,7 +118,11 @@ async def startup_preflight():
     logger.info("[STARTUP] Attendance service preflight completed successfully.")
 
 def load_student_records():
-    """Load all student records from CSV into a searchable format."""
+    """Load all student records from CSV with memory caching."""
+    global STUDENT_CACHE
+    if STUDENT_CACHE is not None:
+        return STUDENT_CACHE['names'], STUDENT_CACHE['sections']
+
     csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "backend", "students.csv")
     roll_to_name = {}
     section_to_students = {}
@@ -118,37 +144,40 @@ def load_student_records():
                     if sec not in section_to_students:
                         section_to_students[sec] = []
                     section_to_students[sec].append({"roll_number": roll, "name": name})
+        
+        STUDENT_CACHE = {'names': roll_to_name, 'sections': section_to_students}
+        logger.info(f"[CACHE] Loaded {len(roll_to_name)} student records into memory.")
     except Exception as e:
         logger.error(f"Error loading students CSV: {e}")
         
     return roll_to_name, section_to_students
 
 async def generate_excel_task(session_id: str):
-    """Background task to generate Excel report with 12-hour IST format and strict header."""
+    """Background task to generate Excel report with metadata from QR service."""
     logger.info(f"[EXCEL] Generating report for session: {session_id}")
     try:
         from zoneinfo import ZoneInfo
         IST = ZoneInfo(ATTENDANCE_TIMEZONE)
 
-        # 1. Fetch Session Details from Backend
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{BACKEND_URL}/api/instructor/session/{session_id}")
+        # 1. Fetch Session Details from QR Service (Source of Truth for Active Sessions)
+        async with httpx.AsyncClient(verify=INTERNAL_TLS_VERIFY) as client:
+            # We call the session detail endpoint in QR service
+            resp = await client.get(f"{QR_SERVICE_URL}/session/{session_id}", timeout=10.0)
             if resp.status_code != 200:
-                logger.error(f"Failed to fetch session details for {session_id}")
+                logger.error(f"Failed to fetch session details from QR service for {session_id}")
                 return None
-            session_data = resp.json().get("session", {})
+            session_data = resp.json().get("data", {})
 
         # 2. Extract Header Info & Section Mapping
-        instructor = session_data.get("instructor", {})
-        teacher_name = instructor.get("name", "N/A")
-        teacher_id = str(instructor.get("_id", "N/A"))
+        teacher_name = session_data.get("instructor_name", "N/A")
+        teacher_id = str(session_data.get("instructor_id", "N/A"))
         subject = session_data.get("subject", "N/A")
-        class_name = session_data.get("className", "N/A")
-        # Fix: Extract correct section from className (e.g., CSE-A)
+        class_name = session_data.get("class_name", "N/A")
         section = class_name.strip().upper() 
 
-        start_time_raw = session_data.get("startTime")
-        stop_time_raw = session_data.get("stopTime") or datetime.now(timezone.utc).isoformat()
+        start_time_raw = session_data.get("start_time")
+        # If session ended, it has an end_time, otherwise use current time as stopTime
+        stop_time_raw = session_data.get("end_time") or datetime.now(timezone.utc).isoformat()
 
         # Format times to 12-hour IST
         start_dt = datetime.fromisoformat(start_time_raw.replace("Z", "+00:00")).astimezone(IST)
@@ -334,7 +363,22 @@ async def mark_attendance(
     if face_status != 200 or not face_res.get("success"):
         error_code = face_res.get("error_code", "FACE_VERIFICATION_FAILED")
         msg = face_res.get("message", "Face verification failed")
-        # NOTE: We do NOT consume the grant on face failure so student can retry
+        
+        # Increment retry count in QR service
+        retry_count = 0
+        try:
+            async with httpx.AsyncClient(verify=INTERNAL_TLS_VERIFY) as client:
+                r_resp = await client.post(f"{QR_SERVICE_URL}/session/increment-retry", json={"grant_id": grant_id}, timeout=5.0)
+                if r_resp.status_code == 200:
+                    r_json = r_resp.json()
+                    retry_count = r_json.get("data", {}).get("retry_count", 0)
+                    if retry_count >= 3:
+                        msg = "Face verification failed 3 times. This QR grant is now invalid. Please re-scan."
+                        error_code = "GRANT_RETRY_LIMIT_REACHED"
+        except Exception as e:
+            logger.error(f"[PIPELINE] Failed to increment retry count: {e}")
+
+        # NOTE: We do NOT consume the grant on face failure so student can retry (until limit reached)
         db.set_last_attempt(roll_no, "FAILED_FACE", {"error_code": error_code, "msg": msg})
         return standard_response(False, msg, error_code=error_code, status_code=face_status if face_status < 500 else 503)
 
@@ -386,7 +430,7 @@ async def get_session_history(session_id: str):
             except Exception:
                 pass
         date_str = dt.strftime("%Y-%m-%d") if dt else ""
-        time_str = dt.strftime("%H:%M:%S") if dt else ""
+        time_str = dt.strftime("%I:%M:%S %p") if dt else ""
         enriched.append({
             "roll_number": r.get("roll_number"),
             "name": get_student_name(r.get("roll_number", "")),

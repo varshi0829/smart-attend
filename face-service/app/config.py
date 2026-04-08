@@ -2,9 +2,11 @@ import os
 import logging
 
 # Face Recognition Settings
-MODEL_NAME = "Facenet"
-DETECTOR_BACKEND = "opencv"
-THRESHOLD = 0.6  # Similarity threshold
+MODEL_NAME = "ArcFace"
+DETECTOR_BACKEND = "retinaface"
+THRESHOLD = 0.45  # Optimized for ArcFace Cosine Similarity
+MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2MB Payload Limit
+PRODUCTION_MODE = os.getenv("PRODUCTION_MODE", "false").lower() == "true"
 ALLOW_MULTIPLE_FACES = False # Security requirement
 
 # Paths

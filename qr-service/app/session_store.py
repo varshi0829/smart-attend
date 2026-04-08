@@ -63,7 +63,8 @@ class SessionStore:
                 "instructor_id": instructor_id,
                 "issued_at": now,
                 "expires_at": expires_at,
-                "used": False
+                "used": False,
+                "retries": 0
             }
             self.scan_grants[grant_id] = grant_data
             self._cleanup_expired_grants_unlocked()
@@ -95,6 +96,18 @@ class SessionStore:
                 return None, "SESSION_CLOSED"
 
             return grant, None
+
+    def increment_grant_retry(self, grant_id: str) -> int:
+        """Increment retry count and invalidate if limit (3) reached."""
+        with self._lock:
+            grant = self.scan_grants.get(grant_id)
+            if not grant: return 0
+            
+            grant["retries"] = grant.get("retries", 0) + 1
+            if grant["retries"] >= 3:
+                grant["used"] = True # Invalidate grant after 3 failed face matches
+            
+            return grant["retries"]
 
     def consume_grant(self, grant_id: str) -> bool:
         """Atomically mark the grant as used."""
