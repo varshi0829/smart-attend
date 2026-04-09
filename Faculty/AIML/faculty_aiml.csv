@@ -1,0 +1,22 @@
+Teacher Name,MaxHoursPerWeek,Course Name,Course ID
+Dr B.Lakshmi Praveena,10,Knowledge Representation and Reasoning; Deep Learning Lab; Object Oriented Programming through Java; Java Programming Lab,
+Ms.A.NagaKalyani,5,NIC; AM Lab,
+Mr.B.Kishore Kumar,5,FSD; FSD Lab,
+Ms.V.Asha,13,CN; CN Lab; SE; SE Lab; WISE(AWS),
+Ms.S.Annapoorna,11,ML; ML Lab; HCL(AI With LLM),AM502PC; AM505PC
+Ms.R.Priyanka,5,SW; Node JS Lab,CS309PC
+Ms.B.Shanmukha Priya,8,SL; SL Lab; WISE(CS),
+Ms.T.Bhargavi,17,DL; DL Lab; PS-I; COA; WISE(Agentic AI),AM701PC; PE3Lab
+Mr.M.Naga Siva Gangadhar,5,DS; DS Lab,CS302PC; CS306PC
+
+Faculty Name,Subjects,Total Workload (Hours)
+Dr B.Lakshmi Praveena,"KRR, DL Lab, Object Oriented Programming through Java, Java Programming Lab",10
+Ms.A.NagaKalyani,"NIC, AM Lab",5
+Mr.B.Kishore Kumar,"FSD, FSD Lab",5
+Ms.V.Asha,"CN, CN Lab, Software Engineering, Software Engineering Lab, WISE(AWS)",13
+Ms.S.Annapoorna,"ML, ML Lab, HCL(AI With LLM)",11
+Ms.R.Priyanka,"SW, Node JS/ React JS/ Django",5
+Ms.B.Shanmukha Priya,"SL, SL Lab, WISE(CS)",8
+Ms.T.Bhargavi,"DL, DL Lab, PS-I, Computer Organization and Architecture, WISE(Agentic AI)",17
+Mr.M.Naga Siva Gangadhar,"Data Structures, Introduction to Data Structures Lab",5
+

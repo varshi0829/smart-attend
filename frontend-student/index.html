@@ -316,6 +316,7 @@
                     state.grantId = payload.grant_id;
                     state.sessionId = payload.session_id;
                     state.grantExpiresAt = new Date(Date.now() + ((payload.expires_in || 30) * 1000));
+                    console.log("[QR] Verified - grant_id:", state.grantId, "session_id:", state.sessionId);
                     await stopScanner();
                     startGrantCountdown();
                     await goToStep(3);
@@ -326,7 +327,12 @@
                 }
             } catch (err) {
                 state.qrLocked = false;
-                showQrError("Connection failed.");
+                // Better error mapping for network errors
+                if (err && err.name === 'TypeError' && err.message === 'Failed to fetch') {
+                    showQrError("Connection failed. Check your network and ensure using HTTPS.");
+                } else {
+                    showQrError("Connection failed. Please check your network.");
+                }
                 setScannerStatus("Scanning QR Code...");
             }
         }
@@ -429,15 +435,116 @@
             form.append("grant_id", state.grantId);
             form.append("session_id", state.sessionId);
             form.append("image", state.faceBlob, "selfie.jpg");
+            
+            // Debug logging
+            console.log("[ATTENDANCE] Submitting with:", {
+                roll_number: state.rollNumber.trim().toUpperCase(),
+                grant_id: state.grantId,
+                session_id: state.sessionId,
+                image_size: state.faceBlob ? state.faceBlob.size : 0,
+                image_type: state.faceBlob ? state.faceBlob.type : "none"
+            });
+            
             try {
-                const res = await fetch(`${API.attendance}/attendance/mark`, { method: 'POST', body: form });
-                const data = await res.json();
+                console.log("[ATTENDANCE] Sending request to:", `${API.attendance}/mark`);
+                const httpRes = await fetch(`${API.attendance}/mark`, { method: 'POST', body: form });
+                let data;
+                const contentType = httpRes.headers.get("content-type") || "";
+                
+                // Try to parse JSON response - be flexible with content-type detection
+                // Also handle error responses that might not have correct content-type
+                try {
+                    const responseText = await httpRes.text();
+                    try {
+                        data = JSON.parse(responseText);
+                    } catch {
+                        // If JSON parse fails but response is OK, create default response
+                        if (httpRes.ok) {
+                            data = { success: true, message: "Attendance marked", data: {} };
+                        } else {
+                            // For non-OK responses, try to parse as error JSON
+                            data = { success: false, message: responseText || "Server error occurred", error_code: "SERVER_ERROR" };
+                        }
+                    }
+                } catch (textErr) {
+                    // If we can't even read the text, handle based on status
+                    if (!httpRes.ok) {
+                        data = { success: false, message: `Server returned error: ${httpRes.status}`, error_code: "HTTP_ERROR" };
+                    } else {
+                        data = { success: false, message: "Failed to read server response", error_code: "INVALID_RESPONSE" };
+                    }
+                }
+                
+                // If response status is not OK, override success
+                if (!httpRes.ok && data.success) {
+                    data.success = false;
+                    data.message = data.message || `Server error: ${httpRes.status}`;
+                    data.error_code = data.error_code || "HTTP_ERROR";
+                }
+                
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
+                
+                // Debug logging - log the response
+                console.log("[ATTENDANCE] Response:", { status: httpRes.status, data: data });
                 renderResult(data);
             } catch (err) { 
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
-                renderResult({ success: false, message: "Connection failed. Please check your network." }); 
+                const errorInfo = mapAttendanceError(null, err);
+                renderResult({ success: false, message: errorInfo.msg, error_code: errorInfo.code }); 
             }
+        }
+
+        function mapAttendanceError(res, err) {
+            // Handle network/connection errors
+            if (err) {
+                if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+                    return { title: "Connection Failed", msg: "Could not reach server. Check your network.", code: "NETWORK_ERROR" };
+                }
+                if (err.name === 'AbortError') {
+                    return { title: "Request Timeout", msg: "Server took too long to respond.", code: "TIMEOUT" };
+                }
+                return { title: "Error", msg: err.message || "Unknown error occurred.", code: "NETWORK_ERROR" };
+            }
+            
+            // Handle HTTP errors
+            if (!res) {
+                return { title: "Connection Failed", msg: "No response from server.", code: "NO_RESPONSE" };
+            }
+            
+            const code = res.error_code || "";
+            const msg = res.message || "";
+            
+            // Map specific error codes to user-friendly messages
+            if (code === "DUPLICATE_ATTENDANCE" || msg.includes("already marked")) {
+                return { title: "Already Marked", msg: "Attendance already recorded for this session.", code: "DUPLICATE" };
+            }
+            if (code === "FACE_MISMATCH" || msg.includes("face") || msg.includes("match")) {
+                return { title: "Face Not Matched", msg: "Face verification failed. Please try again with better lighting.", code: "FACE_MISMATCH" };
+            }
+            if (code === "NO_FACE_DETECTED" || msg.includes("no face")) {
+                return { title: "No Face Detected", msg: "No face detected. Ensure your face is clearly visible.", code: "NO_FACE" };
+            }
+            if (code === "MULTIPLE_FACES" || msg.includes("multiple faces")) {
+                return { title: "Multiple Faces", msg: "Multiple faces detected. Only one person should be in frame.", code: "MULTIPLE_FACES" };
+            }
+            if (code === "STUDENT_NOT_IN_SESSION_CLASS" || msg.includes("belong to")) {
+                return { title: "Wrong Class", msg: "You are not in this class section.", code: "WRONG_CLASS" };
+            }
+            if (code === "INVALID_GRANT" || code === "USED_SCAN_GRANT" || code === "GRANT_ROLL_MISMATCH") {
+                return { title: "QR Expired", msg: "QR verification expired. Please scan again.", code: "GRANT_INVALID" };
+            }
+            if (code === "SCAN_GRANT_EXPIRED" || code === "QR_EXPIRED") {
+                return { title: "QR Expired", msg: "QR code expired. Please scan the latest code.", code: "QR_EXPIRED" };
+            }
+            if (code === "SESSION_CLOSED" || msg.includes("session")) {
+                return { title: "Session Closed", msg: "Session is no longer active.", code: "SESSION_CLOSED" };
+            }
+            if (code === "FACE_SERVICE_ERROR" || code === "FACE_FAILED") {
+                return { title: "Verification Failed", msg: "Face service error. Please try again.", code: "FACE_ERROR" };
+            }
+            
+            // Default to provided message or generic
+            return { title: "Denied", msg: msg || "Attendance could not be verified.", code: code || "UNKNOWN" };
         }
 
         function renderResult(res) {
@@ -453,10 +560,12 @@
                 icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
                 if (meta) { meta.classList.remove("hidden"); meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%`; }
             } else {
-                title.innerText = "Denied."; msg.innerText = res.message || "Face could not be verified.";
+                const errInfo = mapAttendanceError(res, null);
+                title.innerText = errInfo.title + ".";
+                msg.innerText = errInfo.msg;
                 icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto";
                 icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ERROR: ${res.error_code || "UNKNOWN"}`; }
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ERROR: ${errInfo.code}`; }
             }
         }
     </script>

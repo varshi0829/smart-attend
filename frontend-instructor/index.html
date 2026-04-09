@@ -162,14 +162,14 @@
 
                     <div id="sessionActiveInfo" class="hidden bg-slate-800 p-6 rounded-lg border border-blue-500/30 space-y-4 text-center">
                         <p class="text-[10px] font-bold uppercase text-blue-400">Session Active</p>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto">
                             <div class="bg-slate-900 p-3 rounded border border-slate-700">
-                                <p class="text-2xl font-bold text-white" id="presentCount">0</p>
+                                <p class="text-2xl font-bold text-green-500" id="presentCount">0</p>
                                 <p class="text-[9px] uppercase font-bold text-slate-500">Present</p>
                             </div>
                             <div class="bg-slate-900 p-3 rounded border border-slate-700">
-                                <p class="text-2xl font-bold text-red-500" id="absentCount">0</p>
-                                <p class="text-[9px] uppercase font-bold text-slate-500">Absent</p>
+                                <p class="text-2xl font-bold text-white" id="totalCount">0</p>
+                                <p class="text-[9px] uppercase font-bold text-slate-500">Total</p>
                             </div>
                         </div>
                         <button onclick="stopSession()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-bold">Stop Session</button>
@@ -251,10 +251,14 @@
         <div id="summaryModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur z-[300] flex items-center justify-center p-6">
             <div class="bg-slate-800 w-full max-w-sm rounded border border-slate-700 p-8 text-center space-y-6 shadow-2xl">
                 <h3 class="text-lg font-bold text-white uppercase tracking-widest border-b border-slate-700 pb-2">Session Summary</h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-3 gap-4">
                     <div class="bg-slate-900 p-4 rounded">
                         <p class="text-[9px] font-bold text-slate-500 uppercase">Present</p>
-                        <p id="sumPresent" class="text-2xl font-bold text-white">0</p>
+                        <p id="sumPresent" class="text-2xl font-bold text-green-500">0</p>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Total</p>
+                        <p id="sumTotal" class="text-2xl font-bold text-white">0</p>
                     </div>
                     <div class="bg-slate-900 p-4 rounded">
                         <p class="text-[9px] font-bold text-slate-500 uppercase">Absent</p>
@@ -516,28 +520,45 @@
 
         // ── Session management ────────────────────────────────────────────────
         async function startSession() {
+            const dept = state.form.dept;
+            const year = state.form.year;
+            const section = state.form.section;
+            
+            // Fetch total students for this class from DB
+            let totalStudents = 0;
+            try {
+                const countRes = await fetch(`${API.attendance}/student-count?dept=${dept}&year=${year}&section=${section}`);
+                const countJson = await countRes.json();
+                if (countJson.success) totalStudents = countJson.data.count || 0;
+            } catch (e) { console.error("Failed to get student count:", e); }
+            
+            // Fallback to classList length if DB count not available
             const res = await fetch(`${API.qr}/session/start`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     instructor_id:   state.instructor.id,
                     instructor_name: state.instructor.name,
-                    department:      state.form.dept,
-                    year:            state.form.year,
-                    section:         state.form.section,
-                    subject:         state.form.subject
+                    department:      dept,
+                    year:            year,
+                    section:         section,
+                    subject:         state.form.subject,
+                    total_students:  totalStudents
                 })
             });
             const json = await res.json();
+            console.log("[SESSION] Start response:", json);
             if (json.success) {
                 state.activeSession = {
                     session_id: json.data.session_id,
-                    dept:       state.form.dept,
-                    year:       state.form.year,
-                    section:    state.form.section,
+                    dept:       dept,
+                    year:       year,
+                    section:    section,
                     subject:    state.form.subject,
                     start_time: new Date().toISOString(),
-                    class_name: `${state.form.dept}-${state.form.section}`
+                    class_name: `${dept}-${section}`,
+                    total_students: json.data.total_students || totalStudents
                 };
+                console.log("[SESSION] Active session stored:", state.activeSession);
                 document.getElementById("sessionSetup").classList.add("hidden");
                 document.getElementById("sessionActiveInfo").classList.remove("hidden");
                 document.getElementById("qrBox").classList.remove("hidden");
@@ -550,15 +571,17 @@
 
         async function loadClassList(className) {
             try {
-                const res = await fetch(`${API.attendance}/attendance/class-list/${className}`);
+                const res = await fetch(`${API.attendance}/class-list/${className}`);
                 const json = await res.json();
                 if (json.success) { state.classList = json.data; updateCounts(0); }
             } catch (e) {}
         }
 
         function updateCounts(presentCount) {
+            const totalStudents = state.activeSession?.total_students || state.classList?.length || 0;
+            console.log("[COUNTS] Updating - Present:", presentCount, "Total:", totalStudents);
             document.getElementById("presentCount").innerText = presentCount;
-            document.getElementById("absentCount").innerText  = Math.max(0, state.classList.length - presentCount);
+            document.getElementById("totalCount").innerText = totalStudents;
         }
 
         async function refreshQR() {
@@ -583,14 +606,20 @@
 
         async function stopSession() {
             if (!confirm("End session?")) return;
-            await fetch(`${API.qr}/session/stop`, {
+            console.log("[SESSION] Stopping session...");
+            const stopRes = await fetch(`${API.qr}/session/stop`, {
                 method: 'POST',
                 body: JSON.stringify({ instructor_id: state.instructor.id }),
                 headers: { 'Content-Type': 'application/json' }
             });
+            const stopJson = await stopRes.json();
+            console.log("[SESSION] Stop response:", stopJson);
             const present = parseInt(document.getElementById("presentCount").innerText);
+            const total = parseInt(document.getElementById("totalCount").innerText);
+            const absent = total - present;
             document.getElementById("sumPresent").innerText = present;
-            document.getElementById("sumAbsent").innerText  = Math.max(0, state.classList.length - present);
+            document.getElementById("sumTotal").innerText = total;
+            document.getElementById("sumAbsent").innerText = absent >= 0 ? absent : 0;
             Object.values(state.intervals).forEach(i => clearInterval(i));
             document.getElementById("summaryModal").classList.remove("hidden");
         }
@@ -599,9 +628,11 @@
 
         async function refreshAttendance() {
             if (!state.activeSession) return;
-            const res  = await fetch(`${API.attendance}/attendance/session/${state.activeSession.session_id}`);
+            const res  = await fetch(`${API.attendance}/session/${state.activeSession.session_id}`);
             const json = await res.json();
+            console.log("[ATTENDANCE] Poll response:", json);
             if (json.success) {
+                console.log("[ATTENDANCE] Record count:", json.data.length);
                 const body  = document.getElementById("attendanceBody");
                 const empty = document.getElementById("emptyAttendance");
                 updateCounts(json.data.length);
@@ -645,8 +676,11 @@
         }
 
         async function loadReports(dept, year, sec) {
+            console.log("[REPORTS] Fetching list - URL:", `${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
             const res  = await fetch(`${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
             const json = await res.json();
+            console.log("[REPORTS] Response:", json);
+            console.log("[REPORTS] Filter:", {dept, year, sec}, "Found:", json.data?.length || 0);
             const list  = document.getElementById("reportList");
             const empty = document.getElementById("emptyReports");
             if (!json.data || json.data.length === 0) {
@@ -668,6 +702,9 @@
         function viewReport(data) {
             state.viewData = data;
             const m = data.meta; const start = new Date(m.start_time);
+            const totalStudents = m.total_students || state.classList?.length || data.attendance.length;
+            const presentCount = data.attendance.length;
+            const absentCount = totalStudents - presentCount;
             document.getElementById("viewTitle").innerText = m.subject;
             const summaryParts = [
                 `DEPT: ${m.department}`,
@@ -675,7 +712,9 @@
                 `SECTION: ${m.section}`,
                 `DATE: ${start.toLocaleDateString()}`,
                 `TIME: ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-                `TOTAL: ${data.attendance.length}`
+                `PRESENT: ${presentCount}`,
+                `TOTAL: ${totalStudents}`,
+                `ABSENT: ${absentCount >= 0 ? absentCount : 0}`
             ];
             document.getElementById("viewSummary").innerHTML =
                 summaryParts.map(p => `<span>${p}</span>`).join('<span class="opacity-20 mx-2">|</span>');

@@ -1,4 +1,10 @@
 import os
+import logging
+
+# Setup logging
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger("AttendanceService")
 
 # Internal Service URLs
 FACE_SERVICE_URL = os.getenv("FACE_SERVICE_URL", "https://127.0.0.1:5001")
@@ -12,7 +18,6 @@ INTERNAL_TLS_VERIFY = os.getenv("INTERNAL_TLS_VERIFY", "false").lower() == "true
 # Attendance Rules
 ENABLE_DAILY_LIMIT = os.getenv("ENABLE_DAILY_LIMIT", "False").lower() == "true"
 ATTENDANCE_TIMEZONE = os.getenv("ATTENDANCE_TIMEZONE", "Asia/Kolkata")
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 # Reports Storage
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

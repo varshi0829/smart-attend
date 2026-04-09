@@ -1,0 +1,71 @@
+CourseId,Course Name,Duration(L-T-P),Semester
+MA101BS,Matrices and Calculus,3-1-0,Sem 1
+PH102BS,Applied Physics,3-1-0,Sem 1
+CS103ES,Programming for Problem Solving,3-0-0,Sem 1
+ME104ES,Engineering Workshop,0-1-3,Sem 1
+EN105HS,English for Skill Enhancement,2-0-0,Sem 1
+CS106ES,Elements of Computer Science & Engineering,0-0-2,Sem 1
+PH107BS,Applied Physics Laboratory,0-0-3,Sem 1
+CS108ES,Programming for Problem Solving Laboratory,0-0-2,Sem 1
+EN109HS,English Language and Communication Skills Laboratory,0-0-2,Sem 1
+MC110,Environmental Science,1-0-0,Sem 1
+MA201BS,Ordinary Differential Equations and Vector Calculus,3-1-0,Sem 2
+CH202BS,Engineering Chemistry,3-1-0,Sem 2
+ME203ES,Computer Aided Engineering Graphics,1-0-4,Sem 2
+EE204ES,Basic Electrical Engineering,2-0-0,Sem 2
+EC205ES,Electronic Devices and Circuits,2-0-0,Sem 2
+CS206ES,Python Programming Laboratory,0-1-2,Sem 2
+CH207BS,Engineering Chemistry Laboratory,0-0-2,Sem 2
+EE208ES,Basic Electrical Engineering Laboratory,0-0-2,Sem 2
+CS209ES,IT Workshop,0-0-2,Sem 2
+CS301PC,Mathematical and Statistical Foundations,3-1-0,Sem 3
+CS302PC,Data Structures,3-0-0,Sem 3
+CS303PC,Computer Organization and Architecture,3-0-0,Sem 3
+CS304PC,Software Engineering,3-0-0,Sem 3
+CS305PC,Operating Systems,3-0-0,Sem 3
+CS306PC,Introduction to Data Structures Lab,0-0-2,Sem 3
+CS307PC,Operating Systems Lab,0-0-2,Sem 3
+CS308PC,Software Engineering Lab,0-0-2,Sem 3
+CS309PC,Node JS/ React JS/ Django,0-0-2,Sem 3
+MC310,Constitution of India,1-0-0,Sem 3
+CS401PC,Discrete Mathematics,3-0-0,Sem 4
+CS402PC,Automata Theory and Compiler Design,3-0-0,Sem 4
+CS403PC,Database Management Systems,3-0-0,Sem 4
+CS404PC,Introduction to Artificial Intelligence,3-0-0,Sem 4
+CS405PC,Object Oriented Programming through Java,3-0-0,Sem 4
+CS406PC,Database Management Systems Lab,0-0-2,Sem 4
+CS407PC,Java Programming Lab,0-0-2,Sem 4
+CS408PC,Real-time Research Project/Field-Based Research Project,0-0-4,Sem 4
+CS409PC,Prolog/ Lisp/ Pyswip,0-0-2,Sem 4
+MC410,Gender Sensitization Lab,0-0-1,Sem 4
+AM501PC,Design and Analysis of Algorithms,3-1-0,Sem 5
+AM502PC,Machine Learning,3-0-0,Sem 5
+AM503PC,Computer Networks,3-0-0,Sem 5
+SM504MS,Business Economics & Financial Analysis,3-0-0,Sem 5
+PE1,Professional Elective-I,3-0-0,Sem 5
+AM505PC,Machine Learning Lab,0-0-2,Sem 5
+AM506PC,Computer Networks Lab,0-0-2,Sem 5
+EN508HS,Advanced English Communication Skills Lab,0-0-2,Sem 5
+AM507PC,UI Design - Flutter,0-0-2,Sem 5
+MC510,Intellectual Property Rights,1-0-0,Sem 5
+AM601PC,Knowledge Representation and Reasoning,3-0-0,Sem 6
+AM602PC,Data Analytics,3-0-0,Sem 6
+AM603PC,Natural Language Processing,3-0-0,Sem 6
+PE2,Professional Elective-II,3-0-0,Sem 6
+OE1,Open Elective-I,3-0-0,Sem 6
+AM604PC,Natural Language Processing Lab,0-0-3,Sem 6
+AM605PC,Data Analytics Lab,0-0-3,Sem 6
+AM606PC,Industrial Oriented Mini Project/Internship/Skill Development (DevOps),0-0-4,Sem 6
+MC609,Environmental Science,1-0-0,Sem 6
+AM701PC,Deep Learning,3-0-0,Sem 7
+AM702PC,Nature Inspired Computing,2-0-0,Sem 7
+PE3,Professional Elective-III,3-0-0,Sem 7
+PE4,Professional Elective-IV,3-0-0,Sem 7
+OE2,Open Elective-II,3-0-0,Sem 7
+AM703PC,"Professional Practice, Law & Ethics",2-0-0,Sem 7
+PE3Lab,Professional Elective-III Lab,0-0-2,Sem 7
+PRJ1,Project Stage-I,0-0-6,Sem 7
+PE5,Professional Elective-V,3-0-0,Sem 8
+PE6,Professional Elective-VI,3-0-0,Sem 8
+OE3,Open Elective-III,3-0-0,Sem 8
+PRJ2,Project Stage-II including Seminar,0-0-22,Sem 8

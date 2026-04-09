@@ -7,7 +7,7 @@ import json
 import traceback
 from datetime import datetime, timezone
 from typing import List, Dict, Optional
-from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from openpyxl import Workbook
@@ -15,7 +15,7 @@ from openpyxl.styles import Font, Alignment, Border, Side
 from .responses import standard_response
 from .integrations import verify_face, verify_qr, verify_grant, consume_grant
 from .storage import db
-from .config import FACE_SERVICE_URL, QR_SERVICE_URL, ATTENDANCE_TIMEZONE, INTERNAL_TLS_VERIFY, REPORTS_DIR
+from .config import FACE_SERVICE_URL, QR_SERVICE_URL, ATTENDANCE_TIMEZONE, INTERNAL_TLS_VERIFY, REPORTS_DIR, logger
 
 app = FastAPI(title="SmartAttend Attendance Orchestrator")
 STUDENT_CACHE = None
@@ -24,9 +24,21 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Orchestrator")
 
+from . import db as pg_db
+
 def load_student_records():
     global STUDENT_CACHE
     if STUDENT_CACHE is not None: return STUDENT_CACHE['names'], STUDENT_CACHE['sections']
+    
+    # 1. Try DB
+    if pg_db.is_db_available():
+        names, sections = pg_db.get_students()
+        if names:
+            STUDENT_CACHE = {'names': names, 'sections': sections}
+            logger.info(f"SUCCESS: Loaded {len(names)} students from DB.")
+            return names, sections
+
+    # 2. Fallback to CSV
     csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "backend", "students.csv")
     roll_to_name, roll_to_sec = {}, {}
     if not os.path.exists(csv_path):
@@ -46,6 +58,38 @@ def load_student_records():
         logger.error(f"CSV load failed: {e}")
     return roll_to_name, roll_to_sec
 
+@app.get("/faculty/assignments")
+async def get_assignments(teacher_name: str):
+    """Role-based assignment fetch"""
+    # 1. Try DB
+    if pg_db.is_db_available():
+        teacher = pg_db.get_teacher_by_name(teacher_name)
+        if teacher:
+            role = teacher['role']
+            if role == 'principal':
+                return standard_response(True, "All assignments (Principal)", pg_db.get_all_assignments())
+            elif role == 'hod':
+                # Filter all assignments by HOD's department
+                all_as = pg_db.get_all_assignments()
+                dept_as = [a for a in all_as if a.get('teacher_dept') == teacher['department']]
+                return standard_response(True, f"Department assignments ({teacher['department']})", dept_as)
+            else:
+                return standard_response(True, "Your assignments", pg_db.get_teacher_assignments(teacher['id']))
+
+    # 2. Fallback to JSON
+    json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "frontend-instructor", "faculty_assignments.json")
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r") as f:
+                data = json.load(f)
+                faculty_data = data.get("faculty", {}).get(teacher_name.lower())
+                if faculty_data:
+                    return standard_response(True, "Found (JSON)", faculty_data.get("assignments", []))
+        except Exception as e:
+            logger.error(f"JSON load failed: {e}")
+            
+    return standard_response(False, "Assignments not found", status_code=404)
+
 async def get_session_meta(sid: str):
     async with httpx.AsyncClient(verify=INTERNAL_TLS_VERIFY) as client:
         try:
@@ -54,6 +98,20 @@ async def get_session_meta(sid: str):
         except Exception as e:
             logger.error(f"Failed to fetch session meta for {sid}: {e}")
             return None
+
+@app.get("/attendance/student-count")
+async def get_student_count(dept: str = Query(...), year: int = Query(...), section: str = Query(...)):
+    """Get student count for a specific department/year/section"""
+    # 1. Try DB first
+    count = pg_db.get_student_count(dept, year, section)
+    if count > 0:
+        return standard_response(True, "Count retrieved", {"count": count})
+    
+    # 2. Fallback to CSV - load and count
+    names, sections = load_student_records()
+    section_code = f"{dept.upper()}-{section.upper()}"
+    count = sum(1 for s in sections.values() if s.upper() == section_code)
+    return standard_response(True, "Count retrieved", {"count": count})
 
 @app.post("/attendance/mark")
 async def mark_attendance(roll_number: str = Form(...), grant_id: str = Form(...), session_id: str = Form(...), image: UploadFile = File(...)):

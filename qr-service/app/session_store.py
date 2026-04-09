@@ -12,7 +12,7 @@ class SessionStore:
         self.scan_grants: Dict[str, dict] = {}
         self._lock = threading.Lock()
 
-    def start_session(self, instructor_id: str, dept: str, year: str, section: str, subject: str, instructor_name: str = "Instructor"):
+    def start_session(self, instructor_id: str, dept: str, year: str, section: str, subject: str, instructor_name: str = "Instructor", total_students: int = 0):
         with self._lock:
             if instructor_id in self.instructor_to_session:
                 old_sid = self.instructor_to_session[instructor_id]
@@ -35,6 +35,7 @@ class SessionStore:
                 "status": "active",
                 "created_at": now,
                 "start_time": now,
+                "total_students": total_students,
             }
             
             self.instructor_to_session[instructor_id] = session_id

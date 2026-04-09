@@ -23,6 +23,7 @@ class SessionStartRequest(BaseModel):
     year: str = Field(..., min_length=1)
     section: str = Field(..., min_length=1)
     subject: str = Field(..., min_length=1)
+    total_students: int = 0
 
 class VerifyQRRequest(BaseModel):
     roll_number: str = Field(..., min_length=1)
@@ -41,9 +42,9 @@ class IncrementRetryRequest(BaseModel):
 
 @app.post("/session/start")
 async def start_session(req: SessionStartRequest):
-    session, error = store.start_session(req.instructor_id, req.department, req.year, req.section, req.subject, req.instructor_name)
+    session, error = store.start_session(req.instructor_id, req.department, req.year, req.section, req.subject, req.instructor_name, req.total_students)
     if error: return standard_response(False, error, status_code=400)
-    return standard_response(True, "Session started", {"session_id": session["id"]})
+    return standard_response(True, "Session started", {"session_id": session["id"], "total_students": session.get("total_students", 0)})
 
 @app.get("/session/current-qr")
 async def get_current_qr(instructor_id: str = Query(..., min_length=1)):

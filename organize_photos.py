@@ -12,7 +12,7 @@ from collections import defaultdict
 
 # Configuration
 SOURCE_PHOTOS = "/home/cse/smart-attend/2024 Batch Photos"
-CSV_FILE = "/home/cse/smart-attend/backend/students.csv"
+CSV_FILE = "/home/cse/smart-attend/backend/students_csv/students_cse.csv"
 OUTPUT_BASE = "/home/cse/smart-attend/students"
 TARGET_BATCH = "24"  # 2nd year students (roll numbers start with 24)
 

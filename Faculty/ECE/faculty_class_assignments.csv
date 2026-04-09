@@ -1,0 +1,74 @@
+teacher_name,teacher_name_normalized,department,year,semester,section,subject_code,subject_acronym,subject_name,class_type,class_str,source_confidence,source_notes
+Dr. D Nagesh,dr. d nagesh,ECE,2,3,B,AC,AC,AC,Theory,2 ECE B,medium,extracted from workload docx
+Dr. D Nagesh,dr. d nagesh,ECE,1,1,,VPDA,VPDA,VPDA,Theory,1 ECE,medium,extracted from workload docx
+Dr. J Naga Vishnu Vardhan,dr. j naga vishnu vardhan,ECE,4,7,A,MWOC,MWOC,MWOC,Theory,4 ECE A,medium,extracted from workload docx
+Dr. Anwar Bhasha Pattan,dr. anwar bhasha pattan,ECE,2,3,A,DLD,DLD,DLD,Theory,2 ECE A,medium,extracted from workload docx
+Dr. Anwar Bhasha Pattan,dr. anwar bhasha pattan,ECE,2,3,A,DLD,DLD,DLD,Lab,2 ECE A,medium,extracted from workload docx
+Dr. M Parvathi,dr. m parvathi,ECE,3,5,A,MC,MC,MC,Theory,3 ECE A,medium,extracted from workload docx
+Dr. M Parvathi,dr. m parvathi,ECE,1,1,,N,N,N,Theory,1 ECE,medium,extracted from workload docx
+Dr. M Parvathi,dr. m parvathi,ECE,3,5,A,MC,MC,MC,Lab,3 ECE A,medium,extracted from workload docx
+Dr. M Parvathi,dr. m parvathi,ECE,1,1,,CAICD,CAICD,CAICD,Lab,1 ECE,medium,extracted from workload docx
+Dr. T Thammi Reddy,dr. t thammi reddy,ECE,3,5,B,MC,MC,MC,Theory,3 ECE B,medium,extracted from workload docx
+Dr. T Thammi Reddy,dr. t thammi reddy,ECE,1,1,,DSDF,DSDF,DSDF,Theory,1 ECE,medium,extracted from workload docx
+Dr. T Thammi Reddy,dr. t thammi reddy,ECE,3,5,B,MC,MC,MC,Lab,3 ECE B,medium,extracted from workload docx
+Dr. T Thammi Reddy,dr. t thammi reddy,ECE,1,1,,DSDF,DSDF,DSDF,Lab,1 ECE,medium,extracted from workload docx
+Dr. K Vasu Babu,dr. k vasu babu,ECE,3,5,A,AWP,AWP,AWP,Theory,3 ECE A,medium,extracted from workload docx
+Dr. K Vasu Babu,dr. k vasu babu,ECE,3,5,B,AWP,AWP,AWP,Theory,3 ECE B,medium,extracted from workload docx
+Dr. K Vasu Babu,dr. k vasu babu,ECE,3,5,A,Adv.Com,Adv.Com,Adv.Com,Lab,3 ECE A,medium,extracted from workload docx
+Ms. M Praveena,ms. m praveena,ECE,2,3,B,DLD,DLD,DLD,Theory,2 ECE B,medium,extracted from workload docx
+Ms. M Praveena,ms. m praveena,ECE,2,3,B,DLD,DLD,DLD,Lab,2 ECE B,medium,extracted from workload docx
+Mr. R Priyakanth,mr. r priyakanth,ECE,2,3,B,SS,SS,SS,Theory,2 ECE B,medium,extracted from workload docx
+Mr. R Priyakanth,mr. r priyakanth,ECE,2,3,B,BS,BS,BS,Lab,2 ECE B,medium,extracted from workload docx
+Mr. R Priyakanth,mr. r priyakanth,ECE,2,3,A,BS,BS,BS,Lab,2 ECE A,medium,extracted from workload docx
+Mr. K Mahesh Babu,mr. k mahesh babu,ECE,4,7,B,MWOC,MWOC,MWOC,Theory,4 ECE B,medium,extracted from workload docx
+Dr. V Hindumathi,dr. v hindumathi,ECE,2,3,A,DE,DE,DE,Theory,2 ECE A,medium,extracted from workload docx
+Dr. V Hindumathi,dr. v hindumathi,ECE,2,3,B,DE,DE,DE,Theory,2 ECE B,medium,extracted from workload docx
+Dr. V Hindumathi,dr. v hindumathi,ECE,2,3,B,DLD,DLD,DLD,Lab,2 ECE B,medium,extracted from workload docx
+Dr. V Santhosh Kumar,dr. v santhosh kumar,ECE,2,3,A,SS,SS,SS,Theory,2 ECE A,medium,extracted from workload docx
+Dr. V Santhosh Kumar,dr. v santhosh kumar,ECE,2,3,A,BS,BS,BS,Lab,2 ECE A,medium,extracted from workload docx
+Dr. V Santhosh Kumar,dr. v santhosh kumar,ECE,2,3,B,BS,BS,BS,Lab,2 ECE B,medium,extracted from workload docx
+Dr. R Viswanadham,dr. r viswanadham,ECE,4,7,A,ES,ES,ES,Theory,4 ECE A,medium,extracted from workload docx
+Dr. R Viswanadham,dr. r viswanadham,ECE,4,7,B,ES,ES,ES,Theory,4 ECE B,medium,extracted from workload docx
+Dr. R Viswanadham,dr. r viswanadham,ECE,2,3,B,AC,AC,AC,Lab,2 ECE B,medium,extracted from workload docx
+Mr. N M Sai Krishna Kumar,mr. n m sai krishna kumar,ECE,2,3,A,AC,AC,AC,Theory,2 ECE A,medium,extracted from workload docx
+Mr. N M Sai Krishna Kumar,mr. n m sai krishna kumar,ECE,2,3,E,AEC,AEC,AEC,Theory,2 ECE E,medium,extracted from workload docx
+Mr. N M Sai Krishna Kumar,mr. n m sai krishna kumar,ECE,2,3,A,AC,AC,AC,Lab,2 ECE A,medium,extracted from workload docx
+Mr. P Rajesh Kumar,mr. p rajesh kumar,ECE,4,7,A,ES,ES,ES,Theory,4 ECE A,medium,extracted from workload docx
+Mr. P Rajesh Kumar,mr. p rajesh kumar,ECE,4,7,B,ES,ES,ES,Theory,4 ECE B,medium,extracted from workload docx
+Mr. P Rajesh Kumar,mr. p rajesh kumar,ECE,2,3,B,AC,AC,AC,Lab,2 ECE B,medium,extracted from workload docx
+Ms. G Rama Lakshmi,ms. g rama lakshmi,ECE,4,7,A,RS,RS,RS,Theory,4 ECE A,medium,extracted from workload docx
+Ms. G Rama Lakshmi,ms. g rama lakshmi,ECE,4,7,B,RS,RS,RS,Theory,4 ECE B,medium,extracted from workload docx
+Ms. G Rama Lakshmi,ms. g rama lakshmi,ECE,4,7,A,MWOC,MWOC,MWOC,Lab,4 ECE A,medium,extracted from workload docx
+Dr. M Venkatesh,dr. m venkatesh,ECE,1,1,D,FEE,FEE,FEE,Theory,1 ECE D,medium,extracted from workload docx
+Ms. T Amy Prasanna,ms. t amy prasanna,ECE,3,5,E,MPMC,MPMC,MPMC,Theory,3 ECE E,medium,extracted from workload docx
+Ms. T Amy Prasanna,ms. t amy prasanna,ECE,1,1,,CAICD,CAICD,CAICD,Theory,1 ECE,medium,extracted from workload docx
+Ms. T Amy Prasanna,ms. t amy prasanna,ECE,3,5,E,MPMC,MPMC,MPMC,Lab,3 ECE E,medium,extracted from workload docx
+Ms. T Amy Prasanna,ms. t amy prasanna,ECE,3,5,A,MC,MC,MC,Lab,3 ECE A,medium,extracted from workload docx
+Ms. R Sahithi,ms. r sahithi,ECE,1,1,C,FEE,FEE,FEE,Theory,1 ECE C,medium,extracted from workload docx
+Ms. R Sahithi,ms. r sahithi,ECE,1,1,E,FEE,FEE,FEE,Theory,1 ECE E,medium,extracted from workload docx
+Ms. R Sahithi,ms. r sahithi,ECE,2,3,A,DLD,DLD,DLD,Lab,2 ECE A,medium,extracted from workload docx
+Mr. N Srinivasa Rao,mr. n srinivasa rao,ECE,2,3,C,DE,DE,DE,Theory,2 ECE C,medium,extracted from workload docx
+Mr. N Srinivasa Rao,mr. n srinivasa rao,ECE,2,3,D,DE,DE,DE,Theory,2 ECE D,medium,extracted from workload docx
+Mr. N Srinivasa Rao,mr. n srinivasa rao,ECE,2,3,E,AEC,AEC,AEC,Lab,2 ECE E,medium,extracted from workload docx
+Mr. T Sai Kumar,mr. t sai kumar,ECE,4,7,A,SC,SC,SC,Theory,4 ECE A,medium,extracted from workload docx
+Mr. T Sai Kumar,mr. t sai kumar,ECE,4,7,B,SC,SC,SC,Theory,4 ECE B,medium,extracted from workload docx
+Mr. T Sai Kumar,mr. t sai kumar,ECE,4,7,B,MWOC,MWOC,MWOC,Lab,4 ECE B,medium,extracted from workload docx
+Dr. M Ranjeeth,dr. m ranjeeth,ECE,1,1,A,FEE,FEE,FEE,Theory,1 ECE A,medium,extracted from workload docx
+Dr. M Ranjeeth,dr. m ranjeeth,ECE,1,1,B,FEE,FEE,FEE,Theory,1 ECE B,medium,extracted from workload docx
+Dr. M Ranjeeth,dr. m ranjeeth,ECE,2,3,E,AEC,AEC,AEC,Lab,2 ECE E,medium,extracted from workload docx
+Dr. L Bhargava Kumar,dr. l bhargava kumar,ECE,2,3,E,DE,DE,DE,Theory,2 ECE E,medium,extracted from workload docx
+Dr. L Bhargava Kumar,dr. l bhargava kumar,ECE,3,5,B,Adv.Com,Adv.Com,Adv.Com,Lab,3 ECE B,medium,extracted from workload docx
+Dr. L Bhargava Kumar,dr. l bhargava kumar,ECE,4,7,B,MWOC,MWOC,MWOC,Lab,4 ECE B,medium,extracted from workload docx
+Dr. Y Alekhya,dr. y alekhya,ECE,3,5,E,DCCN,DCCN,DCCN,Theory,3 ECE E,medium,extracted from workload docx
+Dr. Y Alekhya,dr. y alekhya,ECE,1,1,,LPVD,LPVD,LPVD,Theory,1 ECE,medium,extracted from workload docx
+Dr. Y Alekhya,dr. y alekhya,ECE,3,5,E,MPMC,MPMC,MPMC,Lab,3 ECE E,medium,extracted from workload docx
+Dr. Y Alekhya,dr. y alekhya,ECE,3,5,B,Adv.Com,Adv.Com,Adv.Com,Lab,3 ECE B,medium,extracted from workload docx
+Dr. G Purnachandrarao,dr. g purnachandrarao,ECE,1,1,F,FEE,FEE,FEE,Theory,1 ECE F,medium,extracted from workload docx
+Dr. G Purnachandrarao,dr. g purnachandrarao,ECE,4,7,L,ES,ES,ES,Theory,4 ECE L,medium,extracted from workload docx
+Dr. G Purnachandrarao,dr. g purnachandrarao,ECE,3,5,B,MC,MC,MC,Lab,3 ECE B,medium,extracted from workload docx
+Mr. D V Siva Prasad,mr. d v siva prasad,ECE,3,5,E,SS,SS,SS,Theory,3 ECE E,medium,extracted from workload docx
+Mr. D V Siva Prasad,mr. d v siva prasad,ECE,3,5,A,Adv.Com,Adv.Com,Adv.Com,Lab,3 ECE A,medium,extracted from workload docx
+Mr. D V Siva Prasad,mr. d v siva prasad,ECE,4,7,A,MWOC,MWOC,MWOC,Lab,4 ECE A,medium,extracted from workload docx
+Dr. M Kalpana Chowdary,dr. m kalpana chowdary,ECE,2,3,F,DE,DE,DE,Theory,2 ECE F,medium,extracted from workload docx
+Dr. M Kalpana Chowdary,dr. m kalpana chowdary,ECE,4,7,C,ES,ES,ES,Theory,4 ECE C,medium,extracted from workload docx
+Dr. M Kalpana Chowdary,dr. m kalpana chowdary,ECE,2,3,A,AC,AC,AC,Lab,2 ECE A,medium,extracted from workload docx

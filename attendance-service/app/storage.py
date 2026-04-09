@@ -7,6 +7,8 @@ from .config import ATTENDANCE_TIMEZONE
 
 LOCAL_TZ = ZoneInfo(ATTENDANCE_TIMEZONE)
 
+from . import db as pg_db
+
 class AttendanceStore:
     def __init__(self):
         # {session_id: {roll_number: record}}
@@ -48,24 +50,49 @@ class AttendanceStore:
     ) -> Tuple[Optional[dict], Optional[str]]:
         """
         Atomically checks for session duplicates and optional daily limits.
-        Returns: (record, error_code)
+        Uses PostgreSQL if available, otherwise falls back to memory.
         """
         roll_no = roll_number.strip().upper()
         today = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d")
         
+        # 1. Try DB first
+        if pg_db.is_db_available():
+            if pg_db.check_duplicate_attendance(roll_no, session_id):
+                return None, "DUPLICATE_ATTENDANCE"
+            
+            # Save to DB
+            now_iso = datetime.now(LOCAL_TZ).isoformat()
+            ok = pg_db.save_attendance(roll_no, session_id, now_iso, confidence)
+            if ok:
+                record = {
+                    "attendance_id": "db",
+                    "roll_number": roll_no,
+                    "session_id": session_id,
+                    "instructor_id": instructor_id,
+                    "timestamp": now_iso,
+                    "identity_verified": True,
+                    "confidence": confidence,
+                    "status": "marked"
+                }
+                # Also keep in memory for speed/fallback
+                with self._lock:
+                    if session_id not in self.records:
+                        self.records[session_id] = {}
+                    self.records[session_id][roll_no] = record
+                    self.history.append(record)
+                return record, None
+
+        # 2. Fallback to Memory
         with self._lock:
-            # 1. Session Duplicate Check
             if session_id in self.records and roll_no in self.records[session_id]:
                 return None, "DUPLICATE_ATTENDANCE"
 
-            # 2. Optional Daily Limit Check
             if enable_daily_limit:
                 if today not in self.daily_registry:
                     self.daily_registry[today] = {}
                 if roll_no in self.daily_registry[today]:
                     return None, "DAILY_LIMIT_REACHED"
 
-            # 3. Prepare the verified attendance record
             record_id = str(uuid.uuid4())
             record = {
                 "attendance_id": record_id,
@@ -78,7 +105,6 @@ class AttendanceStore:
                 "status": "marked"
             }
 
-            # 4. Final Atomic Save
             if session_id not in self.records:
                 self.records[session_id] = {}
             
