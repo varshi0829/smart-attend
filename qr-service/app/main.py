@@ -5,9 +5,6 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import logging
-import platform
-import socket
-import sys
 import traceback
 from .session_store import store
 from .responses import standard_response
@@ -17,98 +14,15 @@ app = FastAPI(title="SmartAttend QR Session Service")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("QRService")
 
-# Allow any origin for local network access (development)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-def _log_runtime_diagnostics() -> None:
-    logger.info(
-        "[STARTUP] Runtime: python=%s platform=%s qr_expiry=%s",
-        sys.version.split(" ")[0],
-        platform.platform(),
-        QR_EXPIRY_SECONDS,
-    )
-
-def _validate_socket_runtime_permissions() -> None:
-    probe = None
-    try:
-        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    except PermissionError as exc:
-        logger.warning(
-            "[STARTUP] Socket runtime check warning: %s. "
-            "Continuing startup; uvicorn bind step will report concrete bind errors if restricted.",
-            exc,
-        )
-        return
-    except OSError as exc:
-        logger.warning(
-            "[STARTUP] Socket runtime check warning (OS error): %s. "
-            "Continuing startup; uvicorn bind step will report concrete bind errors if restricted.",
-            exc,
-        )
-        return
-    finally:
-        if probe is not None:
-            probe.close()
-
-@app.on_event("startup")
-async def startup_preflight():
-    logger.info("[STARTUP] QR service preflight started.")
-    try:
-        _log_runtime_diagnostics()
-        _validate_socket_runtime_permissions()
-    except Exception as exc:
-        logger.error(f"[STARTUP] Preflight failed: {exc}\n{traceback.format_exc()}")
-        raise
-    logger.info("[STARTUP] QR service preflight completed successfully.")
-
-@app.middleware("http")
-async def request_logging_middleware(request: Request, call_next):
-    started = time.time()
-    try:
-        response = await call_next(request)
-        elapsed_ms = int((time.time() - started) * 1000)
-        logger.info(
-            "[REQUEST] %s %s -> %s (%sms)",
-            request.method,
-            request.url.path,
-            response.status_code,
-            elapsed_ms,
-        )
-        return response
-    except Exception:
-        elapsed_ms = int((time.time() - started) * 1000)
-        logger.error(
-            "[REQUEST] %s %s -> EXCEPTION (%sms)\n%s",
-            request.method,
-            request.url.path,
-            elapsed_ms,
-            traceback.format_exc(),
-        )
-        raise
-
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
-    logger.error(
-        "[UNHANDLED] %s %s failed: %r\n%s",
-        request.method,
-        request.url.path,
-        exc,
-        traceback.format_exc(),
-    )
-    return JSONResponse(
-        status_code=500,
-        content={"success": False, "message": "Internal server error", "error_code": "SERVER_ERROR"},
-    )
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 
 class SessionStartRequest(BaseModel):
     instructor_id: str = Field(..., min_length=1)
-    class_name: str = Field(..., min_length=1)
+    instructor_name: str = "Instructor"
+    department: str = Field(..., min_length=1)
+    year: str = Field(..., min_length=1)
+    section: str = Field(..., min_length=1)
+    subject: str = Field(..., min_length=1)
 
 class VerifyQRRequest(BaseModel):
     roll_number: str = Field(..., min_length=1)
@@ -125,123 +39,67 @@ class ConsumeGrantRequest(BaseModel):
 class IncrementRetryRequest(BaseModel):
     grant_id: str = Field(..., min_length=1)
 
-@app.post("/session/increment-retry")
-async def increment_retry(req: IncrementRetryRequest):
-    count = store.increment_grant_retry(req.grant_id)
-    return standard_response(True, "Retry incremented", {"retry_count": count})
-
 @app.post("/session/start")
 async def start_session(req: SessionStartRequest):
-    session, error = store.start_session(req.instructor_id, req.class_name)
-    if error:
-        return standard_response(False, error, status_code=400)
+    session, error = store.start_session(req.instructor_id, req.department, req.year, req.section, req.subject, req.instructor_name)
+    if error: return standard_response(False, error, status_code=400)
     return standard_response(True, "Session started", {"session_id": session["id"]})
 
 @app.get("/session/current-qr")
 async def get_current_qr(instructor_id: str = Query(..., min_length=1)):
     session = store.get_active_session(instructor_id)
-    if not session:
-        return standard_response(False, "No active session", status_code=404)
-    
+    if not session: return standard_response(False, "No active session", status_code=404)
     code, expiry = store.generate_fresh_code(instructor_id, QR_EXPIRY_SECONDS)
-    return standard_response(True, "Fresh code generated", {
-        "qr_token": code,
-        "expires_at": expiry.isoformat(),
-        "ttl": QR_EXPIRY_SECONDS
-    })
+    return standard_response(True, "Fresh code generated", {"qr_token": code, "expires_at": expiry.isoformat(), "ttl": QR_EXPIRY_SECONDS})
 
 @app.get("/session/status")
 async def get_status(instructor_id: str = Query(..., min_length=1)):
     session = store.get_active_session(instructor_id)
-    return standard_response(True, "Status fetched", {
-        "active": session is not None,
-        "session_id": session["id"] if session else None,
-        "class_name": session["class_name"] if session else None
-    })
+    return standard_response(True, "Status fetched", {"active": session is not None, "session_id": session["id"] if session else None, "class_name": session["class_name"] if session else None})
 
 @app.post("/session/stop")
 async def stop_session(instructor_id: str = Body(..., embed=True)):
     session, error = store.stop_session(instructor_id)
-    if error:
-        return standard_response(False, error, status_code=404)
-    
-    # Trigger Excel generation in attendance service
-    session_id = session["id"]
+    if error: return standard_response(False, error, status_code=404)
     try:
+        # Trigger report generation in background
         async with httpx.AsyncClient(verify=False, timeout=5.0) as client:
-            await client.post(
-                f"https://127.0.0.1:5003/attendance/session/{session_id}/generate-report"
-            )
-            logger.info(f"[SESSION] Excel generation triggered for session: {session_id}")
-    except Exception as e:
-        logger.error(f"[SESSION] Failed to trigger Excel generation: {e}")
-    
-    return standard_response(True, "Session stopped", {"session_id": session_id})
+            await client.post(f"https://127.0.0.1:5003/attendance/session/{session['id']}/generate-report")
+    except Exception as e: logger.error(f"Excel trigger failed: {e}")
+    return standard_response(True, "Session stopped", {"session_id": session["id"]})
+
+@app.post("/session/increment-retry")
+async def increment_retry(req: IncrementRetryRequest):
+    count = store.increment_grant_retry(req.grant_id)
+    return standard_response(True, "Retry incremented", {"retry_count": count})
 
 @app.post("/session/verify-qr")
 async def verify_qr(req: VerifyQRRequest):
-    # Strip whitespace from token
-    token = req.qr_token.strip()
-    roll_no = req.roll_number.upper().strip()
-    
-    # Verify the code against the backend store
-    session, error = store.verify_code(token)
-    
-    # Map error codes precisely
-    if error == "INVALID_CODE":
-        return standard_response(False, "The QR code is invalid or unrecognized.", error_code="QR_INVALID", status_code=401)
-    if error == "CODE_EXPIRED":
-        return standard_response(False, "This QR code has expired. Please scan the latest one.", error_code="QR_EXPIRED", status_code=401)
-    if error == "SESSION_CLOSED":
-        return standard_response(False, "The instructor has ended this session.", error_code="SESSION_CLOSED", status_code=400)
-
-    # Create a scan grant for this student
-    grant = store.create_grant(roll_no, session["id"], session["instructor_id"])
-
-    # Return required payload including the new grant_id, nested in data
-    return standard_response(True, "QR validated successfully", {
-        "grant_id": grant["grant_id"],
-        "session_id": grant["session_id"],
-        "instructor_id": grant["instructor_id"],
-        "roll_number": grant["roll_number"],
-        "expires_in": 30
-    })
+    session, error = store.verify_code(req.qr_token.strip())
+    if error: return standard_response(False, error, error_code=f"QR_{error}", status_code=401)
+    grant = store.create_grant(req.roll_number.upper().strip(), session["id"], session["instructor_id"])
+    return standard_response(True, "QR validated", {"grant_id": grant["grant_id"], "session_id": grant["session_id"], "instructor_id": grant["instructor_id"], "expires_in": 30})
 
 @app.post("/session/verify-grant")
 async def verify_grant(req: VerifyGrantRequest):
     grant, error = store.verify_grant(req.grant_id, req.roll_number, req.session_id)
-    if error:
-        return standard_response(False, f"Grant verification failed: {error}", error_code=error, status_code=401)
-    
-    return standard_response(True, "Grant is valid", {
-        "grant_id": grant["grant_id"],
-        "session_id": grant["session_id"],
-        "instructor_id": grant["instructor_id"],
-        "roll_number": grant["roll_number"]
-    })
+    if error: return standard_response(False, error, error_code=error, status_code=401)
+    return standard_response(True, "Grant valid", {"instructor_id": grant["instructor_id"]})
 
 @app.post("/session/consume-grant")
 async def consume_grant(req: ConsumeGrantRequest):
     success = store.consume_grant(req.grant_id)
-    if not success:
-        return standard_response(False, "Failed to consume grant", error_code="GRANT_CONSUMPTION_FAILED", status_code=400)
-    return standard_response(True, "Grant consumed successfully")
+    if not success: return standard_response(False, "Grant consumption failed", error_code="GRANT_CONSUME_FAILED", status_code=400)
+    return standard_response(True, "Grant consumed")
 
 @app.get("/session/{session_id}")
 async def get_session(session_id: str):
-    """Get session metadata for Excel generation."""
     session = store.get_session_by_id(session_id)
-    if not session:
-        return standard_response(False, "Session not found", status_code=404)
-    
-    # Convert datetime objects to ISO format strings for JSON serialization
-    session_copy = session.copy()
-    for key in ["created_at", "start_time", "ended_at", "end_time"]:
-        if key in session_copy and session_copy[key]:
-            session_copy[key] = session_copy[key].isoformat()
-    
-    return standard_response(True, "Session found", session_copy)
+    if not session: return standard_response(False, "Session not found", status_code=404)
+    data = session.copy()
+    for k in ["created_at", "start_time", "end_time"]:
+        if k in data and data[k]: data[k] = data[k].isoformat()
+    return standard_response(True, "Found", data)
 
 @app.get("/health")
-async def health():
-    return {"status": "ok", "qr_expiry_seconds": QR_EXPIRY_SECONDS}
+async def health(): return {"status": "ok"}

@@ -15,4 +15,6 @@ ATTENDANCE_TIMEZONE = os.getenv("ATTENDANCE_TIMEZONE", "Asia/Kolkata")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 # Reports Storage
-REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "reports")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPORTS_DIR = os.path.join(BASE_DIR, "reports")
+INSTRUCTOR_CONFIG_PATH = os.path.join(BASE_DIR, "instructor_config.json")

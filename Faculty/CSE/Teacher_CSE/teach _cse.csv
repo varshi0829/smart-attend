@@ -1,0 +1,43 @@
+Teacher Name,MaxHoursPerWeek,Course Name,Course ID
+Dr. S L Aruna Rao,3,Cryptography and Network Security,CS701PC
+Prof. R S Murali Nath,6,Discrete Mathematics,CS303PC
+Dr.R Suneetha Rani,9,Data Mining; Computer Organization & Operating Systems; Cryptography and Network Security Lab,,
+Dr. G. Naga Satish,3,Data Analytics,
+Dr. M. Indrasena Reddy,12,Data Structures; Data Structures Lab,CS302PC; CS306PC
+Ms. D. Swapna,12,Compiler Design; Compiler Design Lab; Data Visualization Lab,CS702PC; CS705PC; CS309PC
+Dr. B. Venkatesh,15,Programming for Problem Solving; Graph Theory; Project Stage-I; HCL TRAINING,CS103ES; ; CS706PC;
+Dr. Prasanth Vaidya,5,Cryptography and Network Security; Cryptography and Network Security Lab; Project Stage - I,CS701PC; CS704PC; CS706PC
+Dr. M. Shanmuga Sundari,9,Programming for Problem Solving; Programming for Problem Solving Lab,CS103ES; CS108ES
+Dr. C. Nagaraju,18,Computer Networks; Computer Networks Lab; Coding Practice,CS502PC; CS507PC;
+Dr. V. Surya Narayana Reddy,14,Advanced Algorithms; Data visualization-R Programming/Power BI Lab; Coding Practice,; CS309PC;
+Dr. Kanaka Vardhini,9,Object Oriented Programming through Java; Object Oriented Programming through Java Lab; Project Stage - I,CS305PC; CS307PC; CS706PC
+Ms. B. Nagaveni,7,Design and Analysis of Algorithms; Data Structures Lab; Training,CS501PC; CS306PC;
+Mr. K. Bhargav Ram,12,DevOps; DevOps Lab; Software Engineering; Data visualization-R Programming/Power BI,CS503PC; CS504PC; CS401PC; CS309PC
+Mr. M. Dyva Sugnana Rao,6,Data Structures; Data Structures Lab,CS302PC; CS306PC
+Ms. E G Padmavati,12,UI design-Flutter Lab; Cloud Computing; DevOps Lab,CS506PC;; CS504PC
+Ms. Suparna Das,16,DevOps; DevOps Lab; Scripting Languages; Object Oriented Programming through Java Lab; R Programming Lab; Data visualization-R Programming/Power BI,CS503PC; CS504PC;; CS307PC;; CS309PC
+Ms T. Durga Devi,16,DevOps; DevOps Lab; Cryptography and Network security Lab; Database Management Systems; Database Management Systems Lab; Coding Practice,CS503PC; CS504PC; CS704PC; CS304PC; CS308PC;
+Ms. S.Vidyullatha,16,UI design- Flutter; Discrete Mathematics; Data Structures Lab; Data visualization-R Programming/Power BI; Introduction of Data Science,CS506PC; CS303PC; CS306PC; CS309PC;
+Ms. KBKS Durga,18,Programming for Problem Solving; Programming for Problem Solving Lab,CS103ES; CS108ES
+Ms. K.Neha,14,Object Oriented Programming through Java; Object Oriented Programming through Java Lab; Data visualization-R Programming/Power BI,CS305PC; CS307PC; CS309PC
+Ms. M Lakshmi Prasudha,15,Data Structures; Data Structures Lab,CS302PC; CS306PC
+Ms. V. Manya,18,Computer Networks; Computer Networks Lab; Data visualization-R Programming/Power BI; DevOps Lab; Data Structures Lab; Coding practice,CS502PC; CS507PC; CS309PC; CS504PC; CS306PC;
+Ms. J.Jhansi Goud,13,Data Analytics; Data visualization-R Programming/Power BI; Data Structures Lab,,CS309PC; CS306PC
+Mr. K. Naresh,12,Object Oriented Programming through Java; Object Oriented Programming through Java Lab,CS305PC; CS307PC
+Mr. M. Naga Sriharsha,6,Data Structures; Data Structures Lab,CS302PC; CS306PC
+Ms. M. Sahaja,14,Data Mining; UI design-Flutter Lab; Data visualization-R Programming/Power BI,,CS506PC; CS309PC
+Ms. P Surya Bharathi,18,Programming for Problem Solving; Programming for Problem Solving Lab,CS103ES; CS108ES
+Ms. T. Jhansi Renuka,16,Cloud Computing; Design and Analysis of Algorithms; Cryptography and Network Security Lab; Compiler Design Lab; Coding practice,,CS501PC; CS704PC; CS705PC;
+Ms. B. Pushpa,10,Advanced Algorithms; UI design-Flutter Lab; Data visualization-R Programming/Power BI Lab,,CS506PC; CS309PC
+Ms. G. Rashmitha,8,Database Management Systems Lab; Programming for Problem Solving,CS308PC; CS103ES
+Ms. G. Chandana Priya,9,Database Management Systems; Database Management Systems Lab; Compiler Design Lab,CS304PC; CS308PC; CS705PC
+Ms. M. Sandhya Vani,15,Cloud Computing; Coding Practice; Devops Lab; Database Management Systems Lab; Database Management Systems,,CS504PC; CS308PC; CS304PC
+Mr. N. Raghava Rao,16,Design and Analysis of Algorithms; Compiler Design Lab; Coding practice; Discrete Mathematics; Object Oriented Programming through Java Lab,CS501PC; CS705PC; CS303PC; CS307PC
+Ms. V. Aneesha,15,Cryptography and network Security; Cryptography and network Security Lab; Database Management Systems Lab; Coding Practice,CS701PC; CS704PC; CS308PC;
+Ms. G. Rama Devi,16,Database Management Systems; Database Management Systems Lab; Coding practice,CS304PC; CS308PC;
+Mr. K. Rajesh,3,Compiler Design,CS702PC
+Ms. M Sri Sevitha,9,Data Structures Lab; Deep Learning; Deep Learning Lab,CS306PC;;
+Ms. S Rama Devi,9,Operating Systems; Object Oriented Programming through Java; Object Oriented Programming through Java Lab,CS403PC; CS305PC; CS307PC
+Ms. D Sangeetha,14,Object Oriented Programming through Java; Object Oriented Programming through Java Lab; Discrete Mathematics; Database Management Systems Lab,CS305PC; CS307PC; CS303PC; CS308PC
+Ms. K Vineela,12,Database Management Systems; Database Management Systems Lab; Pattern recognitions,CS304PC; CS308PC;
+Mr. C Rajeev,12,Programming for Problem Solving Lab,CS108ES

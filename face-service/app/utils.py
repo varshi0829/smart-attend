@@ -1,10 +1,24 @@
+"""
+utils.py
+========
+Image decoding + embedding extraction.
+
+get_embedding() is the only function called from main.py.
+It now delegates to face_pipeline.extract_embedding() (InsightFace buffalo_l)
+instead of DeepFace, but returns the IDENTICAL dict contract so main.py
+requires zero changes.
+
+process_uploaded_image() is unchanged — it's pure OpenCV decode logic.
+"""
+
 import cv2
 import numpy as np
-from deepface import DeepFace
-from .config import MODEL_NAME, DETECTOR_BACKEND, logger
+from .config import logger
+from .face_pipeline import extract_embedding
+
 
 def process_uploaded_image(image_bytes: bytes):
-    """Convert raw bytes to OpenCV image array with error handling."""
+    """Convert raw bytes to BGR OpenCV image array."""
     try:
         if not image_bytes:
             return None
@@ -13,51 +27,21 @@ def process_uploaded_image(image_bytes: bytes):
         if img is None:
             logger.error("[UTILS] OpenCV failed to decode image buffer.")
         return img
-    except Exception as e:
-        logger.error(f"[UTILS] Image decoding failed: {e}")
+    except Exception as exc:
+        logger.error(f"[UTILS] Image decoding failed: {exc}")
         return None
 
-def get_embedding(img_array):
+
+def get_embedding(img_array) -> dict:
     """
-    Extract face embedding with strict single-face enforcement.
-    Returns: {"status": "ok" | "no_face" | "multiple_faces" | "decode_error" | "error", "embedding": np.array, "message": str}
+    Extract a face embedding from a BGR image array.
+
+    Returns:
+        {"status": "ok"|"no_face"|"multiple_faces"|"decode_error"|"error",
+         "embedding": np.ndarray|None,
+         "message":   str}
+
+    Delegates to InsightFace buffalo_l pipeline (face_pipeline.py).
+    Return format is backward-compatible with the original DeepFace version.
     """
-    if img_array is None:
-        return {"status": "decode_error", "embedding": None, "message": "Failed to decode image data."}
-
-    try:
-        logger.info(f"[UTILS] Running DeepFace representation using {MODEL_NAME}...")
-        results = DeepFace.represent(
-            img_path=img_array,
-            model_name=MODEL_NAME,
-            enforce_detection=True,
-            detector_backend=DETECTOR_BACKEND
-        )
-
-        if not results:
-            logger.warning("[UTILS] DeepFace returned empty results.")
-            return {"status": "no_face", "embedding": None, "message": "No face detected."}
-
-        if len(results) > 1:
-            logger.warning(f"[UTILS] Multiple faces detected: {len(results)}")
-            return {"status": "multiple_faces", "embedding": None, "message": "Multiple faces detected. Only one person should be in the frame."}
-
-        # Success - Single face
-        embedding = np.array(results[0]["embedding"], dtype=np.float32)
-        logger.info(f"[UTILS] Successfully generated embedding with shape {embedding.shape}")
-        return {
-            "status": "ok",
-            "embedding": embedding,
-            "message": "Face embedding generated successfully."
-        }
-
-    except ValueError as e:
-        msg = str(e)
-        if "Face could not be detected" in msg:
-            logger.warning("[UTILS] Face detection failed.")
-            return {"status": "no_face", "embedding": None, "message": "No face detected."}
-        logger.error(f"[UTILS] DeepFace ValueError: {msg}")
-        return {"status": "error", "embedding": None, "message": f"Detection error: {msg}"}
-    except Exception as e:
-        logger.error(f"[UTILS] Unexpected DeepFace error: {e}")
-        return {"status": "error", "embedding": None, "message": "Internal face processing error."}
+    return extract_embedding(img_array)

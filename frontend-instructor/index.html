@@ -3,422 +3,705 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instructor Dashboard - SmartAttend</title>
+    <title>Instructor Portal - SmartAttend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
     <style>
-        .qr-container canvas, .qr-container img {
-            margin: 0 auto;
-            border: 12px solid white;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        .qr-container canvas, .qr-container img { margin: 0 auto; border: 10px solid white; border-radius: 4px; }
+        .hidden { display: none !important; }
+
+        /* STRICT POSITIONING FIX FOR DROPDOWNS */
+        .custom-select-container {
+            position: relative !important;
+            width: 100%;
+            display: block;
         }
+
+        .custom-select-trigger {
+            width: 100%;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.375rem;
+            padding: 0.625rem 0.75rem;
+            text-align: left;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .custom-select-trigger.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .custom-options {
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            width: 100% !important;
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+            border-radius: 0.375rem !important;
+            margin-top: 4px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.8) !important;
+            z-index: 9999 !important;
+            max-height: 12rem;
+            overflow-y: auto;
+        }
+
+        .custom-option {
+            padding: 0.625rem 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #334155;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+        .custom-option:last-child { border-bottom: none; }
+        .custom-option:hover { background-color: #334155; color: white; }
+
+        /* Ensure parent panels don't clip the dropdown */
+        #sessionSetup, #reportsView { overflow: visible !important; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans text-slate-900">
-    
-    <nav class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-600">SmartAttend Instructor</h1>
-        <div id="userInfo" class="hidden flex items-center gap-4">
-            <span id="displayInstructor" class="text-gray-600 font-medium text-sm"></span>
-            <button onclick="logout()" class="text-xs text-red-500 font-bold uppercase hover:underline">Logout</button>
+<body class="bg-slate-900 min-h-screen text-slate-200 font-sans">
+
+    <!-- UI_VERSION_CHECK: v2.0.0-TEACHER-FILTERED -->
+    <nav id="navbar" class="hidden bg-slate-800 border-b border-slate-700 px-6 py-3 flex justify-between items-center">
+        <h1 class="text-lg font-bold text-blue-500 cursor-pointer" onclick="showView('landing')">SmartAttend</h1>
+        <div class="flex items-center gap-4">
+            <span id="displayInstructor" class="text-slate-400 text-xs font-bold uppercase tracking-wider"></span>
+            <button onclick="logout()" class="text-[10px] text-red-500 font-bold uppercase hover:underline">Logout</button>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto p-6">
-        
-        <div id="loginView" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-lg border">
-            <h2 class="text-2xl font-bold mb-6 text-center">Instructor Access</h2>
-            <input type="text" id="instructorId" value="INST_001" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 mb-4">
-            <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Enter Dashboard</button>
+
+        <!-- LOGIN VIEW -->
+        <div id="loginView" class="max-w-sm mx-auto mt-24 bg-slate-800 p-8 rounded-lg border border-slate-700 shadow-lg">
+            <h2 class="text-xl font-bold mb-6 text-center text-white">Instructor Login</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Faculty Name</label>
+                    <input type="text" id="instructorId" placeholder="e.g. Aruna Rao" class="w-full bg-slate-900 px-4 py-2 border border-slate-700 rounded text-white outline-none focus:border-blue-500">
+                </div>
+                <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold transition-all">Login</button>
+                <p id="loginError" class="hidden text-center text-red-400 text-xs font-bold"></p>
+            </div>
         </div>
 
-        <div id="dashboardView" class="hidden space-y-6">
+        <!-- LANDING VIEW -->
+        <div id="landingView" class="hidden max-w-lg mx-auto mt-10 space-y-4">
+            <h2 class="text-xl font-bold text-center mb-6 text-slate-400">Main Menu</h2>
+            <button onclick="showView('newSession')" class="w-full bg-slate-800 p-6 rounded-lg border border-slate-700 hover:border-blue-500 text-left flex items-center justify-between group transition-all">
+                <span class="text-lg font-bold">New Session</span>
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </button>
+            <button onclick="showView('reports')" class="w-full bg-slate-800 p-6 rounded-lg border border-slate-700 hover:border-blue-500 text-left flex items-center justify-between group transition-all">
+                <span class="text-lg font-bold">Reports</span>
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"/></svg>
+            </button>
+        </div>
+
+        <!-- NEW SESSION VIEW -->
+        <div id="newSessionView" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <button onclick="showView('landing')" class="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
+                </button>
+                <h2 class="text-lg font-bold uppercase tracking-widest text-slate-400">Live Session</h2>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Session Setup (Left) -->
                 <div class="md:col-span-1 space-y-6">
-                    <div id="startCard" class="bg-white p-6 rounded-xl shadow-sm border">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">New Session</h3>
-                        <input type="text" id="className" placeholder="Class Name (e.g. CS101)" class="w-full px-4 py-2 border rounded-lg mb-4 outline-none">
-                        <button onclick="startSession()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold">Start Session</button>
-                    </div>
+                    <div id="sessionSetup" class="bg-slate-800 p-6 rounded-lg border border-slate-700 space-y-4">
+                        <h3 class="font-bold text-xs text-slate-500 uppercase border-b border-slate-700 pb-2">Setup</h3>
 
-                    <!-- Report Download Section -->
-                    <div id="downloadCard" class="hidden bg-white p-6 rounded-xl shadow-lg border-2 border-blue-500 transform transition-all duration-500 ease-out">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div id="downloadIcon" class="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                                <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="font-bold text-gray-900" id="downloadStatus">Generating report...</h3>
-                                <p id="downloadTime" class="text-[10px] text-gray-500 font-mono"></p>
+                        <!-- Year -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Year</label>
+                            <div class="custom-select-container">
+                                <div id="yearTrigger" onclick="toggleDropdown('year')" class="custom-select-trigger"><span id="yearSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                <div id="yearOptions" class="custom-options hidden"></div>
                             </div>
                         </div>
-                        <button id="downloadBtn" onclick="downloadReport()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                            <span id="btnText">Download Attendance Report</span>
-                        </button>
+
+                        <!-- Department -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Department</label>
+                            <div class="custom-select-container">
+                                <div id="deptTrigger" onclick="toggleDropdown('dept')" class="custom-select-trigger disabled"><span id="deptSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                <div id="deptOptions" class="custom-options hidden"></div>
+                            </div>
+                        </div>
+
+                        <!-- Section -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Section</label>
+                            <div class="custom-select-container">
+                                <div id="sectionTrigger" onclick="toggleDropdown('section')" class="custom-select-trigger disabled"><span id="sectionSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                <div id="sectionOptions" class="custom-options hidden"></div>
+                            </div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Subject</label>
+                            <div class="custom-select-container">
+                                <div id="subjectTrigger" onclick="toggleDropdown('subject')" class="custom-select-trigger disabled"><span id="subjectSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                <div id="subjectOptions" class="custom-options hidden"></div>
+                            </div>
+                        </div>
+
+                        <button id="startBtn" onclick="startSession()" disabled class="w-full bg-green-600 hover:bg-green-700 disabled:opacity-30 text-white py-2 rounded font-bold">Start Session</button>
                     </div>
 
-                    <div id="activeInfoCard" class="hidden bg-white p-6 rounded-xl shadow-sm border border-green-100 bg-green-50/10">
-                        <h3 class="font-bold text-lg text-green-800" id="currentClassName"></h3>
-                        <p class="text-[10px] font-mono text-gray-400" id="currentSessionId"></p>
-                        <div class="py-10 flex flex-col items-center">
-                            <span class="text-xs text-gray-400 uppercase font-black tracking-widest mb-2">Verified Students</span>
-                            <span class="text-6xl font-black text-blue-600" id="presentCount">0</span>
+                    <div id="sessionActiveInfo" class="hidden bg-slate-800 p-6 rounded-lg border border-blue-500/30 space-y-4 text-center">
+                        <p class="text-[10px] font-bold uppercase text-blue-400">Session Active</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                <p class="text-2xl font-bold text-white" id="presentCount">0</p>
+                                <p class="text-[9px] uppercase font-bold text-slate-500">Present</p>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                <p class="text-2xl font-bold text-red-500" id="absentCount">0</p>
+                                <p class="text-[9px] uppercase font-bold text-slate-500">Absent</p>
+                            </div>
                         </div>
-                        <button onclick="stopSession()" class="w-full border-2 border-red-500 text-red-500 py-2 rounded-lg font-bold">End Session</button>
+                        <button onclick="stopSession()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-bold">Stop Session</button>
                     </div>
                 </div>
 
-                <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-sm border flex flex-col items-center justify-center min-h-[450px]">
-                    <div id="qrPlaceholder" class="text-center text-gray-300">
-                        <p class="font-medium text-slate-400">QR code will appear here when session starts.</p>
-                    </div>
-                    
-                    <div id="qrBox" class="hidden text-center w-full">
-                        <div class="flex items-center justify-between mb-8 border-b pb-4">
-                            <div class="text-left"><h3 class="text-xl font-black text-gray-800 tracking-tight text-slate-700">Dynamic Attendance QR</h3></div>
-                            <span class="text-[10px] text-blue-700 font-bold uppercase bg-blue-50 px-3 py-1 rounded" id="fetchStatus">Active</span>
+                <!-- QR Panel (Right) -->
+                <div class="md:col-span-2 space-y-6">
+                    <div id="qrArea" class="bg-slate-800 p-8 rounded-lg border border-slate-700 flex flex-col items-center justify-center min-h-[380px] shadow-lg">
+                        <div id="qrBox" class="hidden text-center w-full space-y-6">
+                            <div id="qrContainer" class="qr-container bg-white p-4 rounded inline-block shadow-inner"></div>
+                            <div class="flex justify-center gap-12 text-xs font-bold uppercase text-slate-500">
+                                <div><p>Refresh</p><p class="text-white font-mono">15s</p></div>
+                                <div><p>Timer</p><p id="timer" class="text-blue-400 font-mono">--</p></div>
+                            </div>
                         </div>
-                        <div class="inline-block p-4 bg-white rounded-2xl shadow-inner border border-slate-50"><div id="qrContainer" class="qr-container"></div></div>
-                        <p id="qrError" class="text-red-500 text-sm mt-4 font-bold"></p>
-                        <div class="mt-10 flex justify-center gap-12 border-t pt-6 border-slate-50">
-                            <div class="text-center"><p class="text-[10px] text-gray-400 font-black uppercase mb-1">Rotation</p><p class="text-sm font-bold text-gray-700">45s</p></div>
-                            <div class="text-center"><p class="text-[10px] text-gray-400 font-black uppercase mb-1">Next Token</p><p class="text-sm font-black text-blue-600" id="timer">--</p></div>
-                        </div>
+                        <div id="qrPlaceholder" class="text-slate-600 font-bold uppercase tracking-tighter text-sm">QR Code Display</div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center"><h3 class="font-bold text-gray-700">Live Attendance Feed</h3></div>
+            <!-- Live Table -->
+            <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                <div class="px-6 py-3 bg-slate-700/30 border-b border-slate-700 font-bold text-xs uppercase tracking-widest">Attendance Feed</div>
                 <table class="w-full text-left">
-                    <thead class="text-[10px] uppercase bg-gray-50 text-gray-400 border-b font-black tracking-widest">
-                        <tr><th class="px-6 py-4">Roll Number</th><th class="px-6 py-4">Name</th><th class="px-6 py-4">Date</th><th class="px-6 py-4">Time</th></tr>
+                    <thead class="text-[10px] uppercase bg-slate-900 text-slate-500 font-bold border-b border-slate-700">
+                        <tr><th class="px-6 py-3">Roll Number</th><th class="px-6 py-3">Student Name</th><th class="px-6 py-3 text-right">Time</th></tr>
                     </thead>
-                    <tbody id="attendanceBody" class="divide-y text-sm"></tbody>
+                    <tbody id="attendanceBody" class="divide-y divide-slate-700 text-sm"></tbody>
                 </table>
-                <div id="emptyAttendance" class="py-20 text-center text-gray-300">No students recorded yet.</div>
+                <div id="emptyAttendance" class="py-12 text-center text-slate-600 font-bold uppercase text-[10px]">No records yet</div>
             </div>
+        </div>
 
-            <!-- Previous Reports Section -->
-            <div id="historyCard" class="hidden bg-white rounded-xl shadow-sm border overflow-hidden mt-6">
-                <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
-                    <h3 class="font-bold text-gray-700 text-sm uppercase tracking-wider">Previous Session Reports</h3>
+        <!-- REPORTS VIEW -->
+        <div id="reportsView" class="hidden space-y-6">
+            <button onclick="showView('landing')" class="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
+            </button>
+            <h2 class="text-xl font-bold text-center uppercase tracking-widest text-slate-400">Reports</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="md:col-span-1 space-y-2">
+                    <h3 class="text-[10px] font-bold uppercase text-slate-500 px-2">Assigned Classes</h3>
+                    <div id="reportSections" class="space-y-1"></div>
                 </div>
-                <div id="historyList" class="divide-y">
-                    <!-- History items will appear here -->
+                <div class="md:col-span-3 space-y-3">
+                    <div id="reportList" class="grid grid-cols-1 gap-2"></div>
+                    <div id="emptyReports" class="hidden py-20 text-center bg-slate-800 rounded border border-slate-700 text-slate-600 font-bold text-xs uppercase">No Reports Available</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- VIEWER MODAL -->
+        <div id="viewerModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur z-[200] flex items-center justify-center p-6">
+            <div class="bg-slate-800 w-full max-w-4xl max-h-[85vh] rounded flex flex-col border border-slate-700 overflow-hidden shadow-2xl">
+                <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-700/20">
+                    <div class="space-y-1">
+                        <h3 id="viewTitle" class="text-lg font-bold text-white"></h3>
+                        <div id="viewSummary" class="flex gap-x-4 text-[10px] text-slate-400 font-bold uppercase tracking-tight"></div>
+                    </div>
+                    <button onclick="closeViewer()" class="text-slate-500 hover:text-white font-bold">CLOSE</button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-0 bg-slate-900">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-800 text-slate-500 font-bold uppercase text-[9px] sticky top-0 border-b border-slate-700">
+                            <tr><th class="px-6 py-3">Roll Number</th><th class="px-6 py-3">Student Name</th><th class="px-6 py-3 text-right">Time</th></tr>
+                        </thead>
+                        <tbody id="viewerBody" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+                <div class="p-4 border-t border-slate-700 bg-slate-800 flex justify-end">
+                    <button onclick="downloadActiveReport()" class="bg-white text-slate-900 px-6 py-2 rounded text-xs font-bold hover:bg-slate-200">DOWNLOAD EXCEL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY MODAL -->
+        <div id="summaryModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur z-[300] flex items-center justify-center p-6">
+            <div class="bg-slate-800 w-full max-w-sm rounded border border-slate-700 p-8 text-center space-y-6 shadow-2xl">
+                <h3 class="text-lg font-bold text-white uppercase tracking-widest border-b border-slate-700 pb-2">Session Summary</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-4 rounded">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Present</p>
+                        <p id="sumPresent" class="text-2xl font-bold text-white">0</p>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Absent</p>
+                        <p id="sumAbsent" class="text-2xl font-bold text-red-500">0</p>
+                    </div>
+                </div>
+                <button onclick="closeSummary()" class="w-full bg-blue-600 text-white py-2 rounded font-bold uppercase text-xs tracking-widest">Back to Dashboard</button>
             </div>
         </div>
     </main>
 
     <script>
-        const API = {
-            face: "/api/face",
-            qr: "/api/qr",
-            attendance: "/api/attendance"
-        };
-        
-        let state = { 
-            instructorId: null, 
-            activeSession: null, 
-            lastSessionId: null, 
-            sessionHistory: JSON.parse(localStorage.getItem('sa_history') || '[]'),
-            refreshInterval: null, 
-            attendanceInterval: null, 
-            timerInterval: null 
-        };
+        console.log("SmartAttend Instructor Portal v2.0.0-TEACHER-FILTERED");
 
-        function login() {
-            const id = document.getElementById("instructorId").value.trim();
-            if (!id) return;
-            state.instructorId = id;
-            document.getElementById("displayInstructor").innerText = "Instructor: " + id;
-            document.getElementById("userInfo").classList.remove("hidden");
-            document.getElementById("loginView").classList.add("hidden");
-            document.getElementById("dashboardView").classList.remove("hidden");
-            updateHistoryUI();
-            checkExistingSession();
+        const API = { qr: "/api/qr", attendance: "/api/attendance" };
+
+        // ── Faculty data (loaded from generated JSON) ────────────────────────
+        let FACULTY_DATA = null;
+        let currentSubjects = [];  // populated when a section is selected
+
+        async function loadFacultyData() {
+            try {
+                const res = await fetch('/instructor-static/faculty_assignments.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                FACULTY_DATA = await res.json();
+                console.log(`Faculty data loaded: ${Object.keys(FACULTY_DATA.faculty).length} teachers`);
+            } catch (e) {
+                console.error('Failed to load faculty data:', e);
+                FACULTY_DATA = { faculty: {} };
+            }
         }
 
-        function updateHistoryUI() {
-            const container = document.getElementById("historyCard");
-            const list = document.getElementById("historyList");
-            
-            // Deduplicate and Limit to 5
-            const seen = new Set();
-            state.sessionHistory = state.sessionHistory.filter(h => {
-                if (seen.has(h.session_id)) return false;
-                seen.add(h.session_id);
-                return true;
-            }).slice(0, 5);
-            
-            localStorage.setItem('sa_history', JSON.stringify(state.sessionHistory));
+        // ── Name normalization (mirrors the Python script) ───────────────────
+        function normalizeName(name) {
+            return name.toLowerCase()
+                       .replace(/[^a-z\s]/g, ' ')
+                       .replace(/\s+/g, ' ')
+                       .trim();
+        }
 
-            if (state.sessionHistory.length === 0) {
-                container.classList.add("hidden");
+        // ── Fuzzy teacher lookup ─────────────────────────────────────────────
+        function findTeacher(inputName) {
+            if (!FACULTY_DATA || !FACULTY_DATA.faculty) return null;
+            const norm = normalizeName(inputName);
+            // Exact match
+            if (FACULTY_DATA.faculty[norm]) return FACULTY_DATA.faculty[norm];
+            // Word-based scoring – all input words must appear in the key
+            const inputWords = norm.split(' ').filter(w => w.length >= 2);
+            if (inputWords.length === 0) return null;
+            let best = null, bestScore = 0;
+            for (const [key, data] of Object.entries(FACULTY_DATA.faculty)) {
+                const keyWords = new Set(key.split(' '));
+                const hits = inputWords.filter(w => keyWords.has(w)).length;
+                const score = hits / inputWords.length;
+                if (score > bestScore) { bestScore = score; best = data; }
+            }
+            // Require ≥ 50% of input words to match (prevents false positives)
+            return bestScore >= 0.5 ? best : null;
+        }
+
+        // ── App state ────────────────────────────────────────────────────────
+        let state = {
+            instructor: null,
+            activeSession: null,
+            viewData: null,
+            classList: [],
+            intervals: { qr: null, attendance: null, timer: null },
+            form: { year: "", dept: "", section: "", subject: "", subjectCode: "" }
+        };
+
+        // ── View routing ─────────────────────────────────────────────────────
+        function showView(viewId) {
+            document.querySelectorAll('main > div').forEach(el => el.classList.add("hidden"));
+            document.getElementById(`${viewId}View`).classList.remove("hidden");
+            if (viewId === "newSession") populateYears();
+            if (viewId === "reports")    loadReportSections();
+        }
+
+        // ── Login ─────────────────────────────────────────────────────────────
+        function login() {
+            const errEl = document.getElementById("loginError");
+            errEl.classList.add("hidden");
+
+            if (!FACULTY_DATA) {
+                errEl.innerText = "Faculty data not loaded yet. Please wait and retry.";
+                errEl.classList.remove("hidden");
                 return;
             }
-            container.classList.remove("hidden");
-            list.innerHTML = state.sessionHistory.map(h => `
-                <div class="px-6 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                    <div>
-                        <p class="text-sm font-bold text-gray-800">${h.class_name}</p>
-                        <p class="text-[10px] text-gray-400 font-mono">${h.date} • ${h.session_id.substring(0,8)}</p>
-                    </div>
-                    <button onclick="directDownload('${h.session_id}')" class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </button>
-                </div>
-            `).join('');
-        }
 
-        async function checkExistingSession() {
-            try {
-                const res = await fetch(`${API.qr}/session/status?instructor_id=${state.instructorId}`);
-                const json = await res.json();
-                if (json.success && json.data && json.data.active) {
-                    onSessionActive(json.data);
-                } else {
-                    resetSessionUI();
-                }
-            } catch (e) { 
-                console.error("Session check error", e); 
-                resetSessionUI();
+            const input = document.getElementById("instructorId").value.trim();
+            if (!input) {
+                errEl.innerText = "Please enter your name.";
+                errEl.classList.remove("hidden");
+                return;
             }
+
+            const teacher = findTeacher(input);
+            if (!teacher) {
+                errEl.innerText = "No class assignments found for this faculty. Enter your name as it appears in the timetable (e.g. \"Aruna Rao\" or \"Dr. S L Aruna Rao\").";
+                errEl.classList.remove("hidden");
+                return;
+            }
+
+            if (!teacher.assignments || teacher.assignments.length === 0) {
+                errEl.innerText = "No active class assignments found for this faculty this semester.";
+                errEl.classList.remove("hidden");
+                return;
+            }
+
+            state.instructor = {
+                id:          teacher.id,
+                name:        teacher.display_name,
+                assignments: teacher.assignments
+            };
+            document.getElementById("displayInstructor").innerText = teacher.display_name;
+            document.getElementById("navbar").classList.remove("hidden");
+            showView('landing');
         }
 
+        function logout() { location.reload(); }
+
+        // ── Cascade filter helpers ────────────────────────────────────────────
+        function getYears() {
+            const s = new Set(state.instructor.assignments.map(a => a.year));
+            return [...s].sort((a, b) => Number(a) - Number(b));
+        }
+
+        function getDepts(year) {
+            const s = new Set(
+                state.instructor.assignments
+                    .filter(a => a.year === year)
+                    .map(a => a.department)
+            );
+            return [...s].sort();
+        }
+
+        function getSections(year, dept) {
+            const s = new Set(
+                state.instructor.assignments
+                    .filter(a => a.year === year && a.department === dept)
+                    .map(a => a.section)
+            );
+            return [...s].sort();
+        }
+
+        function getSubjectOptions(year, dept, section) {
+            return state.instructor.assignments
+                .filter(a => a.year === year && a.department === dept && a.section === section)
+                .map(a => ({
+                    name: a.subject_name || a.subject_acronym || a.subject_code,
+                    code: a.subject_code,
+                    acronym: a.subject_acronym,
+                    class_type: a.class_type
+                }));
+        }
+
+        // ── Custom dropdown toggle ────────────────────────────────────────────
+        function toggleDropdown(id) {
+            const el = document.getElementById(`${id}Options`);
+            const isHidden = el.classList.contains("hidden");
+            document.querySelectorAll('.custom-options').forEach(opt => opt.classList.add("hidden"));
+            if (isHidden) el.classList.remove("hidden");
+        }
+
+        window.onclick = (e) => {
+            if (!e.target.closest('.custom-select-container'))
+                document.querySelectorAll('.custom-options').forEach(opt => opt.classList.add("hidden"));
+        };
+
+        // ── Dropdown population ───────────────────────────────────────────────
+        function populateYears() {
+            const years = getYears();
+            document.getElementById("yearOptions").innerHTML = years.map(y =>
+                `<div class="custom-option" onclick="selectYear('${y}')">Year ${y}</div>`
+            ).join('');
+            resetForm();
+        }
+
+        function selectYear(val) {
+            state.form.year = val;
+            document.getElementById("yearSelected").innerText = "Year " + val;
+            document.getElementById("yearOptions").classList.add("hidden");
+
+            const depts = getDepts(val);
+            document.getElementById("deptOptions").innerHTML = depts.map(d =>
+                `<div class="custom-option" onclick="selectDept('${d}')">${d}</div>`
+            ).join('');
+            document.getElementById("deptTrigger").classList.remove("disabled");
+            document.getElementById("deptSelected").innerText = "Select";
+
+            // Reset downstream
+            state.form.dept = ""; state.form.section = ""; state.form.subject = ""; state.form.subjectCode = "";
+            document.getElementById("sectionTrigger").classList.add("disabled");
+            document.getElementById("sectionSelected").innerText = "Select";
+            document.getElementById("subjectTrigger").classList.add("disabled");
+            document.getElementById("subjectSelected").innerText = "Select";
+            validateForm();
+        }
+
+        function selectDept(val) {
+            state.form.dept = val;
+            document.getElementById("deptSelected").innerText = val;
+            document.getElementById("deptOptions").classList.add("hidden");
+
+            const sections = getSections(state.form.year, val);
+            document.getElementById("sectionOptions").innerHTML = sections.map(s =>
+                `<div class="custom-option" onclick="selectSection('${s}')">Section ${s}</div>`
+            ).join('');
+            document.getElementById("sectionTrigger").classList.remove("disabled");
+            document.getElementById("sectionSelected").innerText = "Select";
+
+            state.form.section = ""; state.form.subject = ""; state.form.subjectCode = "";
+            document.getElementById("subjectTrigger").classList.add("disabled");
+            document.getElementById("subjectSelected").innerText = "Select";
+            validateForm();
+        }
+
+        function selectSection(val) {
+            state.form.section = val;
+            document.getElementById("sectionSelected").innerText = "Section " + val;
+            document.getElementById("sectionOptions").classList.add("hidden");
+
+            currentSubjects = getSubjectOptions(state.form.year, state.form.dept, val);
+            document.getElementById("subjectOptions").innerHTML = currentSubjects.map((s, i) =>
+                `<div class="custom-option" onclick="selectSubject(${i})">${s.name}${s.class_type === 'Lab' ? ' <span class="text-slate-500 text-[9px]">[LAB]</span>' : ''}</div>`
+            ).join('');
+            document.getElementById("subjectTrigger").classList.remove("disabled");
+            document.getElementById("subjectSelected").innerText = "Select";
+
+            state.form.subject = ""; state.form.subjectCode = "";
+            validateForm();
+        }
+
+        function selectSubject(idx) {
+            const subj = currentSubjects[idx];
+            state.form.subject    = subj.name;
+            state.form.subjectCode = subj.code;
+            document.getElementById("subjectSelected").innerText = subj.name;
+            document.getElementById("subjectOptions").classList.add("hidden");
+            validateForm();
+        }
+
+        function resetForm() {
+            state.form = { year: "", dept: "", section: "", subject: "", subjectCode: "" };
+            document.getElementById("yearSelected").innerText    = "Select";
+            document.getElementById("deptSelected").innerText    = "Select";
+            document.getElementById("sectionSelected").innerText = "Select";
+            document.getElementById("subjectSelected").innerText = "Select";
+            document.getElementById("deptTrigger").classList.add("disabled");
+            document.getElementById("sectionTrigger").classList.add("disabled");
+            document.getElementById("subjectTrigger").classList.add("disabled");
+            validateForm();
+        }
+
+        function validateForm() {
+            document.getElementById("startBtn").disabled =
+                !(state.form.year && state.form.dept && state.form.section && state.form.subject);
+        }
+
+        // ── Session management ────────────────────────────────────────────────
         async function startSession() {
-            const btn = event.currentTarget || event.target;
-            const class_name = document.getElementById("className").value.trim();
-            if (!class_name) return alert("Enter class name");
-            
-            btn.disabled = true;
-            btn.innerText = "Starting...";
-            document.getElementById("downloadCard").classList.add("hidden");
-            
-            try {
-                const res = await fetch(`${API.qr}/session/start`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ instructor_id: state.instructorId, class_name })
-                });
-                const json = await res.json();
-                if (json.success) onSessionActive({ session_id: json.data.session_id, class_name });
-                else alert(json.message);
-            } catch (e) { 
-                console.error("Start error", e); 
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Start Session";
+            const res = await fetch(`${API.qr}/session/start`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    instructor_id:   state.instructor.id,
+                    instructor_name: state.instructor.name,
+                    department:      state.form.dept,
+                    year:            state.form.year,
+                    section:         state.form.section,
+                    subject:         state.form.subject
+                })
+            });
+            const json = await res.json();
+            if (json.success) {
+                state.activeSession = {
+                    session_id: json.data.session_id,
+                    dept:       state.form.dept,
+                    year:       state.form.year,
+                    section:    state.form.section,
+                    subject:    state.form.subject,
+                    start_time: new Date().toISOString(),
+                    class_name: `${state.form.dept}-${state.form.section}`
+                };
+                document.getElementById("sessionSetup").classList.add("hidden");
+                document.getElementById("sessionActiveInfo").classList.remove("hidden");
+                document.getElementById("qrBox").classList.remove("hidden");
+                document.getElementById("qrPlaceholder").classList.add("hidden");
+                await loadClassList(state.activeSession.class_name);
+                state.intervals.qr = setInterval(refreshQR, 15000); refreshQR();
+                state.intervals.attendance = setInterval(refreshAttendance, 5000);
             }
+        }
+
+        async function loadClassList(className) {
+            try {
+                const res = await fetch(`${API.attendance}/attendance/class-list/${className}`);
+                const json = await res.json();
+                if (json.success) { state.classList = json.data; updateCounts(0); }
+            } catch (e) {}
+        }
+
+        function updateCounts(presentCount) {
+            document.getElementById("presentCount").innerText = presentCount;
+            document.getElementById("absentCount").innerText  = Math.max(0, state.classList.length - presentCount);
         }
 
         async function refreshQR() {
             if (!state.activeSession) return;
-            document.getElementById("fetchStatus").innerText = "Syncing...";
-            try {
-                const res = await fetch(`${API.qr}/session/current-qr?instructor_id=${state.instructorId}`);
-                if (res.status === 404) {
-                    throw new Error("Session expired on backend.");
-                }
-                const json = await res.json();
-                if (json.success && json.data && json.data.qr_token) {
-                    const token = json.data.qr_token.trim();
-                    renderQRCode(token);
-                    document.getElementById("fetchStatus").innerText = "Live";
-                    startCountdown(45);
-                } else {
-                    throw new Error(json.message || "Failed to fetch QR.");
-                }
-            } catch (e) { 
-                console.error("Token fetch error:", e); 
-                document.getElementById("fetchStatus").innerText = "Error";
-                alert("Session expired or service restarted. Please start a new session.");
-                resetSessionUI();
+            const res = await fetch(`${API.qr}/session/current-qr?instructor_id=${state.instructor.id}`);
+            const json = await res.json();
+            if (json.success) {
+                const cont = document.getElementById("qrContainer"); cont.innerHTML = "";
+                new QRCode(cont, { text: json.data.qr_token, width: 256, height: 256, colorDark: "#0f172a" });
+                startCountdown(15);
             }
-        }
-
-        function resetSessionUI() {
-            state.activeSession = null;
-            if (state.refreshInterval) clearInterval(state.refreshInterval);
-            if (state.attendanceInterval) clearInterval(state.attendanceInterval);
-            if (state.timerInterval) clearInterval(state.timerInterval);
-            
-            document.getElementById("startCard").classList.remove("hidden");
-            document.getElementById("activeInfoCard").classList.add("hidden");
-            document.getElementById("qrPlaceholder").classList.remove("hidden");
-            document.getElementById("qrBox").classList.add("hidden");
-            document.getElementById("attendanceBody").innerHTML = "";
-            document.getElementById("presentCount").innerText = "0";
-        }
-
-        function renderQRCode(token) {
-            try {
-                const container = document.getElementById("qrContainer");
-                container.innerHTML = "";
-                new QRCode(container, { text: token, width: 256, height: 256, correctLevel: QRCode.CorrectLevel.H });
-                document.getElementById("qrError").innerText = "";
-            } catch (err) {
-                console.error("QR render error:", err);
-                document.getElementById("qrError").innerText = "Render Error: " + err.message;
-            }
-        }
-
-        async function refreshAttendance() {
-            if (!state.activeSession) return;
-            try {
-                const res = await fetch(`${API.attendance}/attendance/session/${state.activeSession.session_id}`);
-                const json = await res.json();
-                if (json.success && json.data) {
-                    const body = document.getElementById("attendanceBody");
-                    const empty = document.getElementById("emptyAttendance");
-                    if (json.data.length === 0) { empty.classList.remove("hidden"); body.innerHTML = ""; return; }
-                    empty.classList.add("hidden");
-                    document.getElementById("presentCount").innerText = json.data.length;
-                    body.innerHTML = json.data.map(r => {
-                        const dt = new Date(r.timestamp);
-                        const dateDisplay = !isNaN(dt.getTime()) 
-                            ? dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' })
-                            : (r.date || '');
-                        const timeDisplay = !isNaN(dt.getTime()) 
-                            ? dt.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()
-                            : (r.time || '');
-
-                        return `
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-gray-800">${r.roll_number || ''}</td>
-                            <td class="px-6 py-4 text-gray-600">${r.name || 'Unknown Student'}</td>
-                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${dateDisplay}</td>
-                            <td class="px-6 py-4 text-xs text-gray-400 font-mono">${timeDisplay}</td>
-                        </tr>
-                    `}).join('');
-                }
-            } catch (e) {}
-        }
-
-        function onSessionActive(data) {
-            state.activeSession = data;
-            document.getElementById("currentClassName").innerText = data.class_name;
-            document.getElementById("currentSessionId").innerText = "SID: " + data.session_id;
-            document.getElementById("startCard").classList.add("hidden");
-            document.getElementById("activeInfoCard").classList.remove("hidden");
-            document.getElementById("qrPlaceholder").classList.add("hidden");
-            document.getElementById("qrBox").classList.remove("hidden");
-            refreshQR(); refreshAttendance();
-            state.refreshInterval = setInterval(refreshQR, 45000);
-            state.attendanceInterval = setInterval(refreshAttendance, 5000);
-        }
-
-        async function stopSession() {
-            if(!confirm("End session?")) return;
-            const stopBtn = event.currentTarget || event.target;
-            stopBtn.disabled = true;
-            stopBtn.innerText = "Closing...";
-
-            try {
-                const currentSession = { ...state.activeSession };
-                const res = await fetch(`${API.qr}/session/stop`, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ instructor_id: state.instructorId }) 
-                });
-                const json = await res.json();
-                
-                if (json.success) {
-                    const endTime = new Date();
-                    state.lastSessionId = currentSession.session_id;
-                    const lastClassName = currentSession.class_name;
-                    
-                    // Update History
-                    state.sessionHistory.unshift({
-                        session_id: currentSession.session_id,
-                        class_name: currentSession.class_name,
-                        date: endTime.toLocaleString()
-                    });
-                    updateHistoryUI();
-
-                    // UI Setup
-                    const card = document.getElementById("downloadCard");
-                    card.classList.remove("hidden");
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    document.getElementById("downloadStatus").innerText = "Generating report...";
-                    document.getElementById("downloadTime").innerText = `Ended at: ${endTime.toLocaleTimeString()}`;
-                    
-                    resetSessionUI();
-                    setTimeout(() => downloadReport(2, lastClassName), 1500);
-                }
-            } catch (e) { 
-                console.error("Stop error", e); 
-                stopBtn.disabled = false;
-                stopBtn.innerText = "End Session";
-            }
-        }
-
-        async function downloadReport(retries = 2, className = null) {
-            if (!state.lastSessionId) return;
-            
-            const statusText = document.getElementById("downloadStatus");
-            const icon = document.getElementById("downloadIcon");
-            const btn = document.getElementById("downloadBtn");
-            const btnText = document.getElementById("btnText");
-
-            btn.disabled = true;
-            statusText.innerText = "⏳ Verifying file...";
-            
-            const url = `${window.location.protocol}//${window.location.hostname}:5003/attendance/session/${state.lastSessionId}/download-report`;
-
-            try {
-                const response = await fetch(url);
-                const contentType = response.headers.get("content-type");
-
-                if (response.ok && contentType && contentType.includes("spreadsheetml")) {
-                    statusText.innerText = "🚀 Downloading...";
-                    const blob = await response.blob();
-                    const dlUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = dlUrl;
-                    const filename = className ? `Attendance_${className}_${new Date().toISOString().split('T')[0]}.xlsx` : `Attendance_Report_${state.lastSessionId.substring(0,8)}.xlsx`;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    
-                    statusText.innerText = "✅ Downloaded successfully";
-                    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                    icon.classList.remove("bg-blue-100");
-                    icon.classList.add("bg-green-100");
-                    btnText.innerText = "Download Again";
-                } else {
-                    throw new Error("File not ready");
-                }
-            } catch (e) {
-                if (retries > 0) {
-                    statusText.innerText = `⏳ Retrying... (${retries})`;
-                    setTimeout(() => downloadReport(retries - 1), 3000);
-                } else {
-                    statusText.innerText = "❌ Download failed - try manual";
-                    btnText.innerText = "Retry Manual Download";
-                    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-                }
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        function directDownload(sid) {
-            const url = `${window.location.protocol}//${window.location.hostname}:5003/attendance/session/${sid}/download-report`;
-            window.open(url, "_blank");
         }
 
         function startCountdown(s) {
-            if (state.timerInterval) clearInterval(state.timerInterval);
-            let r = s; const el = document.getElementById("timer"); el.innerText = r + "s";
-            state.timerInterval = setInterval(() => { r--; el.innerText = r + "s"; if (r <= 0) clearInterval(state.timerInterval); }, 1000);
+            if (state.intervals.timer) clearInterval(state.intervals.timer);
+            let r = s; document.getElementById("timer").innerText = r + "s";
+            state.intervals.timer = setInterval(() => {
+                r--; document.getElementById("timer").innerText = r + "s";
+                if (r <= 0 || !state.activeSession) clearInterval(state.intervals.timer);
+            }, 1000);
         }
 
-        function logout() { location.reload(); }
+        async function stopSession() {
+            if (!confirm("End session?")) return;
+            await fetch(`${API.qr}/session/stop`, {
+                method: 'POST',
+                body: JSON.stringify({ instructor_id: state.instructor.id }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const present = parseInt(document.getElementById("presentCount").innerText);
+            document.getElementById("sumPresent").innerText = present;
+            document.getElementById("sumAbsent").innerText  = Math.max(0, state.classList.length - present);
+            Object.values(state.intervals).forEach(i => clearInterval(i));
+            document.getElementById("summaryModal").classList.remove("hidden");
+        }
+
+        function closeSummary() { location.reload(); }
+
+        async function refreshAttendance() {
+            if (!state.activeSession) return;
+            const res  = await fetch(`${API.attendance}/attendance/session/${state.activeSession.session_id}`);
+            const json = await res.json();
+            if (json.success) {
+                const body  = document.getElementById("attendanceBody");
+                const empty = document.getElementById("emptyAttendance");
+                updateCounts(json.data.length);
+                if (json.data.length > 0) {
+                    empty.classList.add("hidden");
+                    body.innerHTML = json.data.map(r =>
+                        `<tr>
+                            <td class="px-6 py-3 font-bold text-white">${r.roll_number}</td>
+                            <td class="px-6 py-3">${r.name}</td>
+                            <td class="px-6 py-3 text-right text-blue-400 font-mono text-[10px]">${new Date(r.timestamp).toLocaleTimeString()}</td>
+                        </tr>`
+                    ).join('');
+                } else { empty.classList.remove("hidden"); body.innerHTML = ""; }
+            }
+        }
+
+        // ── Reports ───────────────────────────────────────────────────────────
+        function loadReportSections() {
+            // Build unique year+dept+section combos from this teacher's assignments
+            const seen = new Set();
+            const combos = [];
+            for (const a of state.instructor.assignments) {
+                const key = `${a.year}|${a.department}|${a.section}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    combos.push({ year: a.year, dept: a.department, sec: a.section });
+                }
+            }
+            // Sort: year asc, dept asc, section asc
+            combos.sort((a, b) =>
+                Number(a.year) - Number(b.year) ||
+                a.dept.localeCompare(b.dept) ||
+                a.sec.localeCompare(b.sec)
+            );
+            document.getElementById("reportSections").innerHTML = combos.map(item =>
+                `<button onclick="loadReports('${item.dept}', '${item.year}', '${item.sec}')"
+                    class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 text-[10px] font-bold uppercase transition-all">
+                    Y${item.year} ${item.dept} &ndash; ${item.sec}
+                </button>`
+            ).join('');
+        }
+
+        async function loadReports(dept, year, sec) {
+            const res  = await fetch(`${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
+            const json = await res.json();
+            const list  = document.getElementById("reportList");
+            const empty = document.getElementById("emptyReports");
+            if (!json.data || json.data.length === 0) {
+                empty.classList.remove("hidden"); list.innerHTML = ""; return;
+            }
+            empty.classList.add("hidden");
+            list.innerHTML = json.data.map(r => {
+                const start = new Date(r.meta.start_time);
+                return `<div class="bg-slate-800 p-4 rounded border border-slate-700 flex justify-between items-center hover:bg-slate-700 cursor-pointer transition-all" onclick='viewReport(${JSON.stringify(r)})'>
+                    <div>
+                        <p class="font-bold text-white text-sm">${r.meta.subject}</p>
+                        <p class="text-[9px] text-slate-500 uppercase font-mono">${start.toLocaleDateString()} | ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${r.attendance.length} Records</p>
+                    </div>
+                    <span class="text-blue-400 text-[9px] font-bold uppercase border border-blue-400/30 px-2 py-1 rounded">View</span>
+                </div>`;
+            }).join('');
+        }
+
+        function viewReport(data) {
+            state.viewData = data;
+            const m = data.meta; const start = new Date(m.start_time);
+            document.getElementById("viewTitle").innerText = m.subject;
+            const summaryParts = [
+                `DEPT: ${m.department}`,
+                `YEAR: ${m.year}`,
+                `SECTION: ${m.section}`,
+                `DATE: ${start.toLocaleDateString()}`,
+                `TIME: ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+                `TOTAL: ${data.attendance.length}`
+            ];
+            document.getElementById("viewSummary").innerHTML =
+                summaryParts.map(p => `<span>${p}</span>`).join('<span class="opacity-20 mx-2">|</span>');
+            document.getElementById("viewerBody").innerHTML = data.attendance.map(a =>
+                `<tr>
+                    <td class="px-6 py-2 font-bold text-white">${a.roll_number}</td>
+                    <td class="px-6 py-2 text-slate-300">${a.name || "N/A"}</td>
+                    <td class="px-6 py-2 text-right text-slate-500 font-mono text-[10px]">${new Date(a.timestamp).toLocaleTimeString()}</td>
+                </tr>`
+            ).join('');
+            document.getElementById("viewerModal").classList.remove("hidden");
+        }
+
+        function closeViewer() { document.getElementById("viewerModal").classList.add("hidden"); }
+
+        function downloadActiveReport() {
+            const m = state.viewData.meta;
+            const d = new Date(m.start_time);
+            const h   = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const url = `${API.attendance}/reports/download?instructor_id=${state.instructor.id}&dept=${m.department}&year=${m.year}&sec=${m.section}&filename=${h}${min}_${m.id.substring(0,8)}.xlsx`;
+            window.open(url);
+        }
+
+        // ── Bootstrap ─────────────────────────────────────────────────────────
+        window.addEventListener('load', () => { loadFacultyData(); });
     </script>
 </body>
 </html>

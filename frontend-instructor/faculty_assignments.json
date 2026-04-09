@@ -1,0 +1,1798 @@
+{
+  "generated": "2026-04-09",
+  "source": "INDIVIDUAL TIME TABLES 25-26 -I SEM 07-09-25.pdf + cse_course.csv + teach _cse.csv",
+  "faculty": {
+    "dr s l aruna rao": {
+      "id": "dr_s_l_aruna_rao",
+      "display_name": "Dr. S L Aruna Rao",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS701PC",
+          "subject_acronym": "CNS",
+          "subject_name": "Cryptography and Network Security",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "prof r s murali nath": {
+      "id": "prof_r_s_murali_nath",
+      "display_name": "Prof. R S Murali Nath",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS303PC",
+          "subject_acronym": "DSM",
+          "subject_name": "Discrete Mathematics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS303PC",
+          "subject_acronym": "DSM",
+          "subject_name": "Discrete Mathematics",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "dr r suneetha rani": {
+      "id": "dr_r_suneetha_rani",
+      "display_name": "Dr .R Suneetha Rani",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS513PE",
+          "subject_acronym": "DM",
+          "subject_name": "Data Mining",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS703PC",
+          "subject_acronym": "CNS LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "dr g naga satish": {
+      "id": "dr_g_naga_satish",
+      "display_name": "Dr. G. Naga Satish",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS523PE",
+          "subject_acronym": "DA",
+          "subject_name": "Data Analytics",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "dr m indrasena reddy": {
+      "id": "dr_m_indrasena_reddy",
+      "display_name": "Dr. M. Indrasena Reddy",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS302PC",
+          "subject_acronym": "DS",
+          "subject_name": "Data Structures",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS302PC",
+          "subject_acronym": "DS",
+          "subject_name": "Data Structures",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms d swapna": {
+      "id": "ms_d_swapna",
+      "display_name": "Ms. D. Swapna",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS702PC",
+          "subject_acronym": "CD",
+          "subject_name": "Compiler Design",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS702PC",
+          "subject_acronym": "CD",
+          "subject_name": "Compiler Design",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS705PC",
+          "subject_acronym": "CD LAB",
+          "subject_name": "Compiler Design Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS705PC",
+          "subject_acronym": "CD LAB",
+          "subject_name": "Compiler Design Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "dr b venkatesh": {
+      "id": "dr_b_venkatesh",
+      "display_name": "Dr. B. Venkatesh",
+      "assignments": [
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Lab"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS706PC",
+          "subject_acronym": "PS-I",
+          "subject_name": "Project Stage-I",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "dr prasanth vaidya": {
+      "id": "dr_prasanth_vaidya",
+      "display_name": "Dr. Prasanth Vaidya",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS701PC",
+          "subject_acronym": "CNS",
+          "subject_name": "Cryptography and Network Security",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS704PC",
+          "subject_acronym": "CNS LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS705PC",
+          "subject_acronym": "PS-I",
+          "subject_name": "Compiler Design Lab",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "dr m shanmuga sundari": {
+      "id": "dr_m_shanmuga_sundari",
+      "display_name": "Dr. M. Shanmuga Sundari",
+      "assignments": [
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "",
+          "subject_acronym": "PPS",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Theory"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "dr c nagaraju": {
+      "id": "dr_c_nagaraju",
+      "display_name": "Dr. C. Nagaraju",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS507PC",
+          "subject_acronym": "CN LAB",
+          "subject_name": "Computer Networks Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS507PC",
+          "subject_acronym": "CN LAB",
+          "subject_name": "Computer Networks Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS502PC",
+          "subject_acronym": "CN",
+          "subject_name": "Computer Networks",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS502PC",
+          "subject_acronym": "CN",
+          "subject_name": "Computer Networks",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding Practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "dr v surya narayana reddy": {
+      "id": "dr_v_surya_narayana_reddy",
+      "display_name": "Dr. V. Surya Narayana Reddy",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS751PE",
+          "subject_acronym": "AA",
+          "subject_name": "Advanced Algorithms",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS751PE",
+          "subject_acronym": "AA",
+          "subject_name": "Advanced Algorithms",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding Practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "dr kanaka vardhini": {
+      "id": "dr_kanaka_vardhini",
+      "display_name": "Dr. Kanaka Vardhini",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS305PC",
+          "subject_acronym": "OOP JP",
+          "subject_name": "Object Oriented Programming through Java",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS705PC",
+          "subject_acronym": "PS-I",
+          "subject_name": "Compiler Design Lab",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms b nagaveni": {
+      "id": "ms_b_nagaveni",
+      "display_name": "Ms. B. Nagaveni",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS501PC",
+          "subject_acronym": "DAA",
+          "subject_name": "Design and Analysis of Algorithms",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "mr k bhargav ram": {
+      "id": "mr_k_bhargav_ram",
+      "display_name": "Mr. K. Bhargav Ram",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS503PC",
+          "subject_acronym": "DEVOPS",
+          "subject_name": "DevOps",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS504PC",
+          "subject_acronym": "DEVOPS LAB",
+          "subject_name": "DevOps Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "mr m dyva sugnana rao": {
+      "id": "mr_m_dyva_sugnana_rao",
+      "display_name": "Mr. M. Dyva Sugnana Rao",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS302PC",
+          "subject_acronym": "DS",
+          "subject_name": "Data Structures",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms e g padmavati": {
+      "id": "ms_e_g_padmavati",
+      "display_name": "Ms. E G Padmavati",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS506PC",
+          "subject_acronym": "UID LAB",
+          "subject_name": "UI design-Flutter",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS506PC",
+          "subject_acronym": "UID LAB",
+          "subject_name": "UI design-Flutter",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS506PC",
+          "subject_acronym": "UID LAB",
+          "subject_name": "UI design-Flutter",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS713PE",
+          "subject_acronym": "CC",
+          "subject_name": "Cloud Computing",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS504PC",
+          "subject_acronym": "DEVOPS LAB",
+          "subject_name": "DevOps Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms suparna das": {
+      "id": "ms_suparna_das",
+      "display_name": "Ms. Suparna Das",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS503PC",
+          "subject_acronym": "DEVOPS",
+          "subject_name": "DevOps",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS504PC",
+          "subject_acronym": "DEVOPS",
+          "subject_name": "DevOps Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms t durga devi": {
+      "id": "ms_t_durga_devi",
+      "display_name": "Ms T. Durga Devi",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS503PC",
+          "subject_acronym": "DEVOPS",
+          "subject_name": "DevOps",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS504PC",
+          "subject_acronym": "DEVOPS LAB",
+          "subject_name": "DevOps Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS703PC",
+          "subject_acronym": "CNS LAB",
+          "subject_name": "Cryptography and Network security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS304PC",
+          "subject_acronym": "DBMS",
+          "subject_name": "Database Management Systems",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding Practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms s vidyullatha": {
+      "id": "ms_s_vidyullatha",
+      "display_name": "Ms. S.Vidyullatha",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS506PC",
+          "subject_acronym": "UID LAB",
+          "subject_name": "UI design-Flutter",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS303PC",
+          "subject_acronym": "DSM",
+          "subject_name": "Discrete Mathematics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS303PC",
+          "subject_acronym": "DSM",
+          "subject_name": "Discrete Mathematics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms kbks durga": {
+      "id": "ms_kbks_durga",
+      "display_name": "Ms. KBKS Durga",
+      "assignments": [
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "",
+          "subject_acronym": "PPS",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Theory"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "",
+          "subject_acronym": "PPS",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Theory"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms k neha": {
+      "id": "ms_k_neha",
+      "display_name": "Ms. K.Neha",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS305PC",
+          "subject_acronym": "OOP JP",
+          "subject_name": "Object Oriented Programming through Java",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms m lakshmi prasudha": {
+      "id": "ms_m_lakshmi_prasudha",
+      "display_name": "Ms. M Lakshmi Prasudha",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS302PC",
+          "subject_acronym": "DS",
+          "subject_name": "Data Structures",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS302PC",
+          "subject_acronym": "DS",
+          "subject_name": "Data Structures",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms v manya": {
+      "id": "ms_v_manya",
+      "display_name": "Ms. V. Manya",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS502PC",
+          "subject_acronym": "CN",
+          "subject_name": "Computer Networks",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS507PC",
+          "subject_acronym": "CN LAB",
+          "subject_name": "Computer Networks Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS504PC",
+          "subject_acronym": "DEVOPS LAB",
+          "subject_name": "DevOps Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms j jhansi goud": {
+      "id": "ms_j_jhansi_goud",
+      "display_name": "Ms. J .Jhansi Goud",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS523PE",
+          "subject_acronym": "DA",
+          "subject_name": "Data Analytics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS523PE",
+          "subject_acronym": "DA",
+          "subject_name": "Data Analytics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "mr k naresh": {
+      "id": "mr_k_naresh",
+      "display_name": "Mr. K. Naresh",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS305PC",
+          "subject_acronym": "OOP JP",
+          "subject_name": "Object Oriented Programming through Java",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS305PC",
+          "subject_acronym": "OOP JP",
+          "subject_name": "Object Oriented Programming through Java",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "mr m naga sriharsha": {
+      "id": "mr_m_naga_sriharsha",
+      "display_name": "Mr. M. Naga Sriharsha",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS302PC",
+          "subject_acronym": "DS",
+          "subject_name": "Data Structures",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms m sahaja": {
+      "id": "ms_m_sahaja",
+      "display_name": "Ms. M. Sahaja",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS513PE",
+          "subject_acronym": "DM",
+          "subject_name": "Data Mining",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS513PE",
+          "subject_acronym": "DM",
+          "subject_name": "Data Mining",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS506PC",
+          "subject_acronym": "UID LAB",
+          "subject_name": "UI design-Flutter",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS506PC",
+          "subject_acronym": "UID LAB",
+          "subject_name": "UI design-Flutter",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms p surya bharathi": {
+      "id": "ms_p_surya_bharathi",
+      "display_name": "Ms. P Surya Bharathi",
+      "assignments": [
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "",
+          "subject_acronym": "PPS",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Theory"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "",
+          "subject_acronym": "PPS",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Theory"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms t jhansi renuka": {
+      "id": "ms_t_jhansi_renuka",
+      "display_name": "Ms. T. Jhansi Renuka",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS744PE",
+          "subject_acronym": "CC",
+          "subject_name": "Cloud Computing",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS501PC",
+          "subject_acronym": "DAA",
+          "subject_name": "Design and Analysis of Algorithms",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS703PC",
+          "subject_acronym": "CNS LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS704PC",
+          "subject_acronym": "CD LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms b pushpa": {
+      "id": "ms_b_pushpa",
+      "display_name": "Ms. B. Pushpa",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS751PE",
+          "subject_acronym": "AA",
+          "subject_name": "Advanced Algorithms",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS309PC",
+          "subject_acronym": "DV/RP LAB",
+          "subject_name": "Data visualization-R Programming/Power BI",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms g rashmitha": {
+      "id": "ms_g_rashmitha",
+      "display_name": "Ms. G. Rashmitha",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "",
+          "subject_acronym": "PPS",
+          "subject_name": "Programming for Problem Solving",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms g chandana priya": {
+      "id": "ms_g_chandana_priya",
+      "display_name": "Ms. G. Chandana Priya",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS304PC",
+          "subject_acronym": "DBMS",
+          "subject_name": "Database Management Systems",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS704PC",
+          "subject_acronym": "CD LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS704PC",
+          "subject_acronym": "CD LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms m sandhya vani": {
+      "id": "ms_m_sandhya_vani",
+      "display_name": "Ms.    M. Sandhya Vani",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS713PE",
+          "subject_acronym": "CC",
+          "subject_name": "Cloud Computing",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding Practice",
+          "class_type": "Theory"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS504PC",
+          "subject_acronym": "DEVOPS LAB",
+          "subject_name": "DevOps Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS304PC",
+          "subject_acronym": "DBMS",
+          "subject_name": "Database Management Systems",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "mr n raghava rao": {
+      "id": "mr_n_raghava_rao",
+      "display_name": "Mr. N. Raghava Rao",
+      "assignments": [
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS501PC",
+          "subject_acronym": "DAA",
+          "subject_name": "Design and Analysis of Algorithms",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS705PC",
+          "subject_acronym": "CD LAB",
+          "subject_name": "Compiler Design Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding practice",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS303PC",
+          "subject_acronym": "DSM",
+          "subject_name": "Discrete Mathematics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms v aneesha": {
+      "id": "ms_v_aneesha",
+      "display_name": "Ms. V. Aneesha",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS701PC",
+          "subject_acronym": "CNS",
+          "subject_name": "Cryptography and Network Security",
+          "class_type": "Theory"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS704PC",
+          "subject_acronym": "CNS LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS704PC",
+          "subject_acronym": "CNS LAB",
+          "subject_name": "Cryptography and Network Security Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding Practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms g rama devi": {
+      "id": "ms_g_rama_devi",
+      "display_name": "Ms. G. Rama Devi",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS304PC",
+          "subject_acronym": "DBMS",
+          "subject_name": "Database Management Systems",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS304PC",
+          "subject_acronym": "DBMS",
+          "subject_name": "Database Management Systems",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "D",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "",
+          "subject_acronym": "CODING",
+          "subject_name": "Coding practice",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "mr k rajesh": {
+      "id": "mr_k_rajesh",
+      "display_name": "Mr. K. Rajesh",
+      "assignments": [
+        {
+          "year": "4",
+          "semester": "7",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS702PC",
+          "subject_acronym": "CD",
+          "subject_name": "Compiler Design",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "ms m sri sevitha": {
+      "id": "ms_m_sri_sevitha",
+      "display_name": "Ms. M Sri Sevitha",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS306PC",
+          "subject_acronym": "DS LAB",
+          "subject_name": "Data Structures Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms s rama devi": {
+      "id": "ms_s_rama_devi",
+      "display_name": "Ms. S Rama Devi",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS305PC",
+          "subject_acronym": "OOP JP",
+          "subject_name": "Object Oriented Programming through Java",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms d sangeetha": {
+      "id": "ms_d_sangeetha",
+      "display_name": "Ms. D Sangeetha",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS305PC",
+          "subject_acronym": "OOP JP",
+          "subject_name": "Object Oriented Programming through Java",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "E",
+          "subject_code": "CS307PC",
+          "subject_acronym": "OOP JP LAB",
+          "subject_name": "Object Oriented Programming through Java Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "F",
+          "subject_code": "CS303PC",
+          "subject_acronym": "DSM",
+          "subject_name": "Discrete Mathematics",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        }
+      ]
+    },
+    "ms k vineela": {
+      "id": "ms_k_vineela",
+      "display_name": "Ms. K Vineela",
+      "assignments": [
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS304PC",
+          "subject_acronym": "DBMS",
+          "subject_name": "Database Management Systems",
+          "class_type": "Theory"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "2",
+          "semester": "3",
+          "department": "CSE",
+          "section": "C",
+          "subject_code": "CS308PC",
+          "subject_acronym": "DBMS LAB",
+          "subject_name": "Database Management Systems Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "3",
+          "semester": "5",
+          "department": "IT",
+          "section": "A",
+          "subject_code": "",
+          "subject_acronym": "PR",
+          "subject_name": "Pattern recognitions",
+          "class_type": "Theory"
+        }
+      ]
+    },
+    "mr c rajeev": {
+      "id": "mr_c_rajeev",
+      "display_name": "Mr. C Rajeev",
+      "assignments": [
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "A",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        },
+        {
+          "year": "1",
+          "semester": "1",
+          "department": "CSE",
+          "section": "B",
+          "subject_code": "",
+          "subject_acronym": "PPS LAB",
+          "subject_name": "Programming for Problem Solving Lab",
+          "class_type": "Lab"
+        }
+      ]
+    }
+  }
+}

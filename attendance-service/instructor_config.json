@@ -1,0 +1,13 @@
+{
+  "INST_001": {
+    "name": "Demo Instructor",
+    "assignments": [
+      {"department": "CSE", "year": "1", "section": "A"},
+      {"department": "CSE", "year": "1", "section": "B"},
+      {"department": "CSE", "year": "1", "section": "C"},
+      {"department": "CSE", "year": "1", "section": "D"},
+      {"department": "CSE", "year": "1", "section": "E"},
+      {"department": "CSE", "year": "1", "section": "F"}
+    ]
+  }
+}

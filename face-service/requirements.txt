@@ -70,3 +70,18 @@ uvicorn==0.41.0
 Werkzeug==3.1.6
 wheel==0.46.3
 wrapt==2.1.2
+
+# ── InsightFace upgrade (added 2026-04-09) ──
+insightface==0.7.3
+onnxruntime==1.24.4
+onnx==1.21.0
+psycopg2-binary==2.9.11
+pgvector==0.4.2
+scipy==1.17.1
+scikit-learn==1.8.0
+scikit-image==0.26.0
+easydict==1.13
+albumentations==2.0.8
+albucore==0.0.24
+simsimd==6.5.16
+stringzilla==4.6.0
