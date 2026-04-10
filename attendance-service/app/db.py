@@ -66,6 +66,27 @@ def get_teacher_by_name(name):
         return {"id": rows[0][0], "name": rows[0][1], "department": rows[0][2], "role": rows[0][3]}
     return None
 
+def get_teacher_by_identifier(teacher_id=None, name=None):
+    """Lookup teacher by id first, then by name."""
+    teacher_id = (teacher_id or "").strip()
+    name = (name or "").strip()
+    if not teacher_id and not name:
+        return None
+
+    rows = execute_query(
+        """
+        SELECT teacher_id, name, department, role
+        FROM teachers
+        WHERE (%s <> '' AND teacher_id = %s)
+           OR (%s <> '' AND (LOWER(name) = LOWER(%s) OR name = %s))
+        LIMIT 1
+        """,
+        (teacher_id, teacher_id, name, name, name)
+    )
+    if rows:
+        return {"id": rows[0][0], "name": rows[0][1], "department": rows[0][2], "role": rows[0][3]}
+    return None
+
 def get_teacher_assignments(teacher_id):
     rows = execute_query("SELECT department, year, section, subject, course_code, class_type FROM faculty_class_assignments WHERE teacher_id = %s", (teacher_id,))
     if not rows:
