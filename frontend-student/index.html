@@ -7,108 +7,173 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        body { 
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b); 
+            background-size: 400% 400%; 
+            animation: gradient 15s ease infinite; 
+        }
+        
+        .card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            transition: all 0.3s ease; 
+        }
+        
+        .card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); 
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
+            transition: all 0.3s ease; 
+        }
+        
+        .btn-primary:hover:not(:disabled) { 
+            transform: scale(1.02); 
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); 
+        }
+        
+        .btn-success { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+        }
+        
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        
         #reader__scan_region video {
-            border-radius: 1.5rem;
+            border-radius: 1rem;
             object-fit: cover !important;
         }
+        
         #facePreview {
-            transform: scaleX(-1); /* Mirror for UX only */
+            transform: scaleX(-1);
             background: #000;
         }
+        
         #reviewImg {
-            /* No mirror here - this is what the backend sees */
             background: #000;
         }
+        
         #reader {
             border: none !important;
         }
+        
+        .spinner {
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans flex flex-col">
+<body class="min-h-screen font-sans flex flex-col">
 
-    <header class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-lg font-black text-blue-600 tracking-tight">SmartAttend</h1>
-        <div id="stepLabel" class="text-[10px] font-black text-gray-400 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-widest">
+    <header class="card shadow-lg border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">✨ SmartAttend</h1>
+        <div id="stepLabel" class="text-xs font-bold text-slate-600 bg-white/50 px-4 py-2 rounded-full uppercase tracking-wider shadow-sm">
             Step 1: Identity
         </div>
     </header>
 
     <main class="flex-grow p-6 flex flex-col items-center justify-center max-w-md mx-auto w-full">
         
-        <div id="errorAlert" class="hidden w-full bg-red-100 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-start gap-3">
-            <p class="text-sm font-bold" id="errorAlertMsg"></p>
+        <div id="errorAlert" class="hidden w-full card border-2 border-red-300 text-red-700 px-5 py-4 rounded-2xl mb-6 flex items-start gap-3 shadow-lg fade-in">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            <p class="text-sm font-semibold" id="errorAlertMsg"></p>
         </div>
 
         <!-- Step 1: Roll Number -->
-        <div id="step1" class="w-full space-y-8">
-            <div class="text-center"><h2 class="text-3xl font-black text-slate-800">Welcome.</h2><p class="text-slate-500 mt-2">Enter your roll number.</p></div>
-            <div class="bg-white p-8 rounded-3xl shadow-xl space-y-6">
-                <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527" class="w-full px-5 py-4 border-2 border-slate-100 rounded-2xl outline-none text-xl font-mono tracking-tighter transition-all uppercase">
-                <button onclick="goToStep(2)" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-blue-200 shadow-lg">Get Started</button>
+        <div id="step1" class="w-full space-y-8 fade-in">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">Welcome</h2>
+                <p class="text-slate-300 text-lg">Enter your roll number to begin</p>
+            </div>
+            <div class="card p-8 rounded-3xl shadow-2xl space-y-6">
+                <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527" class="w-full px-6 py-4 border-2 border-slate-200 rounded-2xl outline-none text-xl font-mono tracking-tight uppercase focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all">
+                <button onclick="goToStep(2)" class="w-full btn-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg">Get Started →</button>
             </div>
         </div>
 
         <!-- Step 2: QR Scanner -->
-        <div id="step2" class="hidden w-full space-y-6">
-            <div class="text-center"><h2 class="text-2xl font-black text-slate-800">Scan QR Code</h2><p class="text-sm text-slate-500 mt-1">Point your camera at the screen.</p></div>
-            <div class="bg-white p-3 rounded-3xl shadow-xl overflow-hidden relative">
+        <div id="step2" class="hidden w-full space-y-6 fade-in">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white mb-2">Scan QR Code</h2>
+                <p class="text-slate-300">Point your camera at the instructor's screen</p>
+            </div>
+            <div class="card p-4 rounded-3xl shadow-2xl overflow-hidden relative">
                 <div id="reader" class="w-full rounded-2xl overflow-hidden min-h-[300px] bg-slate-100 flex items-center justify-center text-center p-4">
-                    <span class="text-xs text-slate-400 font-bold uppercase tracking-widest" id="scanner-status">Initializing...</span>
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="w-12 h-12 spinner"></div>
+                        <span class="text-sm text-slate-500 font-semibold" id="scanner-status">Initializing camera...</span>
+                    </div>
                 </div>
             </div>
-            <!-- Localized QR Error Message -->
-            <div id="qr-error" class="hidden text-center text-red-500 font-bold text-sm mt-2 animate-pulse"></div>
+            <div id="qr-error" class="hidden text-center text-red-400 font-bold text-sm mt-2 pulse bg-red-500/10 p-3 rounded-xl"></div>
             
-            <button onclick="goToStep(1)" class="w-full text-slate-400 text-xs font-black uppercase">← Back</button>
+            <button onclick="goToStep(1)" class="w-full text-slate-300 text-sm font-bold uppercase hover:text-white transition-colors">← Back to Start</button>
         </div>
 
         <!-- Step 3: Selfie Capture -->
-        <div id="step3" class="hidden w-full space-y-6">
+        <div id="step3" class="hidden w-full space-y-6 fade-in">
             <div class="text-center">
-                <h2 class="text-2xl font-black text-slate-800">Face Verification</h2>
-                <div id="grantTimerContainer" class="flex items-center justify-center gap-2 mt-1">
-                    <span class="text-[10px] text-slate-400 font-bold uppercase">Grant Expires In:</span>
-                    <span id="grantTimer" class="text-sm font-black text-blue-600 font-mono">30s</span>
+                <h2 class="text-3xl font-bold text-white mb-2">Face Verification</h2>
+                <div id="grantTimerContainer" class="flex items-center justify-center gap-2 mt-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full inline-flex">
+                    <span class="text-xs text-slate-300 font-semibold">Grant Expires:</span>
+                    <span id="grantTimer" class="text-lg font-bold text-blue-400 font-mono">30s</span>
                 </div>
-                <p id="camStatus" class="text-[10px] text-blue-500 font-bold uppercase mt-1">Initializing camera...</p>
+                <p id="camStatus" class="text-sm text-blue-400 font-semibold mt-2 pulse">Initializing camera...</p>
             </div>
             
-            <div class="bg-white p-3 rounded-3xl shadow-xl">
+            <div class="card p-4 rounded-3xl shadow-2xl">
                 <!-- LIVE PREVIEW (Mirrored) -->
-                <div id="previewContainer" class="relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4]">
+                <div id="previewContainer" class="relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4] shadow-inner">
                     <video id="facePreview" autoplay playsinline class="w-full h-full object-cover"></video>
+                    <div class="absolute top-4 left-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-lg text-center">
+                        <p class="text-xs text-white font-semibold">Position your face in the frame</p>
+                    </div>
                 </div>
                 <!-- CAPTURED REVIEW (True orientation) -->
-                <div id="reviewContainer" class="hidden relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4]">
+                <div id="reviewContainer" class="hidden relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4] shadow-inner">
                     <img id="reviewImg" class="w-full h-full object-cover">
-                    <div class="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-lg text-center">
-                        <p class="text-[10px] text-white font-bold uppercase">Final Image - Verify Clarity</p>
+                    <div class="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md p-3 rounded-xl text-center">
+                        <p class="text-sm text-white font-bold">✓ Photo Captured</p>
+                        <p class="text-xs text-slate-300 mt-1">Verify clarity before submitting</p>
                     </div>
                 </div>
                 <canvas id="snapshotCanvas" class="hidden"></canvas>
             </div>
 
             <div class="space-y-3">
-                <button id="captureBtn" onclick="captureSelfie()" disabled class="w-full bg-blue-600 disabled:bg-slate-300 text-white py-5 rounded-2xl font-black text-lg shadow-lg">Capture Selfie</button>
+                <button id="captureBtn" onclick="captureSelfie()" disabled class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-white py-5 rounded-2xl font-bold text-lg shadow-lg">📸 Capture Selfie</button>
                 <div id="reviewActions" class="hidden grid grid-cols-2 gap-3">
-                    <button onclick="retakeSelfie()" class="bg-slate-200 text-slate-700 py-4 rounded-2xl font-black">Retake</button>
-                    <button onclick="submitAttendance()" class="bg-green-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-green-100">Submit</button>
+                    <button onclick="retakeSelfie()" class="card text-slate-700 py-4 rounded-2xl font-bold hover:shadow-lg transition-all">↻ Retake</button>
+                    <button onclick="submitAttendance()" class="btn-success text-white py-4 rounded-2xl font-bold shadow-lg">✓ Submit</button>
                 </div>
             </div>
         </div>
 
         <!-- Step 4: Final Results -->
-        <div id="step4" class="hidden w-full text-center">
+        <div id="step4" class="hidden w-full text-center fade-in">
             <div id="loadingUI" class="space-y-6 py-12">
-                <div class="relative w-24 h-24 mx-auto"><div class="absolute inset-0 border-8 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>
-                <h2 class="text-2xl font-black text-slate-800">Verifying...</h2>
+                <div class="relative w-24 h-24 mx-auto">
+                    <div class="absolute inset-0 spinner w-24 h-24"></div>
+                </div>
+                <h2 class="text-3xl font-bold text-white">Verifying...</h2>
+                <p class="text-slate-300">Please wait while we process your attendance</p>
             </div>
-            <div id="resultUI" class="hidden space-y-8 bg-white p-10 rounded-[3rem] shadow-2xl border-2 border-white">
-                <div id="resultIcon" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto scale-110"></div>
-                <h2 id="resultTitle" class="text-3xl font-black text-slate-800"></h2>
-                <p id="resultMsg" class="text-slate-500 font-medium"></p>
-                <div id="resultMeta" class="text-[10px] font-mono bg-slate-50 p-4 rounded-2xl text-left text-slate-400 hidden"></div>
-                <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black">Done</button>
+            <div id="resultUI" class="hidden space-y-8 card p-10 rounded-[3rem] shadow-2xl">
+                <div id="resultIcon" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto shadow-lg"></div>
+                <h2 id="resultTitle" class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"></h2>
+                <p id="resultMsg" class="text-slate-600 font-medium text-lg"></p>
+                <div id="resultMeta" class="text-xs font-mono bg-slate-50 p-4 rounded-2xl text-left text-slate-500 hidden border border-slate-200"></div>
+                <button onclick="location.reload()" class="w-full btn-primary text-white py-4 rounded-2xl font-bold shadow-lg">Mark Another Attendance</button>
             </div>
         </div>
     </main>
