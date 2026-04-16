@@ -63,7 +63,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Dashboard
             </button>
-            <button onclick="showView('newSession')" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+            <button id="nav-newSession" onclick="showView('newSession')" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 New Session
             </button>
@@ -143,6 +143,7 @@
 
             <!-- LANDING VIEW -->
             <div id="landingView" class="hidden fade-in">
+                <div id="roleDashboards" class="mb-6 hidden"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <button onclick="showView('newSession')" class="card p-6 rounded-xl text-left border-slate-800 hover:border-blue-500/50 group transition-all">
                         <div class="w-10 h-10 rounded bg-blue-900/50 flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors">
@@ -416,6 +417,9 @@
                         name: data.user.name,
                         email: data.user.email,
                         picture: data.user.picture,
+                        role: data.user.role,
+                        department: data.user.department,
+                        assignedClass: data.user.assignedClass,
                         assignments: data.user.assignments || []
                     };
                     
@@ -424,6 +428,7 @@
                     document.getElementById('sidebar').classList.remove('hidden');
                     document.getElementById('sidebar').classList.add('flex');
                     document.getElementById('topbar').classList.remove('hidden');
+                    updateUIRoles();
                     showView('landing');
                 } else {
                     showError(data.message || 'Google login failed');
@@ -444,6 +449,44 @@
         };
 
         // ── View routing ─────────────────────────────────────────────────────
+        function updateUIRoles() {
+            if (!state.instructor) return;
+            const role = state.instructor.role || 'faculty';
+            const isGlobalAdmin = role === 'principal';
+            const isDeptAdmin = role === 'hod';
+            
+            const newSessionBtn = document.getElementById("nav-newSession");
+            if (newSessionBtn) {
+                if (isGlobalAdmin) newSessionBtn.classList.add("hidden");
+                else newSessionBtn.classList.remove("hidden");
+            }
+            
+            const roleDashEl = document.getElementById("roleDashboards");
+            if (roleDashEl) {
+                if (isGlobalAdmin) {
+                    roleDashEl.innerHTML = `<div class="card p-6 rounded-xl border-indigo-500/30">
+                        <h3 class="text-xl font-bold text-indigo-400 mb-2">Global Analytics</h3>
+                        <p class="text-slate-300 text-sm">Institution-wide attendance overview operations will be available here.</p>
+                    </div>`;
+                    roleDashEl.classList.remove("hidden");
+                } else if (isDeptAdmin) {
+                    roleDashEl.innerHTML = `<div class="card p-6 rounded-xl border-blue-500/30">
+                        <h3 class="text-xl font-bold text-blue-400 mb-2">${state.instructor.department || 'Department'} Summary</h3>
+                        <p class="text-slate-300 text-sm">Department-level attendance overview operations will be available here.</p>
+                    </div>`;
+                    roleDashEl.classList.remove("hidden");
+                } else if (state.instructor.assignedClass && state.instructor.assignedClass.isClassTeacher) {
+                    roleDashEl.innerHTML = `<div class="card p-6 rounded-xl border-green-500/30">
+                        <h3 class="text-xl font-bold text-green-400 mb-2">Class Teacher Overview (Section ${state.instructor.assignedClass.section || ''})</h3>
+                        <p class="text-slate-300 text-sm">Quick access to your dedicated class metrics will appear here.</p>
+                    </div>`;
+                    roleDashEl.classList.remove("hidden");
+                } else {
+                    roleDashEl.classList.add("hidden");
+                }
+            }
+        }
+
         function showView(viewId) {
             document.querySelectorAll('main > div > div[id$="View"]').forEach(el => el.classList.add("hidden"));
             document.getElementById(`${viewId}View`).classList.remove("hidden");
@@ -481,12 +524,13 @@
                 showError("No assignment found. Check name syntax."); return;
             }
 
-            state.instructor = { id: teacher.id, name: teacher.display_name, email: null, assignments: teacher.assignments };
+            state.instructor = { id: teacher.id, name: teacher.display_name, email: null, role: 'faculty', department: teacher.department, assignments: teacher.assignments };
             localStorage.setItem('instructor', JSON.stringify(state.instructor));
             document.getElementById("displayInstructor").innerText = teacher.display_name;
             document.getElementById("sidebar").classList.remove("hidden");
             document.getElementById("sidebar").classList.add("flex");
             document.getElementById("topbar").classList.remove("hidden");
+            updateUIRoles();
             showView('landing');
         }
 
@@ -693,7 +737,9 @@
                 try {
                     state.instructor = JSON.parse(saved); document.getElementById('displayInstructor').innerText = state.instructor.name;
                     document.getElementById('sidebar').classList.remove('hidden'); document.getElementById('sidebar').classList.add('flex');
-                    document.getElementById('topbar').classList.remove('hidden'); showView('landing');
+                    document.getElementById('topbar').classList.remove('hidden'); 
+                    updateUIRoles();
+                    showView('landing');
                 } catch(e) { localStorage.removeItem('instructor'); }
             }
         });
