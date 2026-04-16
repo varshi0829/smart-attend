@@ -6,7 +6,7 @@ const { authMiddleware, requireRole } = require('../middleware/auth');
 const { generateQRToken, generateQRImage } = require('../services/qrService');
 
 // Start attendance session
-router.post('/session/start', authMiddleware, requireRole('instructor'), async (req, res) => {
+router.post('/session/start', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
   try {
     const { className, subject } = req.body;
 
@@ -29,6 +29,7 @@ router.post('/session/start', authMiddleware, requireRole('instructor'), async (
       instructorId: req.user.id,
       className,
       subject,
+      department: req.user.department,
       status: 'active',
       startTime: new Date()
     });
@@ -59,7 +60,7 @@ router.post('/session/start', authMiddleware, requireRole('instructor'), async (
 });
 
 // Stop attendance session
-router.post('/session/:id/stop', authMiddleware, requireRole('instructor'), async (req, res) => {
+router.post('/session/:id/stop', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
   try {
     const session = await Session.findOne({
       _id: req.params.id,
@@ -98,12 +99,13 @@ router.post('/session/:id/stop', authMiddleware, requireRole('instructor'), asyn
 });
 
 // Get session details
-router.get('/session/:id', authMiddleware, requireRole('instructor'), async (req, res) => {
+router.get('/session/:id', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
   try {
-    const session = await Session.findOne({
-      _id: req.params.id,
-      instructorId: req.user.id
-    }).populate('instructorId', 'name email');
+    let query = { _id: req.params.id };
+    if (req.user.role === 'hod') query.department = req.user.department;
+    else if (['instructor', 'faculty'].includes(req.user.role)) query.instructorId = req.user.id;
+
+    const session = await Session.findOne(query).populate('instructorId', 'name email');
 
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
@@ -139,7 +141,7 @@ router.get('/session/:id', authMiddleware, requireRole('instructor'), async (req
 });
 
 // Get current QR code
-router.get('/session/:id/qr', authMiddleware, requireRole('instructor'), async (req, res) => {
+router.get('/session/:id/qr', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
   try {
     const session = await Session.findOne({
       _id: req.params.id,
@@ -176,9 +178,13 @@ router.get('/session/:id/qr', authMiddleware, requireRole('instructor'), async (
 });
 
 // Get all sessions for instructor
-router.get('/sessions', authMiddleware, requireRole('instructor'), async (req, res) => {
+router.get('/sessions', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
   try {
-    const sessions = await Session.find({ instructorId: req.user.id })
+    let filter = {};
+    if (req.user.role === 'hod') filter.department = req.user.department;
+    else if (['instructor', 'faculty'].includes(req.user.role)) filter.instructorId = req.user.id;
+
+    const sessions = await Session.find(filter)
       .sort({ createdAt: -1 })
       .limit(50);
 

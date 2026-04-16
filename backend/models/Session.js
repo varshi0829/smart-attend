@@ -11,6 +11,7 @@ const sessionSchema = new mongoose.Schema({
     required: true
   },
   subject: String,
+  department: String,
   status: {
     type: String,
     required: true,
