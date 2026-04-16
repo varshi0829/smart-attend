@@ -7,201 +7,195 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
         body { 
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b); 
-            background-size: 400% 400%; 
-            animation: gradient 15s ease infinite; 
+            background: #0f172a; 
         }
         
         .card { 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            transition: all 0.3s ease; 
-        }
-        
-        .card:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            transition: all 0.2s ease; 
         }
         
         .btn-primary { 
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
-            transition: all 0.3s ease; 
+            background: #2563eb; 
+            transition: all 0.2s ease; 
         }
         
-        .btn-primary:hover:not(:disabled) { 
-            transform: scale(1.02); 
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); 
+        .btn-primary:active, .btn-primary:hover:not(:disabled) { 
+            background: #1d4ed8; 
+            transform: scale(0.98);
         }
         
-        .btn-success { 
-            background: linear-gradient(135deg, #10b981, #059669); 
-        }
+        .btn-success { background: #059669; }
         
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes pulse-ring { 0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+        .pulse-camera { animation: pulse-ring 2s infinite; }
         
         #reader__scan_region video {
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             object-fit: cover !important;
         }
+        #facePreview, #reviewImg { transform: scaleX(-1); background: #0f172a; border-radius: 0.75rem; }
+        #reader { border: none !important; }
+        .spinner { border: 3px solid rgba(59, 130, 246, 0.2); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .step-active { color: #60a5fa; border-bottom: 2px solid #60a5fa; }
+        .step-inactive { color: #64748b; border-bottom: 2px solid transparent; }
         
-        #facePreview {
-            transform: scaleX(-1);
-            background: #000;
-        }
-        
-        #reviewImg {
-            background: #000;
-        }
-        
-        #reader {
-            border: none !important;
-        }
-        
-        .spinner {
-            border: 4px solid rgba(59, 130, 246, 0.2);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+        /* Mobile safe area padding for bottom actions */
+        .bottom-action-area { padding-bottom: env(safe-area-inset-bottom, 1rem); }
     </style>
 </head>
-<body class="min-h-screen font-sans flex flex-col">
+<body class="min-h-screen font-sans flex flex-col text-slate-300">
 
-    <header class="card shadow-lg border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">✨ SmartAttend</h1>
-        <div id="stepLabel" class="text-xs font-bold text-slate-600 bg-white/50 px-4 py-2 rounded-full uppercase tracking-wider shadow-sm">
-            Step 1: Identity
+    <header class="bg-slate-900 border-b border-slate-800 px-5 py-4 sticky top-0 z-50 shadow-sm">
+        <div class="flex justify-between items-center max-w-lg mx-auto w-full">
+            <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <div class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-xs">S</div>
+                SmartAttend
+            </h1>
+        </div>
+        
+        <!-- Step Indicator -->
+        <div class="max-w-lg mx-auto w-full mt-4 flex justify-between text-xs font-semibold uppercase tracking-wider relative">
+            <div class="absolute top-1/2 left-0 w-full h-[1px] bg-slate-800 -z-10"></div>
+            <div id="nav-step-1" class="step-active pb-2 transition-colors bg-slate-900 px-2 rounded-full">1. Identify</div>
+            <div id="nav-step-2" class="step-inactive pb-2 transition-colors bg-slate-900 px-2 rounded-full">2. Scan</div>
+            <div id="nav-step-3" class="step-inactive pb-2 transition-colors bg-slate-900 px-2 rounded-full">3. Self</div>
+            <div id="nav-step-4" class="step-inactive pb-2 transition-colors bg-slate-900 px-2 rounded-full hidden">4. Done</div>
         </div>
     </header>
 
-    <main class="flex-grow p-6 flex flex-col items-center justify-center max-w-md mx-auto w-full">
+    <main class="flex-grow p-5 flex flex-col max-w-lg mx-auto w-full">
         
-        <div id="errorAlert" class="hidden w-full card border-2 border-red-300 text-red-700 px-5 py-4 rounded-2xl mb-6 flex items-start gap-3 shadow-lg fade-in">
-            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-            <p class="text-sm font-semibold" id="errorAlertMsg"></p>
+        <div id="errorAlert" class="hidden w-full bg-red-950/40 border border-red-900 text-red-400 px-4 py-3 rounded-lg flex items-start gap-3 fade-in mb-6">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="text-sm font-medium" id="errorAlertMsg"></p>
         </div>
 
         <!-- Step 1: Roll Number -->
-        <div id="step1" class="w-full space-y-8 fade-in">
-            <div class="text-center">
-                <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">Welcome</h2>
-                <p class="text-slate-300 text-lg">Enter your roll number to begin</p>
+        <div id="step1" class="w-full space-y-6 fade-in flex-grow flex flex-col justify-center">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Student Identity</h2>
+                <p class="text-slate-400 text-sm">Enter your university roll number</p>
             </div>
-            <div class="card p-8 rounded-3xl shadow-2xl space-y-6">
-                <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527" class="w-full px-6 py-4 border-2 border-slate-200 rounded-2xl outline-none text-xl font-mono tracking-tight uppercase focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all">
-                <button onclick="goToStep(2)" class="w-full btn-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg">Get Started →</button>
+            <div class="card p-6 rounded-xl shadow-lg space-y-6">
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 uppercase block mb-2">Roll Number</label>
+                    <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527" class="w-full bg-slate-900 px-4 py-3 border border-slate-700 rounded-lg outline-none text-white font-mono tracking-widest uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                </div>
+                <button onclick="goToStep(2)" class="w-full btn-primary text-white py-3.5 rounded-lg font-semibold shadow-md">Continue</button>
             </div>
         </div>
 
         <!-- Step 2: QR Scanner -->
-        <div id="step2" class="hidden w-full space-y-6 fade-in">
-            <div class="text-center">
-                <h2 class="text-3xl font-bold text-white mb-2">Scan QR Code</h2>
-                <p class="text-slate-300">Point your camera at the instructor's screen</p>
+        <div id="step2" class="hidden w-full space-y-6 fade-in flex-grow flex flex-col">
+            <div class="text-center mb-2 pt-4">
+                <h2 class="text-xl font-bold text-white mb-1">Scan Session QR</h2>
+                <p class="text-slate-400 text-sm">Focus camera on the instructor's screen</p>
             </div>
-            <div class="card p-4 rounded-3xl shadow-2xl overflow-hidden relative">
-                <div id="reader" class="w-full rounded-2xl overflow-hidden min-h-[300px] bg-slate-100 flex items-center justify-center text-center p-4">
-                    <div class="flex flex-col items-center gap-3">
-                        <div class="w-12 h-12 spinner"></div>
-                        <span class="text-sm text-slate-500 font-semibold" id="scanner-status">Initializing camera...</span>
+            
+            <div class="card p-3 rounded-xl flex-grow flex flex-col min-h-[350px]">
+                <div id="reader" class="w-full flex-grow rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center text-center relative pointer-events-none">
+                    <!-- Scanner frame overlay -->
+                    <div class="absolute inset-0 border-[60px] border-slate-950/60 z-10 custom-scan-overlay flex items-center justify-center">
+                        <div class="w-full max-w-[200px] aspect-square border-2 border-blue-500/50 rounded-lg relative pulse-camera"></div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center gap-3 z-20" id="scannerLoader">
+                        <div class="w-8 h-8 spinner"></div>
+                        <span class="text-xs text-slate-400 font-medium tracking-wide" id="scanner-status">Initializing scanner...</span>
                     </div>
                 </div>
             </div>
-            <div id="qr-error" class="hidden text-center text-red-400 font-bold text-sm mt-2 pulse bg-red-500/10 p-3 rounded-xl"></div>
             
-            <button onclick="goToStep(1)" class="w-full text-slate-300 text-sm font-bold uppercase hover:text-white transition-colors">← Back to Start</button>
+            <div id="qr-error" class="hidden text-center text-red-400 font-medium text-xs bg-red-950/30 p-2 rounded pb-2 border border-red-900/50"></div>
+            
+            <div class="bottom-action-area pt-2">
+                <button onclick="goToStep(1)" class="w-full text-slate-500 text-sm font-semibold hover:text-white transition-colors bg-slate-800/50 py-3 rounded-lg border border-slate-800">Cancel & Go Back</button>
+            </div>
         </div>
 
         <!-- Step 3: Selfie Capture -->
-        <div id="step3" class="hidden w-full space-y-6 fade-in">
-            <div class="text-center">
-                <h2 class="text-3xl font-bold text-white mb-2">Face Verification</h2>
-                <div id="grantTimerContainer" class="flex items-center justify-center gap-2 mt-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full inline-flex">
-                    <span class="text-xs text-slate-300 font-semibold">Grant Expires:</span>
-                    <span id="grantTimer" class="text-lg font-bold text-blue-400 font-mono">30s</span>
+        <div id="step3" class="hidden w-full space-y-6 fade-in flex-grow flex flex-col">
+            <div class="text-center mb-2 pt-4 flex flex-col items-center">
+                <h2 class="text-xl font-bold text-white mb-2">Face Verification</h2>
+                
+                <div class="bg-indigo-900/30 border border-indigo-500/30 px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <span class="text-[10px] text-indigo-300 font-semibold uppercase tracking-widest">Time Remaining</span>
+                    <span id="grantTimer" class="text-sm font-bold text-indigo-400 font-mono">30s</span>
                 </div>
-                <p id="camStatus" class="text-sm text-blue-400 font-semibold mt-2 pulse">Initializing camera...</p>
+                <p id="camStatus" class="text-xs text-slate-500 mt-2 font-medium">Starting camera...</p>
             </div>
             
-            <div class="card p-4 rounded-3xl shadow-2xl">
-                <!-- LIVE PREVIEW (Mirrored) -->
-                <div id="previewContainer" class="relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4] shadow-inner">
+            <div class="card p-3 rounded-xl flex-grow max-h-[400px] relative">
+                <!-- LIVE PREVIEW -->
+                <div id="previewContainer" class="w-full h-full relative rounded-lg overflow-hidden bg-slate-900">
                     <video id="facePreview" autoplay playsinline class="w-full h-full object-cover"></video>
-                    <div class="absolute top-4 left-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-lg text-center">
-                        <p class="text-xs text-white font-semibold">Position your face in the frame</p>
+                    <!-- Face Guide Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none border-4 border-slate-900/20">
+                        <div class="w-48 h-64 border-2 border-dashed border-blue-400/50 rounded-[40%] flex items-center justify-center opacity-70"></div>
                     </div>
                 </div>
-                <!-- CAPTURED REVIEW (True orientation) -->
-                <div id="reviewContainer" class="hidden relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4] shadow-inner">
+                
+                <!-- CAPTURED REVIEW -->
+                <div id="reviewContainer" class="hidden w-full h-full relative rounded-lg overflow-hidden bg-slate-900">
                     <img id="reviewImg" class="w-full h-full object-cover">
-                    <div class="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md p-3 rounded-xl text-center">
-                        <p class="text-sm text-white font-bold">✓ Photo Captured</p>
-                        <p class="text-xs text-slate-300 mt-1">Verify clarity before submitting</p>
+                    <div class="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur pb-4 pt-3 flex justify-center">
+                        <p class="text-xs text-green-400 font-medium">✓ Photo ready for verification</p>
                     </div>
                 </div>
                 <canvas id="snapshotCanvas" class="hidden"></canvas>
             </div>
 
-            <div class="space-y-3">
-                <button id="captureBtn" onclick="captureSelfie()" disabled class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-white py-5 rounded-2xl font-bold text-lg shadow-lg">📸 Capture Selfie</button>
+            <div class="bottom-action-area pt-2 space-y-3">
+                <button id="captureBtn" onclick="captureSelfie()" disabled class="w-full btn-primary disabled:opacity-50 text-white py-4 rounded-xl font-semibold shadow-md flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Capture Photo
+                </button>
                 <div id="reviewActions" class="hidden grid grid-cols-2 gap-3">
-                    <button onclick="retakeSelfie()" class="card text-slate-700 py-4 rounded-2xl font-bold hover:shadow-lg transition-all">↻ Retake</button>
-                    <button onclick="submitAttendance()" class="btn-success text-white py-4 rounded-2xl font-bold shadow-lg">✓ Submit</button>
+                    <button onclick="retakeSelfie()" class="bg-slate-800 text-slate-300 border border-slate-700 py-3.5 rounded-xl font-medium text-sm transition-colors hover:bg-slate-700">Retake</button>
+                    <button onclick="submitAttendance()" class="btn-success text-white py-3.5 rounded-xl font-semibold shadow-md">Confirm Identity</button>
                 </div>
             </div>
         </div>
 
         <!-- Step 4: Final Results -->
-        <div id="step4" class="hidden w-full text-center fade-in">
-            <div id="loadingUI" class="space-y-6 py-12">
-                <div class="relative w-24 h-24 mx-auto">
-                    <div class="absolute inset-0 spinner w-24 h-24"></div>
+        <div id="step4" class="hidden w-full text-center fade-in flex-grow flex flex-col justify-center pb-12">
+            <div id="loadingUI" class="space-y-6">
+                <div class="relative w-16 h-16 mx-auto">
+                    <div class="absolute inset-0 spinner w-16 h-16 border-[3px]"></div>
                 </div>
-                <h2 class="text-3xl font-bold text-white">Verifying...</h2>
-                <p class="text-slate-300">Please wait while we process your attendance</p>
+                <div class="space-y-1">
+                    <h2 class="text-2xl font-bold text-white">Verifying Identity</h2>
+                    <p class="text-slate-400 text-sm">Processing face verification...</p>
+                </div>
             </div>
-            <div id="resultUI" class="hidden space-y-8 card p-10 rounded-[3rem] shadow-2xl">
-                <div id="resultIcon" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto shadow-lg"></div>
-                <h2 id="resultTitle" class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"></h2>
-                <p id="resultMsg" class="text-slate-600 font-medium text-lg"></p>
-                <div id="resultMeta" class="text-xs font-mono bg-slate-50 p-4 rounded-2xl text-left text-slate-500 hidden border border-slate-200"></div>
-                <button onclick="location.reload()" class="w-full btn-primary text-white py-4 rounded-2xl font-bold shadow-lg">Mark Another Attendance</button>
+            
+            <div id="resultUI" class="hidden space-y-6 card p-8 rounded-2xl mx-auto w-full">
+                <div id="resultIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm"></div>
+                <div class="space-y-2">
+                    <h2 id="resultTitle" class="text-2xl font-bold text-white"></h2>
+                    <p id="resultMsg" class="text-slate-400 text-sm leading-relaxed"></p>
+                </div>
+                <div id="resultMeta" class="text-[10px] font-mono bg-slate-900/50 p-3 rounded border border-slate-800 text-left text-slate-500 hidden whitespace-pre"></div>
+                <button onclick="location.reload()" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 mt-4 rounded-xl font-semibold transition-colors">Start Over</button>
             </div>
         </div>
     </main>
 
     <script>
-        const API = {
-            face: "/api/face",
-            qr: "/api/qr",
-            attendance: "/api/attendance"
-        };
+        const API = { face: "/api/face", qr: "/api/qr", attendance: "/api/attendance" };
         let state = { 
-            step: 1,
-            rollNumber: "", 
-            qrToken: "", 
-            grantId: "",
-            sessionId: "",
-            grantExpiresAt: null,
-            grantInterval: null,
-            faceBlob: null, 
-            stream: null, 
-            scanner: null,
-            qrLocked: false,
-            isCamReady: false,
-            isStartingScanner: false,
-            isStartingCamera: false,
-            scannerTimeout: null,
-            camTimeout: null,
-            camReadyTimeout: null
+            step: 1, rollNumber: "", qrToken: "", grantId: "", sessionId: "",
+            grantExpiresAt: null, grantInterval: null, faceBlob: null, stream: null, scanner: null,
+            qrLocked: false, isCamReady: false, isStartingScanner: false, isStartingCamera: false,
+            scannerTimeout: null, camTimeout: null, camReadyTimeout: null
         };
 
         async function goToStep(step) {
@@ -212,24 +206,23 @@
             if (state.camTimeout) { clearTimeout(state.camTimeout); state.camTimeout = null; }
             if (state.camReadyTimeout) { clearTimeout(state.camReadyTimeout); state.camReadyTimeout = null; }
             
+            // Nav indicators
             [1, 2, 3, 4].forEach(s => {
                 const el = document.getElementById(`step${s}`);
                 if (el) el.classList.add("hidden");
+                const nav = document.getElementById(`nav-step-${s}`);
+                if (nav) {
+                    nav.classList.remove('step-active', 'step-inactive');
+                    if(s === step) nav.classList.add('step-active');
+                    else if(s < step) nav.classList.add('step-inactive'); // could style past differently
+                    else nav.classList.add('step-inactive');
+                }
             });
             const nextStepEl = document.getElementById(`step${step}`);
             if (nextStepEl) nextStepEl.classList.remove("hidden");
             
-            const stepLabel = document.getElementById("stepLabel");
-            if (stepLabel) {
-                stepLabel.innerText = `Step ${step}: ${["Identity", "Scanner", "Selfie", "Final"][step-1]}`;
-            }
-
             if (step === 2) {
-                await stopScanner(); 
-                state.qrLocked = false;
-                state.qrToken = "";
-                state.grantId = "";
-                state.sessionId = "";
+                await stopScanner(); state.qrLocked = false; state.qrToken = ""; state.grantId = ""; state.sessionId = "";
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
                 const rollInput = document.getElementById("rollNumber");
                 const roll = rollInput ? rollInput.value.trim() : "";
@@ -237,17 +230,11 @@
                 state.rollNumber = roll.toUpperCase();
                 state.scannerTimeout = setTimeout(startScanner, 300); 
             } else if (step === 3) {
-                await stopScanner(); 
-                state.isCamReady = false;
-                retakeSelfie();
+                await stopScanner(); state.isCamReady = false; retakeSelfie();
                 state.camTimeout = setTimeout(startCamera, 300);
             } else {
-                await stopScanner();
-                stopCamera();
-                if (state.grantInterval && step !== 4) { 
-                    clearInterval(state.grantInterval); 
-                    state.grantInterval = null; 
-                }
+                await stopScanner(); stopCamera();
+                if (state.grantInterval && step !== 4) { clearInterval(state.grantInterval); state.grantInterval = null; }
             }
         }
 
@@ -258,95 +245,67 @@
             if (alertEl) alertEl.classList.remove("hidden");
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        function hideError() { 
-            const el = document.getElementById("errorAlert");
-            if (el) el.classList.add("hidden"); 
-        }
-        function showPersistentError(msg) {
-            const alertEl = document.getElementById("errorAlert");
-            const msgEl = document.getElementById("errorAlertMsg");
-            if (msgEl) msgEl.innerText = msg;
-            if (alertEl) alertEl.classList.remove("hidden");
-        }
-
+        function hideError() { const el = document.getElementById("errorAlert"); if (el) el.classList.add("hidden"); }
+        function showPersistentError(msg) { showError(msg); }
         function showQrError(msg) {
             const el = document.getElementById("qr-error");
-            if (el) {
-                el.innerText = msg;
-                el.classList.remove("hidden");
-                setTimeout(() => { if (el) el.classList.add("hidden"); }, 3000);
-            }
+            if (el) { el.innerText = msg; el.classList.remove("hidden"); setTimeout(() => { if (el) el.classList.add("hidden"); }, 3000); }
         }
-
         function setScannerStatus(msg) {
             const el = document.getElementById("scanner-status");
+            const l = document.getElementById("scannerLoader");
             if (el) el.innerText = msg;
+            if(l && msg.includes("Verifying")) { l.classList.remove('hidden'); }
+            else if(l && msg.includes("Scanning")) { l.classList.add('hidden'); }
         }
 
         if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) {
-            showPersistentError("Open this page over HTTPS using LAN IP. Camera access is blocked on insecure origins.");
+            showPersistentError("Open over HTTPS using LAN IP for Camera Access.");
         }
 
         function mapCameraError(err) {
-            const name = err?.name || "";
-            const msg = (err?.message || "").toLowerCase();
-            if (name === "NotAllowedError" || name === "SecurityError") return "Camera permission denied. Allow camera access in Chrome site settings.";
-            if (name === "NotReadableError" || msg.includes("in use") || msg.includes("device busy")) return "Camera is busy. Close other camera apps/tabs and try again.";
-            if (name === "NotFoundError" || name === "DevicesNotFoundError") return "No camera device found on this phone.";
-            return `Camera start failed: ${err?.message || name || "Unknown error"}`;
+            const name = err?.name || ""; const msg = (err?.message || "").toLowerCase();
+            if (name === "NotAllowedError" || name === "SecurityError") return "Camera permission denied.";
+            if (name === "NotReadableError" || msg.includes("in use")) return "Camera busy. Close other tabs.";
+            if (name === "NotFoundError" || name === "DevicesNotFoundError") return "No camera device found.";
+            return `Camera failed: ${err?.message || name || "Unknown error"}`;
         }
 
         async function ensureScannerVideoPlaying() {
             const video = document.querySelector("#reader video");
             if (!video) return false;
-            try {
-                video.setAttribute("playsinline", "true");
-                video.muted = true;
-                await video.play();
-                return !!video.srcObject && video.readyState >= 2;
-            } catch (e) { return false; }
+            try { video.setAttribute("playsinline", "true"); video.muted = true; await video.play(); return !!video.srcObject && video.readyState >= 2; } catch (e) { return false; }
         }
 
         async function buildScannerCandidates() {
-            const candidates = [
-                { type: "config", value: { facingMode: { exact: "environment" } }, label: "back" },
-                { type: "config", value: { facingMode: "environment" }, label: "back" }
-            ];
-            try {
-                const cameras = await Html5Qrcode.getCameras();
-                if (Array.isArray(cameras) && cameras.length > 0) {
-                    candidates.push({ type: "id", value: cameras[0].id, label: "default" });
-                }
-            } catch (e) {}
+            const candidates = [ { type: "config", value: { facingMode: { exact: "environment" } }, label: "back" }, { type: "config", value: { facingMode: "environment" }, label: "back" } ];
+            try { const cameras = await Html5Qrcode.getCameras(); if (Array.isArray(cameras) && cameras.length > 0) candidates.push({ type: "id", value: cameras[0].id, label: "default" }); } catch (e) {}
             candidates.push({ type: "config", value: { facingMode: "user" }, label: "front" });
             return candidates;
         }
 
         function extractSmartAttendToken(decodedText) {
-            const raw = (decodedText || "").trim();
-            if (!raw) return null;
+            const raw = (decodedText || "").trim(); if (!raw) return null;
             if (raw.startsWith("SA_")) return raw;
-            const tokenMatch = raw.match(/(SA_[A-Za-z0-9_\-]+)/);
-            return tokenMatch ? tokenMatch[1] : null;
+            const tokenMatch = raw.match(/(SA_[A-Za-z0-9_\-]+)/); return tokenMatch ? tokenMatch[1] : null;
         }
 
         function mapQrValidationError(data, statusCode) {
             const code = data?.error_code || "";
-            if (code === "QR_EXPIRED") return "QR expired. Please scan the latest code.";
-            if (code === "QR_INVALID") return "Invalid QR code. Scan the active SmartAttend QR.";
-            if (code === "SESSION_CLOSED") return "Session is closed. Ask instructor to start session.";
-            return data?.message || "QR verification failed.";
+            if (code === "QR_EXPIRED") return "QR expired. Try active QR code.";
+            if (code === "QR_INVALID") return "Invalid code format.";
+            if (code === "SESSION_CLOSED") return "Session closed by instructor.";
+            return data?.message || "QR failed.";
         }
 
         async function startScanner() {
             if (state.isStartingScanner || state.step !== 2) return;
             state.isStartingScanner = true;
-            const statusEl = document.getElementById("scanner-status");
             try {
-                if (statusEl) statusEl.innerText = "Initializing Scanner...";
+                setScannerStatus("Initializing Scanner...");
                 if (state.scanner) await stopScanner();
                 state.scanner = new Html5Qrcode("reader");
-                const config = { fps: 20, qrbox: (vw, vh) => { const s = Math.max(180, Math.min(320, Math.floor(Math.min(vw, vh) * 0.55))); return { width: s, height: s }; }, aspectRatio: 1.0, disableFlip: false };
+                const config = { fps: 15, qrbox: (vw, vh) => { return { width: Math.min(vw, 250), height: Math.min(vh, 250) }; }, aspectRatio: 1.0, disableFlip: false };
                 const candidates = await buildScannerCandidates();
                 let started = false;
                 for (const cand of candidates) {
@@ -357,47 +316,28 @@
                     } catch (e) { if (state.scanner?.isScanning) await state.scanner.stop(); }
                 }
                 if (!started && state.step === 2) throw new Error("Unable to start camera.");
-                if (statusEl) statusEl.innerText = "Scanning QR Code...";
-            } catch (err) {
-                if (state.step === 2) showError(mapCameraError(err));
-            } finally { state.isStartingScanner = false; }
+                setScannerStatus("Scanning QR Code...");
+            } catch (err) { if (state.step === 2) showError(mapCameraError(err)); } finally { state.isStartingScanner = false; }
         }
 
         async function onScanSuccess(text) {
             if (state.step !== 2 || state.qrLocked) return;
             const token = extractSmartAttendToken(text);
-            if (!token) { showQrError("Invalid QR format. Use SmartAttend QR."); return; }
-            state.qrLocked = true;
-            setScannerStatus("Verifying...");
+            if (!token) { showQrError("Use SmartAttend QR."); return; }
+            state.qrLocked = true; setScannerStatus("Verifying...");
             try {
-                const res = await fetch(`${API.qr}/session/verify-qr`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ roll_number: state.rollNumber, qr_token: token })
-                });
+                const res = await fetch(`${API.qr}/session/verify-qr`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ roll_number: state.rollNumber, qr_token: token }) });
                 const data = await res.json();
                 if (data.success && state.step === 2) {
                     const payload = data.data || data;
-                    state.grantId = payload.grant_id;
-                    state.sessionId = payload.session_id;
-                    state.grantExpiresAt = new Date(Date.now() + ((payload.expires_in || 30) * 1000));
-                    console.log("[QR] Verified - grant_id:", state.grantId, "session_id:", state.sessionId);
-                    await stopScanner();
-                    startGrantCountdown();
-                    await goToStep(3);
+                    state.grantId = payload.grant_id; state.sessionId = payload.session_id; state.grantExpiresAt = new Date(Date.now() + ((payload.expires_in || 30) * 1000));
+                    await stopScanner(); startGrantCountdown(); await goToStep(3);
                 } else {
-                    state.qrLocked = false;
-                    showQrError(mapQrValidationError(data, res.status));
-                    setScannerStatus("Scanning QR Code...");
+                    state.qrLocked = false; showQrError(mapQrValidationError(data, res.status)); setScannerStatus("Scanning QR Code...");
                 }
             } catch (err) {
                 state.qrLocked = false;
-                // Better error mapping for network errors
-                if (err && err.name === 'TypeError' && err.message === 'Failed to fetch') {
-                    showQrError("Connection failed. Check your network and ensure using HTTPS.");
-                } else {
-                    showQrError("Connection failed. Please check your network.");
-                }
+                if (err && err.name === 'TypeError' && err.message === 'Failed to fetch') showQrError("Network Error."); else showQrError("Connection failed.");
                 setScannerStatus("Scanning QR Code...");
             }
         }
@@ -409,14 +349,13 @@
             state.grantInterval = setInterval(() => {
                 const diff = state.grantExpiresAt - new Date();
                 if (diff <= 0) {
-                    clearInterval(state.grantInterval);
-                    timerEl.innerText = "EXPIRED";
-                    if (state.step === 3) { showError("QR verification expired. Please scan again."); setTimeout(() => goToStep(2), 2000); }
+                    clearInterval(state.grantInterval); timerEl.innerText = "EXP";
+                    if (state.step === 3) { showError("Time expired. Scan again."); setTimeout(() => goToStep(2), 2000); }
                     return;
                 }
                 const sec = Math.ceil(diff / 1000);
                 timerEl.innerText = `${sec}s`;
-                timerEl.classList.toggle("text-red-600", sec <= 5);
+                if(sec <= 10) timerEl.classList.add("text-red-400"); else timerEl.classList.remove("text-red-400");
             }, 1000);
         }
 
@@ -431,9 +370,7 @@
         async function startCamera() {
             if (state.isStartingCamera || state.step !== 3) return;
             state.isStartingCamera = true;
-            const statusEl = document.getElementById("camStatus");
-            const btn = document.getElementById("captureBtn");
-            const video = document.getElementById("facePreview");
+            const statusEl = document.getElementById("camStatus"); const btn = document.getElementById("captureBtn"); const video = document.getElementById("facePreview");
             try {
                 stopCamera();
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } });
@@ -444,193 +381,89 @@
                     if (state.step !== 3) return;
                     state.isCamReady = true;
                     if (btn) btn.disabled = false;
-                    if (statusEl) { statusEl.innerText = "Camera Ready"; statusEl.classList.replace("text-blue-500", "text-green-500"); }
+                    if (statusEl) { statusEl.innerText = "Position face in guide"; statusEl.classList.replace("text-slate-500", "text-blue-400"); }
                     state.isStartingCamera = false;
                 }, 500);
-            } catch (err) {
-                state.isStartingCamera = false;
-                if (state.step === 3) showError(mapCameraError(err));
-            }
+            } catch (err) { state.isStartingCamera = false; if (state.step === 3) showError(mapCameraError(err)); }
         }
 
-        function stopCamera() { 
-            if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
-            state.isCamReady = false;
-        }
+        function stopCamera() { if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; } state.isCamReady = false; }
 
         function captureSelfie() {
             if (!state.isCamReady) return;
-            const video = document.getElementById("facePreview");
-            const canvas = document.getElementById("snapshotCanvas");
-            const reviewImg = document.getElementById("reviewImg");
+            const video = document.getElementById("facePreview"); const canvas = document.getElementById("snapshotCanvas"); const reviewImg = document.getElementById("reviewImg");
             if (!video || !canvas || !reviewImg) return;
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
             canvas.toBlob((blob) => { 
-                state.faceBlob = blob;
-                reviewImg.src = URL.createObjectURL(blob);
-                document.getElementById("previewContainer").classList.add("hidden");
-                document.getElementById("reviewContainer").classList.remove("hidden");
-                document.getElementById("captureBtn").classList.add("hidden");
-                document.getElementById("reviewActions").classList.remove("hidden");
+                state.faceBlob = blob; reviewImg.src = URL.createObjectURL(blob);
+                document.getElementById("previewContainer").classList.add("hidden"); document.getElementById("reviewContainer").classList.remove("hidden");
+                document.getElementById("captureBtn").classList.add("hidden"); document.getElementById("reviewActions").classList.remove("hidden");
             }, "image/jpeg", 0.95);
         }
 
         function retakeSelfie() {
-            document.getElementById("previewContainer").classList.remove("hidden");
-            document.getElementById("reviewContainer").classList.add("hidden");
-            document.getElementById("captureBtn").classList.remove("hidden");
-            document.getElementById("reviewActions").classList.add("hidden");
+            document.getElementById("previewContainer").classList.remove("hidden"); document.getElementById("reviewContainer").classList.add("hidden");
+            document.getElementById("captureBtn").classList.remove("hidden"); document.getElementById("reviewActions").classList.add("hidden");
             state.faceBlob = null;
         }
 
         async function submitAttendance() {
-            if (!state.rollNumber) {
-                const input = document.getElementById("rollNumber");
-                if (input && input.value.trim()) state.rollNumber = input.value.trim().toUpperCase();
-            }
-            if (!state.rollNumber || !state.grantId || !state.sessionId || !state.faceBlob) {
-                showError("Missing required information. Please scan the QR and take a selfie again.");
-                return;
-            }
-            if (new Date() > state.grantExpiresAt) { showError("Scan grant expired. Please scan the instructor QR again."); return goToStep(2); }
+            if (!state.rollNumber || !state.grantId || !state.sessionId || !state.faceBlob) { showError("Missing information. Restart process."); return; }
+            if (new Date() > state.grantExpiresAt) { showError("Scan expired. Scan instructor QR again."); return goToStep(2); }
             goToStep(4);
             const form = new FormData();
             form.append("roll_number", state.rollNumber.trim().toUpperCase());
-            form.append("grant_id", state.grantId);
-            form.append("session_id", state.sessionId);
-            form.append("image", state.faceBlob, "selfie.jpg");
-            
-            // Debug logging
-            console.log("[ATTENDANCE] Submitting with:", {
-                roll_number: state.rollNumber.trim().toUpperCase(),
-                grant_id: state.grantId,
-                session_id: state.sessionId,
-                image_size: state.faceBlob ? state.faceBlob.size : 0,
-                image_type: state.faceBlob ? state.faceBlob.type : "none"
-            });
+            form.append("grant_id", state.grantId); form.append("session_id", state.sessionId); form.append("image", state.faceBlob, "selfie.jpg");
             
             try {
-                console.log("[ATTENDANCE] Sending request to:", `${API.attendance}/mark`);
                 const httpRes = await fetch(`${API.attendance}/mark`, { method: 'POST', body: form });
                 let data;
-                const contentType = httpRes.headers.get("content-type") || "";
-                
-                // Try to parse JSON response - be flexible with content-type detection
-                // Also handle error responses that might not have correct content-type
                 try {
-                    const responseText = await httpRes.text();
-                    try {
-                        data = JSON.parse(responseText);
-                    } catch {
-                        // If JSON parse fails but response is OK, create default response
-                        if (httpRes.ok) {
-                            data = { success: true, message: "Attendance marked", data: {} };
-                        } else {
-                            // For non-OK responses, try to parse as error JSON
-                            data = { success: false, message: responseText || "Server error occurred", error_code: "SERVER_ERROR" };
-                        }
-                    }
-                } catch (textErr) {
-                    // If we can't even read the text, handle based on status
-                    if (!httpRes.ok) {
-                        data = { success: false, message: `Server returned error: ${httpRes.status}`, error_code: "HTTP_ERROR" };
-                    } else {
-                        data = { success: false, message: "Failed to read server response", error_code: "INVALID_RESPONSE" };
-                    }
-                }
+                    const text = await httpRes.text();
+                    try { data = JSON.parse(text); } catch { data = httpRes.ok ? { success: true, message: "Attendance marked", data: {} } : { success: false, message: text || "Server error", error_code: "SERVER_ERROR" }; }
+                } catch { data = { success: false, message: "Network Parse Error", error_code: "INVALID_RESPONSE" }; }
                 
-                // If response status is not OK, override success
-                if (!httpRes.ok && data.success) {
-                    data.success = false;
-                    data.message = data.message || `Server error: ${httpRes.status}`;
-                    data.error_code = data.error_code || "HTTP_ERROR";
-                }
-                
+                if (!httpRes.ok && data.success) { data.success = false; data.message = data.message || `Error: ${httpRes.status}`; data.error_code = data.error_code || "HTTP_ERROR"; }
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
-                
-                // Debug logging - log the response
-                console.log("[ATTENDANCE] Response:", { status: httpRes.status, data: data });
                 renderResult(data);
             } catch (err) { 
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
-                const errorInfo = mapAttendanceError(null, err);
-                renderResult({ success: false, message: errorInfo.msg, error_code: errorInfo.code }); 
+                const errorInfo = mapAttendanceError(null, err); renderResult({ success: false, message: errorInfo.msg, error_code: errorInfo.code }); 
             }
         }
 
         function mapAttendanceError(res, err) {
-            // Handle network/connection errors
             if (err) {
-                if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
-                    return { title: "Connection Failed", msg: "Could not reach server. Check your network.", code: "NETWORK_ERROR" };
-                }
-                if (err.name === 'AbortError') {
-                    return { title: "Request Timeout", msg: "Server took too long to respond.", code: "TIMEOUT" };
-                }
-                return { title: "Error", msg: err.message || "Unknown error occurred.", code: "NETWORK_ERROR" };
+                if (err.name === 'TypeError' && err.message === 'Failed to fetch') return { title: "Network Error", msg: "Server unreachable.", code: "NETWORK_ERROR" };
+                return { title: "Error", msg: err.message || "Unknown error.", code: "ERROR" };
             }
-            
-            // Handle HTTP errors
-            if (!res) {
-                return { title: "Connection Failed", msg: "No response from server.", code: "NO_RESPONSE" };
-            }
-            
-            const code = res.error_code || "";
-            const msg = res.message || "";
-            
-            // Map specific error codes to user-friendly messages
-            if (code === "DUPLICATE_ATTENDANCE" || msg.includes("already marked")) {
-                return { title: "Already Marked", msg: "Attendance already recorded for this session.", code: "DUPLICATE" };
-            }
-            if (code === "FACE_MISMATCH" || msg.includes("face") || msg.includes("match")) {
-                return { title: "Face Not Matched", msg: "Face verification failed. Please try again with better lighting.", code: "FACE_MISMATCH" };
-            }
-            if (code === "NO_FACE_DETECTED" || msg.includes("no face")) {
-                return { title: "No Face Detected", msg: "No face detected. Ensure your face is clearly visible.", code: "NO_FACE" };
-            }
-            if (code === "MULTIPLE_FACES" || msg.includes("multiple faces")) {
-                return { title: "Multiple Faces", msg: "Multiple faces detected. Only one person should be in frame.", code: "MULTIPLE_FACES" };
-            }
-            if (code === "STUDENT_NOT_IN_SESSION_CLASS" || msg.includes("belong to")) {
-                return { title: "Wrong Class", msg: "You are not in this class section.", code: "WRONG_CLASS" };
-            }
-            if (code === "INVALID_GRANT" || code === "USED_SCAN_GRANT" || code === "GRANT_ROLL_MISMATCH") {
-                return { title: "QR Expired", msg: "QR verification expired. Please scan again.", code: "GRANT_INVALID" };
-            }
-            if (code === "SCAN_GRANT_EXPIRED" || code === "QR_EXPIRED") {
-                return { title: "QR Expired", msg: "QR code expired. Please scan the latest code.", code: "QR_EXPIRED" };
-            }
-            if (code === "SESSION_CLOSED" || msg.includes("session")) {
-                return { title: "Session Closed", msg: "Session is no longer active.", code: "SESSION_CLOSED" };
-            }
-            if (code === "FACE_SERVICE_ERROR" || code === "FACE_FAILED") {
-                return { title: "Verification Failed", msg: "Face service error. Please try again.", code: "FACE_ERROR" };
-            }
-            
-            // Default to provided message or generic
-            return { title: "Denied", msg: msg || "Attendance could not be verified.", code: code || "UNKNOWN" };
+            if (!res) return { title: "Connection Failed", msg: "No response.", code: "NO_RESPONSE" };
+            const code = res.error_code || ""; const msg = res.message || "";
+            if (code === "DUPLICATE_ATTENDANCE" || msg.includes("already marked")) return { title: "Already Marked", msg: "Attendance is already recorded.", code: "DUPLICATE" };
+            if (code === "FACE_MISMATCH" || msg.includes("face")) return { title: "Face Mismatch", msg: "Verification failed. Try better lighting.", code: "FACE_MISMATCH" };
+            if (code === "NO_FACE_DETECTED") return { title: "No Face", msg: "Face not detected.", code: "NO_FACE" };
+            if (code === "MULTIPLE_FACES") return { title: "Multiple Faces", msg: "Only one person in frame.", code: "MULTIPLE_FACES" };
+            if (code === "STUDENT_NOT_IN_SESSION_CLASS") return { title: "Wrong Class", msg: "Not enrolled in this section.", code: "WRONG_CLASS" };
+            if (code === "INVALID_GRANT" || code === "USED_SCAN_GRANT" || code === "SCAN_GRANT_EXPIRED") return { title: "Expired", msg: "Verify session and scan again.", code: "GRANT_INVALID" };
+            if (code === "SESSION_CLOSED") return { title: "Closed", msg: "Session inactive.", code: "SESSION_CLOSED" };
+            return { title: "Denied", msg: msg || "Verification failed.", code: code || "UNKNOWN" };
         }
 
         function renderResult(res) {
-            document.getElementById("loadingUI").classList.add("hidden");
-            document.getElementById("resultUI").classList.remove("hidden");
-            const icon = document.getElementById("resultIcon");
-            const meta = document.getElementById("resultMeta");
-            const title = document.getElementById("resultTitle");
-            const msg = document.getElementById("resultMsg");
+            document.getElementById("loadingUI").classList.add("hidden"); document.getElementById("resultUI").classList.remove("hidden");
+            const icon = document.getElementById("resultIcon"); const meta = document.getElementById("resultMeta"); const title = document.getElementById("resultTitle"); const msg = document.getElementById("resultMsg");
             if (res.success) {
-                title.innerText = "Verified."; msg.innerText = "Attendance recorded.";
-                icon.className = "w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto";
-                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
-                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ID: ${res.data.attendance_id}\nCONF: ${(res.data.confidence * 100).toFixed(2)}%`; }
+                title.innerText = "Verified Successfully"; msg.innerText = "Your attendance has been recorded.";
+                icon.className = "w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto";
+                icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ID: ${res.data.attendance_id || 'N/A'}\nCONF: ${res.data.confidence ? (res.data.confidence * 100).toFixed(1)+'%' : 'N/A'}`; }
             } else {
                 const errInfo = mapAttendanceError(res, null);
-                title.innerText = errInfo.title + ".";
-                msg.innerText = errInfo.msg;
-                icon.className = "w-24 h-24 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto";
-                icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ERROR: ${errInfo.code}`; }
+                title.innerText = errInfo.title; msg.innerText = errInfo.msg;
+                icon.className = "w-20 h-20 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mx-auto";
+                icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ERR: ${errInfo.code}`; }
             }
         }
     </script>

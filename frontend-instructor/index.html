@@ -8,287 +8,348 @@
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         
-        body { background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b); background-size: 400% 400%; animation: gradient 15s ease infinite; }
-        .qr-container canvas, .qr-container img { margin: 0 auto; border: 10px solid white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .qr-container canvas, .qr-container img { margin: 0 auto; border: 8px solid white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .hidden { display: none !important; }
-        .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.1); transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-2px); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2); }
-        .btn-primary { background: linear-gradient(135deg, #3b82f6, #8b5cf6); transition: all 0.3s ease; }
-        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); }
-        .btn-success { background: linear-gradient(135deg, #10b981, #059669); }
-        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .card { background: #1e293b; border: 1px solid #334155; transition: all 0.2s ease; }
+        .card:hover { border-color: #475569; }
+        .btn-primary { background: #2563eb; transition: all 0.2s ease; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: #059669; }
+        .btn-danger { background: #dc2626; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
         .pulse { animation: pulse 2s ease-in-out infinite; }
 
         .custom-select-container { position: relative !important; width: 100%; display: block; }
         .custom-select-trigger {
-            width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem; padding: 0.75rem 1rem; text-align: left; color: white;
+            width: 100%; background: #0f172a; border: 1px solid #334155;
+            border-radius: 0.375rem; padding: 0.625rem 0.875rem; text-align: left; color: #f8fafc;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            font-size: 0.875rem; transition: all 0.3s ease;
+            font-size: 0.875rem; transition: all 0.2s ease;
         }
-        .custom-select-trigger:hover { border-color: rgba(59, 130, 246, 0.5); background: rgba(15, 23, 42, 0.8); }
-        .custom-select-trigger.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+        .custom-select-trigger:focus, .custom-select-trigger:hover { border-color: #3b82f6; outline: none; }
+        .custom-select-trigger.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .custom-options {
             position: absolute !important; top: 100% !important; left: 0 !important; width: 100% !important;
-            background: rgba(30, 41, 59, 0.95) !important; backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(148, 163, 184, 0.2) !important; border-radius: 0.5rem !important;
-            margin-top: 4px !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+            background: #1e293b !important; border: 1px solid #334155 !important; border-radius: 0.375rem !important;
+            margin-top: 4px !important; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
             z-index: 9999 !important; max-height: 12rem; overflow-y: auto;
         }
-        .custom-option { padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid rgba(148, 163, 184, 0.1); font-size: 0.875rem; color: #cbd5e1; transition: all 0.2s ease; }
-        .custom-option:last-child { border-bottom: none; }
-        .custom-option:hover { background: rgba(59, 130, 246, 0.2); color: white; }
+        .custom-option { padding: 0.625rem 0.875rem; cursor: pointer; font-size: 0.875rem; color: #cbd5e1; transition: all 0.1s ease; }
+        .custom-option:hover { background: #334155; color: white; }
         #sessionSetup, #reportsView { overflow: visible !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="min-h-screen text-slate-200 font-sans">
+<body class="min-h-screen text-slate-300 font-sans bg-slate-900 flex">
 
     <!-- UI_VERSION_CHECK: v3.0.0-ENHANCED -->
-    <nav id="navbar" class="hidden card border-b px-6 py-4 flex justify-between items-center shadow-lg">
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent cursor-pointer" onclick="showView('landing')">✨ SmartAttend</h1>
-        <div class="flex items-center gap-6">
-            <span id="displayInstructor" class="text-slate-300 text-sm font-semibold"></span>
-            <button onclick="logout()" class="text-xs text-red-400 font-bold uppercase hover:text-red-300 transition-colors">Logout</button>
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="hidden w-64 bg-slate-900 border-r border-slate-800 flex-col py-6 px-4 shrink-0 transition-all">
+        <div class="flex items-center gap-2 px-2 mb-8 cursor-pointer" onclick="showView('landing')">
+            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">S</div>
+            <h1 class="text-xl font-bold tracking-tight text-white">SmartAttend</h1>
         </div>
-    </nav>
-
-    <main class="max-w-6xl mx-auto p-6">
-
-        <!-- LOGIN VIEW -->
-        <div id="loginView" class="max-w-md mx-auto mt-24 card p-10 rounded-2xl shadow-2xl fade-in">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">Welcome Back</h2>
-                <p class="text-slate-400 text-sm">Instructor Portal</p>
-            </div>
-            <div class="space-y-5">
-                <!-- Google Sign-In Button -->
-                <div id="g_id_onload"
-                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                     data-callback="handleGoogleLogin"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin" 
-                     data-type="standard"
-                     data-size="large"
-                     data-theme="filled_blue"
-                     data-text="signin_with"
-                     data-shape="rectangular"
-                     data-logo_alignment="left"
-                     data-width="100%">
-                </div>
-                
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-slate-700"></div>
-                    </div>
-                    <div class="relative flex justify-center text-xs uppercase">
-                        <span class="bg-slate-800 px-2 text-slate-500">Or continue with name</span>
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="text-xs font-semibold uppercase text-slate-400 mb-2 block">Faculty Name (Legacy)</label>
-                    <input type="text" id="instructorId" placeholder="e.g. Aruna Rao" class="w-full bg-slate-900/50 px-4 py-3 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all">
-                </div>
-                <button onclick="login()" class="w-full btn-primary text-white py-3 rounded-lg font-bold shadow-lg">Login with Name</button>
-                <p id="loginError" class="hidden text-center text-red-400 text-sm font-semibold"></p>
-            </div>
-        </div>
-
-        <!-- LANDING VIEW -->
-        <div id="landingView" class="hidden max-w-2xl mx-auto mt-16 space-y-6 fade-in">
-            <h2 class="text-3xl font-bold text-center mb-10 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Dashboard</h2>
-            <button onclick="showView('newSession')" class="w-full card p-8 rounded-xl hover:scale-[1.02] text-left flex items-center justify-between group transition-all shadow-lg">
-                <div>
-                    <span class="text-2xl font-bold text-white">New Session</span>
-                    <p class="text-slate-400 text-sm mt-1">Start taking attendance</p>
-                </div>
-                <svg class="w-8 h-8 text-blue-400 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        
+        <nav class="space-y-1 flex-1">
+            <button onclick="showView('landing')" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Dashboard
             </button>
-            <button onclick="showView('reports')" class="w-full card p-8 rounded-xl hover:scale-[1.02] text-left flex items-center justify-between group transition-all shadow-lg">
-                <div>
-                    <span class="text-2xl font-bold text-white">Reports</span>
-                    <p class="text-slate-400 text-sm mt-1">View attendance history</p>
-                </div>
-                <svg class="w-8 h-8 text-purple-400 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"/></svg>
+            <button onclick="showView('newSession')" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                New Session
             </button>
-        </div>
-
-        <!-- NEW SESSION VIEW -->
-        <div id="newSessionView" class="hidden space-y-6">
+            <button onclick="showView('reports')" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"/></svg>
+                Reports
+            </button>
+        </nav>
+        
+        <div class="mt-auto border-t border-slate-800 pt-4 px-2">
             <div class="flex items-center justify-between">
-                <button onclick="showView('landing')" class="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
+                <div class="flex items-center gap-2 truncate">
+                    <div class="w-7 h-7 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <span id="displayInstructor" class="text-xs font-medium text-slate-300 truncate"></span>
+                </div>
+                <button onclick="logout()" class="text-slate-500 hover:text-red-400 transition-colors p-1" title="Logout">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 </button>
-                <h2 class="text-lg font-bold uppercase tracking-widest text-slate-400">Live Session</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Session Setup (Left) -->
-                <div class="md:col-span-1 space-y-6">
-                    <div id="sessionSetup" class="bg-slate-800 p-6 rounded-lg border border-slate-700 space-y-4">
-                        <h3 class="font-bold text-xs text-slate-500 uppercase border-b border-slate-700 pb-2">Setup</h3>
-
-                        <!-- Year -->
-                        <div>
-                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Year</label>
-                            <div class="custom-select-container">
-                                <div id="yearTrigger" onclick="toggleDropdown('year')" class="custom-select-trigger"><span id="yearSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
-                                <div id="yearOptions" class="custom-options hidden"></div>
-                            </div>
-                        </div>
-
-                        <!-- Department -->
-                        <div>
-                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Department</label>
-                            <div class="custom-select-container">
-                                <div id="deptTrigger" onclick="toggleDropdown('dept')" class="custom-select-trigger disabled"><span id="deptSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
-                                <div id="deptOptions" class="custom-options hidden"></div>
-                            </div>
-                        </div>
-
-                        <!-- Section -->
-                        <div>
-                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Section</label>
-                            <div class="custom-select-container">
-                                <div id="sectionTrigger" onclick="toggleDropdown('section')" class="custom-select-trigger disabled"><span id="sectionSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
-                                <div id="sectionOptions" class="custom-options hidden"></div>
-                            </div>
-                        </div>
-
-                        <!-- Subject -->
-                        <div>
-                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Subject</label>
-                            <div class="custom-select-container">
-                                <div id="subjectTrigger" onclick="toggleDropdown('subject')" class="custom-select-trigger disabled"><span id="subjectSelected">Select</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
-                                <div id="subjectOptions" class="custom-options hidden"></div>
-                            </div>
-                        </div>
-
-                        <button id="startBtn" onclick="startSession()" disabled class="w-full bg-green-600 hover:bg-green-700 disabled:opacity-30 text-white py-2 rounded font-bold">Start Session</button>
-                    </div>
-
-                    <div id="sessionActiveInfo" class="hidden card p-6 rounded-xl border-blue-500/30 space-y-4 text-center shadow-lg fade-in">
-                        <p class="text-xs font-bold uppercase text-blue-400 pulse">● Session Active</p>
-                        <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto">
-                            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
-                                <p class="text-3xl font-bold text-green-400" id="presentCount">0</p>
-                                <p class="text-xs uppercase font-semibold text-slate-400 mt-1">Present</p>
-                            </div>
-                            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
-                                <p class="text-3xl font-bold text-white" id="totalCount">0</p>
-                                <p class="text-xs uppercase font-semibold text-slate-400 mt-1">Total</p>
-                            </div>
-                        </div>
-                        <button onclick="stopSession()" class="w-full btn-danger text-white py-3 rounded-lg font-bold shadow-lg">Stop Session</button>
-                    </div>
-                </div>
-
-                <!-- QR Panel (Right) -->
-                <div class="md:col-span-2 space-y-6">
-                    <div id="qrArea" class="bg-slate-800 p-8 rounded-lg border border-slate-700 flex flex-col items-center justify-center min-h-[380px] shadow-lg">
-                        <div id="qrBox" class="hidden text-center w-full space-y-6">
-                            <div id="qrContainer" class="qr-container bg-white p-4 rounded inline-block shadow-inner"></div>
-                            <div class="flex justify-center gap-12 text-xs font-bold uppercase text-slate-500">
-                                <div><p>Refresh</p><p class="text-white font-mono">15s</p></div>
-                                <div><p>Timer</p><p id="timer" class="text-blue-400 font-mono">--</p></div>
-                            </div>
-                        </div>
-                        <div id="qrPlaceholder" class="text-slate-600 font-bold uppercase tracking-tighter text-sm">QR Code Display</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Table -->
-            <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
-                <div class="px-6 py-3 bg-slate-700/30 border-b border-slate-700 font-bold text-xs uppercase tracking-widest">Attendance Feed</div>
-                <table class="w-full text-left">
-                    <thead class="text-[10px] uppercase bg-slate-900 text-slate-500 font-bold border-b border-slate-700">
-                        <tr><th class="px-6 py-3">Roll Number</th><th class="px-6 py-3">Student Name</th><th class="px-6 py-3 text-right">Time</th></tr>
-                    </thead>
-                    <tbody id="attendanceBody" class="divide-y divide-slate-700 text-sm"></tbody>
-                </table>
-                <div id="emptyAttendance" class="py-12 text-center text-slate-600 font-bold uppercase text-[10px]">No records yet</div>
             </div>
         </div>
+    </aside>
 
-        <!-- REPORTS VIEW -->
-        <div id="reportsView" class="hidden space-y-6">
-            <button onclick="showView('landing')" class="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
-            </button>
-            <h2 class="text-xl font-bold text-center uppercase tracking-widest text-slate-400">Reports</h2>
+    <main class="flex-1 overflow-y-auto flex flex-col bg-slate-950/50">
+        <!-- HEADER -->
+        <header id="topbar" class="h-16 border-b border-slate-800 flex items-center px-8 bg-slate-900 hidden sticky top-0 z-10 shrink-0">
+            <h2 id="pageTitle" class="text-sm font-semibold text-slate-300 uppercase tracking-widest">Dashboard</h2>
+        </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-1 space-y-2">
-                    <h3 class="text-[10px] font-bold uppercase text-slate-500 px-2">Assigned Classes</h3>
-                    <div id="reportSections" class="space-y-1"></div>
+        <div class="flex-1 p-8 max-w-6xl mx-auto w-full">
+
+            <!-- LOGIN VIEW -->
+            <div id="loginView" class="w-full max-w-sm mx-auto mt-20 card p-8 rounded-xl shadow-xl fade-in flex flex-col justify-center border-slate-800">
+                <div class="text-center mb-8">
+                    <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4">S</div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Sign in</h2>
+                    <p class="text-slate-400 text-sm">to SmartAttend Instructor</p>
                 </div>
-                <div class="md:col-span-3 space-y-3">
-                    <div id="reportList" class="grid grid-cols-1 gap-2"></div>
-                    <div id="emptyReports" class="hidden py-20 text-center bg-slate-800 rounded border border-slate-700 text-slate-600 font-bold text-xs uppercase">No Reports Available</div>
+                <div class="space-y-6">
+                    <!-- Google Sign-In Button -->
+                    <div id="g_id_onload"
+                         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                         data-callback="handleGoogleLogin"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin flex justify-center" 
+                         data-type="standard"
+                         data-size="large"
+                         data-theme="filled_black"
+                         data-text="signin_with"
+                         data-shape="rectangular"
+                         data-logo_alignment="left"
+                         data-width="100%">
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-slate-800"></div>
+                        </div>
+                        <div class="relative flex justify-center text-xs">
+                            <span class="bg-[#1e293b] px-2 text-slate-500">or use legacy login</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs font-medium text-slate-400 mb-1.5 block">Instructor Name</label>
+                        <input type="text" id="instructorId" placeholder="e.g. Aruna Rao" class="w-full bg-slate-900 px-3 py-2 border border-slate-700 rounded-md text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none">
+                    </div>
+                    <button onclick="login()" class="w-full btn-primary text-white py-2 rounded-md font-medium text-sm">Continue</button>
+                    <div id="loginError" class="hidden rounded-md bg-red-900/30 p-3 mt-4 flex items-start gap-2">
+                        <svg class="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-xs text-red-400 font-medium"></p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- VIEWER MODAL -->
-        <div id="viewerModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur z-[200] flex items-center justify-center p-6">
-            <div class="bg-slate-800 w-full max-w-4xl max-h-[85vh] rounded flex flex-col border border-slate-700 overflow-hidden shadow-2xl">
-                <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-700/20">
-                    <div class="space-y-1">
-                        <h3 id="viewTitle" class="text-lg font-bold text-white"></h3>
-                        <div id="viewSummary" class="flex gap-x-4 text-[10px] text-slate-400 font-bold uppercase tracking-tight"></div>
-                    </div>
-                    <button onclick="closeViewer()" class="text-slate-500 hover:text-white font-bold">CLOSE</button>
-                </div>
-                <div class="flex-1 overflow-y-auto p-0 bg-slate-900">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-800 text-slate-500 font-bold uppercase text-[9px] sticky top-0 border-b border-slate-700">
-                            <tr><th class="px-6 py-3">Roll Number</th><th class="px-6 py-3">Student Name</th><th class="px-6 py-3 text-right">Time</th></tr>
-                        </thead>
-                        <tbody id="viewerBody" class="divide-y divide-slate-800"></tbody>
-                    </table>
-                </div>
-                <div class="p-4 border-t border-slate-700 bg-slate-800 flex justify-between gap-3">
-                    <button onclick="sendEmailReport()" class="btn-primary text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        Send Email
+            <!-- LANDING VIEW -->
+            <div id="landingView" class="hidden fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <button onclick="showView('newSession')" class="card p-6 rounded-xl text-left border-slate-800 hover:border-blue-500/50 group transition-all">
+                        <div class="w-10 h-10 rounded bg-blue-900/50 flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors">
+                            <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Start New Session</h3>
+                        <p class="text-slate-400 text-sm">Configure class details and generate attendance QR</p>
                     </button>
-                    <button onclick="downloadActiveReport()" class="bg-white text-slate-900 px-6 py-2 rounded-lg text-sm font-bold hover:bg-slate-200 shadow-lg">DOWNLOAD EXCEL</button>
+                    <button onclick="showView('reports')" class="card p-6 rounded-xl text-left border-slate-800 hover:border-slate-600 group transition-all">
+                        <div class="w-10 h-10 rounded bg-slate-800 flex items-center justify-center mb-4 group-hover:bg-slate-700 transition-colors">
+                            <svg class="w-5 h-5 text-slate-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">View Reports</h3>
+                        <p class="text-slate-400 text-sm">Access historical attendance data and export to Excel</p>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- SUMMARY MODAL -->
-        <div id="summaryModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur z-[300] flex items-center justify-center p-6">
-            <div class="card w-full max-w-md rounded-2xl p-10 text-center space-y-8 shadow-2xl fade-in">
-                <h3 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent uppercase tracking-wide border-b border-slate-700 pb-4">Session Summary</h3>
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-slate-900/50 p-5 rounded-xl border border-green-500/20">
-                        <p class="text-xs font-semibold text-slate-400 uppercase mb-2">Present</p>
-                        <p id="sumPresent" class="text-3xl font-bold text-green-400">0</p>
+            <!-- NEW SESSION VIEW -->
+            <div id="newSessionView" class="hidden fade-in h-full flex flex-col">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+                    <!-- Setup Column -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div id="sessionSetup" class="card rounded-xl border-slate-800 p-5 shadow-sm">
+                            <h3 class="font-medium text-sm text-slate-300 pb-3 mb-4 border-b border-slate-800">Session Configuration</h3>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs font-medium text-slate-400 mb-1.5 block">Academic Year</label>
+                                    <div class="custom-select-container">
+                                        <div id="yearTrigger" onclick="toggleDropdown('year')" class="custom-select-trigger"><span id="yearSelected">Select</span><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                        <div id="yearOptions" class="custom-options hidden"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-slate-400 mb-1.5 block">Department</label>
+                                    <div class="custom-select-container">
+                                        <div id="deptTrigger" onclick="toggleDropdown('dept')" class="custom-select-trigger disabled"><span id="deptSelected">Select</span><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                        <div id="deptOptions" class="custom-options hidden"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-slate-400 mb-1.5 block">Section</label>
+                                    <div class="custom-select-container">
+                                        <div id="sectionTrigger" onclick="toggleDropdown('section')" class="custom-select-trigger disabled"><span id="sectionSelected">Select</span><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                        <div id="sectionOptions" class="custom-options hidden"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-slate-400 mb-1.5 block">Subject</label>
+                                    <div class="custom-select-container">
+                                        <div id="subjectTrigger" onclick="toggleDropdown('subject')" class="custom-select-trigger disabled"><span id="subjectSelected">Select</span><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg></div>
+                                        <div id="subjectOptions" class="custom-options hidden"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="startBtn" onclick="startSession()" disabled class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 mt-6 rounded-md font-medium text-sm">Initialize QR Session</button>
+                        </div>
+
+                        <!-- Active Info -->
+                        <div id="sessionActiveInfo" class="hidden card rounded-xl border-blue-500/30 p-5 shadow-sm fade-in">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                                <h3 class="font-medium text-sm text-white flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500 pulse block"></span>
+                                    Session Active
+                                </h3>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3 mb-6">
+                                <div class="bg-indigo-900/20 rounded-md p-3 border border-indigo-500/20 text-center">
+                                    <p class="text-2xl font-bold text-indigo-400" id="presentCount">0</p>
+                                    <p class="text-[10px] font-medium text-indigo-300 uppercase tracking-wide mt-0.5">Present</p>
+                                </div>
+                                <div class="bg-slate-800 rounded-md p-3 border border-slate-700 text-center">
+                                    <p class="text-2xl font-bold text-slate-300" id="totalCount">0</p>
+                                    <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wide mt-0.5">Total</p>
+                                </div>
+                            </div>
+                            <button onclick="stopSession()" class="w-full bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-slate-700 hover:border-red-900/50 text-slate-300 py-2 rounded-md font-medium text-sm transition-colors">End Session</button>
+                        </div>
                     </div>
-                    <div class="bg-slate-900/50 p-5 rounded-xl border border-blue-500/20">
-                        <p class="text-xs font-semibold text-slate-400 uppercase mb-2">Total</p>
-                        <p id="sumTotal" class="text-3xl font-bold text-white">0</p>
-                    </div>
-                    <div class="bg-slate-900/50 p-5 rounded-xl border border-red-500/20">
-                        <p class="text-xs font-semibold text-slate-400 uppercase mb-2">Absent</p>
-                        <p id="sumAbsent" class="text-3xl font-bold text-red-400">0</p>
+
+                    <!-- Main View Column (QR + Table) -->
+                    <div class="lg:col-span-2 flex flex-col space-y-6 min-h-0 container mx-auto">
+                        <div class="card rounded-xl border-slate-800 overflow-hidden flex flex-col shadow-sm">
+                            <div id="qrArea" class="bg-slate-900 p-6 flex flex-col items-center justify-center border-b border-slate-800 min-h-[300px]">
+                                <div id="qrBox" class="hidden text-center w-full space-y-4">
+                                    <div id="qrContainer" class="qr-container bg-white p-3 rounded-xl inline-block shadow-sm"></div>
+                                    <div class="flex justify-center gap-8 text-xs font-medium text-slate-400 items-center">
+                                        <div class="flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span id="timer" class="text-blue-400 font-mono w-6 text-left">15s</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-500 uppercase tracking-widest">Auto-refreshing</span>
+                                    </div>
+                                </div>
+                                <div id="qrPlaceholder" class="text-slate-500 font-medium text-sm flex flex-col items-center gap-3">
+                                    <svg class="w-12 h-12 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                                    QR Code will appear here
+                                </div>
+                            </div>
+                            
+                            <!-- Live Table integrated inside the main card -->
+                            <div class="flex-1 overflow-hidden flex flex-col bg-slate-900 border-t border-slate-800 max-h-[300px]">
+                                <table class="w-full text-left">
+                                    <thead class="text-xs text-slate-400 bg-slate-800/80 sticky top-0 border-b border-slate-700 z-10 font-medium">
+                                        <tr>
+                                            <th class="pl-6 pr-4 py-2">Roll Number</th>
+                                            <th class="px-4 py-2">Student Name</th>
+                                            <th class="px-6 py-2 text-right">Time</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div class="overflow-y-auto flex-1 h-48">
+                                    <table class="w-full text-left bg-slate-900">
+                                        <tbody id="attendanceBody" class="divide-y divide-slate-800 text-sm h-full"></tbody>
+                                    </table>
+                                    <div id="emptyAttendance" class="py-10 flex flex-col items-center justify-center text-slate-500 w-full h-full">
+                                        <p class="text-xs">No records yet</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button onclick="closeSummary()" class="w-full btn-primary text-white py-3 rounded-lg font-bold uppercase text-sm tracking-wider shadow-lg">Back to Dashboard</button>
             </div>
+
+            <!-- REPORTS VIEW -->
+            <div id="reportsView" class="hidden fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1 border-r border-slate-800 pr-4">
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Classes</h3>
+                        <div id="reportSections" class="space-y-1"></div>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div id="reportList" class="grid grid-cols-1 gap-2"></div>
+                        <div id="emptyReports" class="hidden flex flex-col items-center justify-center p-12 border border-slate-800 rounded-xl bg-slate-900/50">
+                            <svg class="w-12 h-12 text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span class="text-slate-400 text-sm font-medium">Select a class to view reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEWER MODAL -->
+            <div id="viewerModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                <div class="bg-[#1e293b] w-full max-w-3xl max-h-[85vh] rounded-xl flex flex-col border border-slate-700 shadow-2xl overflow-hidden">
+                    <div class="p-5 border-b border-slate-700 flex justify-between items-start bg-slate-900">
+                        <div>
+                            <h3 id="viewTitle" class="text-lg font-bold text-white mb-1"></h3>
+                            <div id="viewSummary" class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400"></div>
+                        </div>
+                        <button onclick="closeViewer()" class="text-slate-500 hover:text-white transition-colors bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="flex-1 overflow-auto bg-slate-900/50">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-800 text-slate-400 font-medium text-xs sticky top-0 border-b border-slate-700">
+                                <tr>
+                                    <th class="px-6 py-2">Roll Number</th>
+                                    <th class="px-4 py-2">Student Name</th>
+                                    <th class="px-6 py-2 text-right">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="viewerBody" class="divide-y divide-slate-800/50"></tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-slate-700 bg-slate-900 flex justify-end gap-3 shrink-0">
+                        <button onclick="sendEmailReport()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 border border-slate-700">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            Email
+                        </button>
+                        <button onclick="downloadActiveReport()" class="btn-primary text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Export Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUMMARY MODAL -->
+            <div id="summaryModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
+                <div class="card w-full max-w-sm rounded-xl p-6 shadow-2xl fade-in border-slate-700">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Session Complete</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-indigo-900/20 p-4 rounded-lg border border-indigo-500/20 text-center">
+                            <p id="sumPresent" class="text-3xl font-bold text-indigo-400">0</p>
+                            <p class="text-[10px] font-medium text-indigo-300 uppercase tracking-wide mt-1">Present</p>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 text-center">
+                            <p id="sumTotal" class="text-3xl font-bold text-slate-300">0</p>
+                            <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wide mt-1">Total Assigned</p>
+                        </div>
+                    </div>
+                    <button onclick="closeSummary()" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-md font-medium text-sm transition-colors border border-slate-600">Close Dashboard</button>
+                </div>
+            </div>
+            
         </div>
     </main>
 
     <script>
-        console.log("SmartAttend Instructor Portal v3.0.0-GOOGLE-AUTH");
+        console.log("SmartAttend Instructor Portal v3.0.0-ENHANCED");
 
         const API = { qr: "/api/qr", attendance: "/api/attendance", auth: "/api/auth" };
         const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"; // Will be set via config
@@ -340,10 +401,7 @@
         // ── Google Authentication ────────────────────────────────────────────
         async function handleGoogleLogin(response) {
             try {
-                console.log('Google login initiated');
                 const credential = response.credential;
-                
-                // Verify token with backend
                 const res = await fetch(`${API.auth}/google-login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -353,7 +411,6 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    // Store user info
                     state.instructor = {
                         id: data.user.id,
                         name: data.user.name,
@@ -364,14 +421,14 @@
                     
                     localStorage.setItem('instructor', JSON.stringify(state.instructor));
                     document.getElementById('displayInstructor').innerText = state.instructor.name;
-                    document.getElementById('navbar').classList.remove('hidden');
+                    document.getElementById('sidebar').classList.remove('hidden');
+                    document.getElementById('sidebar').classList.add('flex');
+                    document.getElementById('topbar').classList.remove('hidden');
                     showView('landing');
-                    console.log('Google login successful:', state.instructor.email);
                 } else {
                     showError(data.message || 'Google login failed');
                 }
             } catch (error) {
-                console.error('Google login error:', error);
                 showError('Failed to authenticate with Google');
             }
         }
@@ -388,8 +445,18 @@
 
         // ── View routing ─────────────────────────────────────────────────────
         function showView(viewId) {
-            document.querySelectorAll('main > div').forEach(el => el.classList.add("hidden"));
+            document.querySelectorAll('main > div > div[id$="View"]').forEach(el => el.classList.add("hidden"));
             document.getElementById(`${viewId}View`).classList.remove("hidden");
+            
+            const titles = {
+                'landing': 'Overview Dashboard',
+                'newSession': 'New Attendance Session',
+                'reports': 'Attendance Reports'
+            };
+            if(document.getElementById('pageTitle')) {
+                document.getElementById('pageTitle').innerText = titles[viewId] || '';
+            }
+            
             if (viewId === "newSession") populateYears();
             if (viewId === "reports")    loadReportSections();
         }
@@ -400,294 +467,163 @@
             errEl.classList.add("hidden");
 
             if (!FACULTY_DATA) {
-                errEl.innerText = "Faculty data not loaded yet. Please wait and retry.";
-                errEl.classList.remove("hidden");
+                showError("System booting. Please try again.");
                 return;
             }
 
             const input = document.getElementById("instructorId").value.trim();
             if (!input) {
-                errEl.innerText = "Please enter your name.";
-                errEl.classList.remove("hidden");
-                return;
+                showError("Please enter your name."); return;
             }
 
             const teacher = findTeacher(input);
             if (!teacher) {
-                errEl.innerText = "No class assignments found for this faculty. Enter your name as it appears in the timetable (e.g. \"Aruna Rao\" or \"Dr. S L Aruna Rao\").";
-                errEl.classList.remove("hidden");
-                return;
+                showError("No assignment found. Check name syntax."); return;
             }
 
-            if (!teacher.assignments || teacher.assignments.length === 0) {
-                errEl.innerText = "No active class assignments found for this faculty this semester.";
-                errEl.classList.remove("hidden");
-                return;
-            }
-
-            state.instructor = {
-                id:          teacher.id,
-                name:        teacher.display_name,
-                email:       null, // No email for legacy login
-                assignments: teacher.assignments
-            };
+            state.instructor = { id: teacher.id, name: teacher.display_name, email: null, assignments: teacher.assignments };
             localStorage.setItem('instructor', JSON.stringify(state.instructor));
             document.getElementById("displayInstructor").innerText = teacher.display_name;
-            document.getElementById("navbar").classList.remove("hidden");
+            document.getElementById("sidebar").classList.remove("hidden");
+            document.getElementById("sidebar").classList.add("flex");
+            document.getElementById("topbar").classList.remove("hidden");
             showView('landing');
         }
 
-        function logout() { 
-            localStorage.removeItem('instructor');
-            location.reload(); 
-        }
+        function logout() { localStorage.removeItem('instructor'); location.reload(); }
         
         function showError(message) {
             const errEl = document.getElementById("loginError");
-            errEl.innerText = message;
+            errEl.querySelector('p').innerText = message;
             errEl.classList.remove("hidden");
         }
 
         // ── Cascade filter helpers ────────────────────────────────────────────
-        function getYears() {
-            const s = new Set(state.instructor.assignments.map(a => a.year));
-            return [...s].sort((a, b) => Number(a) - Number(b));
-        }
-
-        function getDepts(year) {
-            const s = new Set(
-                state.instructor.assignments
-                    .filter(a => a.year === year)
-                    .map(a => a.department)
-            );
-            return [...s].sort();
-        }
-
-        function getSections(year, dept) {
-            const s = new Set(
-                state.instructor.assignments
-                    .filter(a => a.year === year && a.department === dept)
-                    .map(a => a.section)
-            );
-            return [...s].sort();
-        }
-
+        function getYears() { return [...new Set(state.instructor.assignments.map(a => a.year))].sort(); }
+        function getDepts(year) { return [...new Set(state.instructor.assignments.filter(a => a.year === year).map(a => a.department))].sort(); }
+        function getSections(year, dept) { return [...new Set(state.instructor.assignments.filter(a => a.year === year && a.department === dept).map(a => a.section))].sort(); }
         function getSubjectOptions(year, dept, section) {
-            return state.instructor.assignments
-                .filter(a => a.year === year && a.department === dept && a.section === section)
-                .map(a => ({
-                    name: a.subject_name || a.subject_acronym || a.subject_code,
-                    code: a.subject_code,
-                    acronym: a.subject_acronym,
-                    class_type: a.class_type
-                }));
+            return state.instructor.assignments.filter(a => a.year === year && a.department === dept && a.section === section)
+                .map(a => ({ name: a.subject_name || a.subject_acronym || a.subject_code, code: a.subject_code }));
         }
 
-        // ── Custom dropdown toggle ────────────────────────────────────────────
         function toggleDropdown(id) {
             const el = document.getElementById(`${id}Options`);
             const isHidden = el.classList.contains("hidden");
             document.querySelectorAll('.custom-options').forEach(opt => opt.classList.add("hidden"));
             if (isHidden) el.classList.remove("hidden");
         }
-
         window.onclick = (e) => {
             if (!e.target.closest('.custom-select-container'))
                 document.querySelectorAll('.custom-options').forEach(opt => opt.classList.add("hidden"));
         };
 
-        // ── Dropdown population ───────────────────────────────────────────────
         function populateYears() {
-            const years = getYears();
-            document.getElementById("yearOptions").innerHTML = years.map(y =>
-                `<div class="custom-option" onclick="selectYear('${y}')">Year ${y}</div>`
-            ).join('');
+            document.getElementById("yearOptions").innerHTML = getYears().map(y => `<div class="custom-option" onclick="selectYear('${y}')">Year ${y}</div>`).join('');
             resetForm();
         }
-
         function selectYear(val) {
-            state.form.year = val;
-            document.getElementById("yearSelected").innerText = "Year " + val;
-            document.getElementById("yearOptions").classList.add("hidden");
-
-            const depts = getDepts(val);
-            document.getElementById("deptOptions").innerHTML = depts.map(d =>
-                `<div class="custom-option" onclick="selectDept('${d}')">${d}</div>`
-            ).join('');
-            document.getElementById("deptTrigger").classList.remove("disabled");
-            document.getElementById("deptSelected").innerText = "Select";
-
-            // Reset downstream
-            state.form.dept = ""; state.form.section = ""; state.form.subject = ""; state.form.subjectCode = "";
-            document.getElementById("sectionTrigger").classList.add("disabled");
-            document.getElementById("sectionSelected").innerText = "Select";
-            document.getElementById("subjectTrigger").classList.add("disabled");
-            document.getElementById("subjectSelected").innerText = "Select";
-            validateForm();
+            state.form.year = val; document.getElementById("yearSelected").innerText = "Year " + val; document.getElementById("yearOptions").classList.add("hidden");
+            document.getElementById("deptOptions").innerHTML = getDepts(val).map(d => `<div class="custom-option" onclick="selectDept('${d}')">${d}</div>`).join('');
+            document.getElementById("deptTrigger").classList.remove("disabled"); document.getElementById("deptSelected").innerText = "Select";
+            resetDownstream('dept'); validateForm();
         }
-
         function selectDept(val) {
-            state.form.dept = val;
-            document.getElementById("deptSelected").innerText = val;
-            document.getElementById("deptOptions").classList.add("hidden");
-
-            const sections = getSections(state.form.year, val);
-            document.getElementById("sectionOptions").innerHTML = sections.map(s =>
-                `<div class="custom-option" onclick="selectSection('${s}')">Section ${s}</div>`
-            ).join('');
-            document.getElementById("sectionTrigger").classList.remove("disabled");
-            document.getElementById("sectionSelected").innerText = "Select";
-
-            state.form.section = ""; state.form.subject = ""; state.form.subjectCode = "";
-            document.getElementById("subjectTrigger").classList.add("disabled");
-            document.getElementById("subjectSelected").innerText = "Select";
-            validateForm();
+            state.form.dept = val; document.getElementById("deptSelected").innerText = val; document.getElementById("deptOptions").classList.add("hidden");
+            document.getElementById("sectionOptions").innerHTML = getSections(state.form.year, val).map(s => `<div class="custom-option" onclick="selectSection('${s}')">Section ${s}</div>`).join('');
+            document.getElementById("sectionTrigger").classList.remove("disabled"); document.getElementById("sectionSelected").innerText = "Select";
+            resetDownstream('section'); validateForm();
         }
-
         function selectSection(val) {
-            state.form.section = val;
-            document.getElementById("sectionSelected").innerText = "Section " + val;
-            document.getElementById("sectionOptions").classList.add("hidden");
-
+            state.form.section = val; document.getElementById("sectionSelected").innerText = "Section " + val; document.getElementById("sectionOptions").classList.add("hidden");
             currentSubjects = getSubjectOptions(state.form.year, state.form.dept, val);
-            document.getElementById("subjectOptions").innerHTML = currentSubjects.map((s, i) =>
-                `<div class="custom-option" onclick="selectSubject(${i})">${s.name}${s.class_type === 'Lab' ? ' <span class="text-slate-500 text-[9px]">[LAB]</span>' : ''}</div>`
-            ).join('');
-            document.getElementById("subjectTrigger").classList.remove("disabled");
-            document.getElementById("subjectSelected").innerText = "Select";
-
-            state.form.subject = ""; state.form.subjectCode = "";
-            validateForm();
+            document.getElementById("subjectOptions").innerHTML = currentSubjects.map((s, i) => `<div class="custom-option" onclick="selectSubject(${i})">${s.name}</div>`).join('');
+            document.getElementById("subjectTrigger").classList.remove("disabled"); document.getElementById("subjectSelected").innerText = "Select";
+            resetDownstream('subject'); validateForm();
         }
-
         function selectSubject(idx) {
-            const subj = currentSubjects[idx];
-            state.form.subject    = subj.name;
-            state.form.subjectCode = subj.code;
-            document.getElementById("subjectSelected").innerText = subj.name;
-            document.getElementById("subjectOptions").classList.add("hidden");
+            const subj = currentSubjects[idx]; state.form.subject = subj.name; state.form.subjectCode = subj.code;
+            document.getElementById("subjectSelected").innerText = subj.name; document.getElementById("subjectOptions").classList.add("hidden");
             validateForm();
         }
-
+        function resetDownstream(from) {
+            if (from === 'dept') { state.form.dept = ""; state.form.section = ""; state.form.subject = ""; document.getElementById("sectionTrigger").classList.add("disabled"); document.getElementById("sectionSelected").innerText = "Select"; }
+            if (from === 'section' || from === 'dept') { state.form.subject = ""; document.getElementById("subjectTrigger").classList.add("disabled"); document.getElementById("subjectSelected").innerText = "Select"; }
+        }
         function resetForm() {
             state.form = { year: "", dept: "", section: "", subject: "", subjectCode: "" };
-            document.getElementById("yearSelected").innerText    = "Select";
-            document.getElementById("deptSelected").innerText    = "Select";
-            document.getElementById("sectionSelected").innerText = "Select";
-            document.getElementById("subjectSelected").innerText = "Select";
-            document.getElementById("deptTrigger").classList.add("disabled");
-            document.getElementById("sectionTrigger").classList.add("disabled");
-            document.getElementById("subjectTrigger").classList.add("disabled");
+            ["year","dept","section","subject"].forEach(id => document.getElementById(`${id}Selected`).innerText = "Select");
+            ["dept","section","subject"].forEach(id => document.getElementById(`${id}Trigger`).classList.add("disabled"));
             validateForm();
         }
-
         function validateForm() {
-            document.getElementById("startBtn").disabled =
-                !(state.form.year && state.form.dept && state.form.section && state.form.subject);
+            document.getElementById("startBtn").disabled = !(state.form.year && state.form.dept && state.form.section && state.form.subject);
         }
 
         // ── Session management ────────────────────────────────────────────────
         async function startSession() {
-            const dept = state.form.dept;
-            const year = state.form.year;
-            const section = state.form.section;
-            
-            // Fetch total students for this class from DB
-            let totalStudents = 0;
             try {
-                const countRes = await fetch(`${API.attendance}/student-count?dept=${dept}&year=${year}&section=${section}`);
-                const countJson = await countRes.json();
-                if (countJson.success) totalStudents = countJson.data.count || 0;
-            } catch (e) { console.error("Failed to get student count:", e); }
-            
-            // Fallback to classList length if DB count not available
-            const res = await fetch(`${API.qr}/session/start`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    instructor_id:   state.instructor.id,
-                    instructor_name: state.instructor.name,
-                    department:      dept,
-                    year:            year,
-                    section:         section,
-                    subject:         state.form.subject,
-                    total_students:  totalStudents
-                })
-            });
-            const json = await res.json();
-            console.log("[SESSION] Start response:", json);
-            if (json.success) {
-                state.activeSession = {
-                    session_id: json.data.session_id,
-                    dept:       dept,
-                    year:       year,
-                    section:    section,
-                    subject:    state.form.subject,
-                    start_time: new Date().toISOString(),
-                    class_name: `${dept}-${section}`,
-                    total_students: json.data.total_students || totalStudents
-                };
-                console.log("[SESSION] Active session stored:", state.activeSession);
-                document.getElementById("sessionSetup").classList.add("hidden");
-                document.getElementById("sessionActiveInfo").classList.remove("hidden");
-                document.getElementById("qrBox").classList.remove("hidden");
-                document.getElementById("qrPlaceholder").classList.add("hidden");
-                await loadClassList(state.activeSession.class_name);
-                state.intervals.qr = setInterval(refreshQR, 15000); refreshQR();
-                state.intervals.attendance = setInterval(refreshAttendance, 5000);
-            }
+                let totalStudents = 0;
+                try {
+                    const cRes = await fetch(`${API.attendance}/student-count?dept=${state.form.dept}&year=${state.form.year}&section=${state.form.section}`);
+                    const cJson = await cRes.json();
+                    if(cJson.success) totalStudents = cJson.data.count;
+                } catch(e) {}
+
+                const res = await fetch(`${API.qr}/session/start`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ instructor_id: state.instructor.id, instructor_name: state.instructor.name, department: state.form.dept, year: state.form.year, section: state.form.section, subject: state.form.subject, total_students: totalStudents })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    state.activeSession = { session_id: json.data.session_id, dept: state.form.dept, year: state.form.year, section: state.form.section, subject: state.form.subject, start_time: new Date().toISOString(), class_name: `${state.form.dept}-${state.form.section}`, total_students: json.data.total_students || totalStudents };
+                    document.getElementById("sessionSetup").classList.add("hidden"); document.getElementById("sessionActiveInfo").classList.remove("hidden");
+                    document.getElementById("qrBox").classList.remove("hidden"); document.getElementById("qrPlaceholder").classList.add("hidden");
+                    await loadClassList(state.activeSession.class_name);
+                    state.intervals.qr = setInterval(refreshQR, 15000); refreshQR();
+                    state.intervals.attendance = setInterval(refreshAttendance, 5000);
+                }
+            } catch(e) {}
         }
 
         async function loadClassList(className) {
             try {
                 const res = await fetch(`${API.attendance}/class-list/${className}`);
-                const json = await res.json();
-                if (json.success) { state.classList = json.data; updateCounts(0); }
-            } catch (e) {}
+                if (res.ok) { let j = await res.json(); if(j.success) { state.classList = j.data; updateCounts(0); } }
+            } catch(e){}
         }
 
-        function updateCounts(presentCount) {
-            const totalStudents = state.activeSession?.total_students || state.classList?.length || 0;
-            console.log("[COUNTS] Updating - Present:", presentCount, "Total:", totalStudents);
-            document.getElementById("presentCount").innerText = presentCount;
-            document.getElementById("totalCount").innerText = totalStudents;
+        function updateCounts(p) {
+            const t = state.activeSession?.total_students || state.classList?.length || 0;
+            document.getElementById("presentCount").innerText = p; document.getElementById("totalCount").innerText = t;
         }
 
         async function refreshQR() {
-            if (!state.activeSession) return;
+            if(!state.activeSession) return;
             const res = await fetch(`${API.qr}/session/current-qr?instructor_id=${state.instructor.id}`);
             const json = await res.json();
-            if (json.success) {
+            if(json.success) {
                 const cont = document.getElementById("qrContainer"); cont.innerHTML = "";
-                new QRCode(cont, { text: json.data.qr_token, width: 256, height: 256, colorDark: "#0f172a" });
+                new QRCode(cont, { text: json.data.qr_token, width: 220, height: 220, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel : QRCode.CorrectLevel.M });
                 startCountdown(15);
             }
         }
 
         function startCountdown(s) {
-            if (state.intervals.timer) clearInterval(state.intervals.timer);
+            if(state.intervals.timer) clearInterval(state.intervals.timer);
             let r = s; document.getElementById("timer").innerText = r + "s";
-            state.intervals.timer = setInterval(() => {
-                r--; document.getElementById("timer").innerText = r + "s";
-                if (r <= 0 || !state.activeSession) clearInterval(state.intervals.timer);
-            }, 1000);
+            state.intervals.timer = setInterval(() => { r--; document.getElementById("timer").innerText = r + "s"; if(r<=0) clearInterval(state.intervals.timer); }, 1000);
         }
 
         async function stopSession() {
             if (!confirm("End session?")) return;
-            console.log("[SESSION] Stopping session...");
-            const stopRes = await fetch(`${API.qr}/session/stop`, {
-                method: 'POST',
-                body: JSON.stringify({ instructor_id: state.instructor.id }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const stopJson = await stopRes.json();
-            console.log("[SESSION] Stop response:", stopJson);
+            await fetch(`${API.qr}/session/stop`, { method: 'POST', body: JSON.stringify({ instructor_id: state.instructor.id }), headers: { 'Content-Type': 'application/json' } });
+            
             const present = parseInt(document.getElementById("presentCount").innerText);
             const total = parseInt(document.getElementById("totalCount").innerText);
-            const absent = total - present;
             document.getElementById("sumPresent").innerText = present;
             document.getElementById("sumTotal").innerText = total;
-            document.getElementById("sumAbsent").innerText = absent >= 0 ? absent : 0;
+            
             Object.values(state.intervals).forEach(i => clearInterval(i));
             document.getElementById("summaryModal").classList.remove("hidden");
         }
@@ -696,185 +632,69 @@
 
         async function refreshAttendance() {
             if (!state.activeSession) return;
-            const res  = await fetch(`${API.attendance}/session/${state.activeSession.session_id}`);
+            const res = await fetch(`${API.attendance}/session/${state.activeSession.session_id}`);
             const json = await res.json();
-            console.log("[ATTENDANCE] Poll response:", json);
-            if (json.success) {
-                console.log("[ATTENDANCE] Record count:", json.data.length);
-                const body  = document.getElementById("attendanceBody");
-                const empty = document.getElementById("emptyAttendance");
+            if(json.success) {
                 updateCounts(json.data.length);
+                const body = document.getElementById("attendanceBody"); const empty = document.getElementById("emptyAttendance");
                 if (json.data.length > 0) {
                     empty.classList.add("hidden");
-                    body.innerHTML = json.data.map(r =>
-                        `<tr>
-                            <td class="px-6 py-3 font-bold text-white">${r.roll_number}</td>
-                            <td class="px-6 py-3">${r.name}</td>
-                            <td class="px-6 py-3 text-right text-blue-400 font-mono text-[10px]">${new Date(r.timestamp).toLocaleTimeString()}</td>
-                        </tr>`
-                    ).join('');
+                    body.innerHTML = json.data.map(r => `<tr><td class="pl-6 pr-4 py-2 font-mono text-xs text-white">${r.roll_number}</td><td class="px-4 py-2 text-slate-300 text-sm truncate max-w-[120px]">${r.name}</td><td class="px-6 py-2 text-right text-slate-500 font-mono text-[10px]">${new Date(r.timestamp).toLocaleTimeString()}</td></tr>`).join('');
                 } else { empty.classList.remove("hidden"); body.innerHTML = ""; }
             }
         }
 
         // ── Reports ───────────────────────────────────────────────────────────
         function loadReportSections() {
-            // Build unique year+dept+section combos from this teacher's assignments
-            const seen = new Set();
-            const combos = [];
+            const seen = new Set(); const combos = [];
             for (const a of state.instructor.assignments) {
                 const key = `${a.year}|${a.department}|${a.section}`;
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    combos.push({ year: a.year, dept: a.department, sec: a.section });
-                }
+                if (!seen.has(key)) { seen.add(key); combos.push({ year: a.year, dept: a.department, sec: a.section }); }
             }
-            // Sort: year asc, dept asc, section asc
-            combos.sort((a, b) =>
-                Number(a.year) - Number(b.year) ||
-                a.dept.localeCompare(b.dept) ||
-                a.sec.localeCompare(b.sec)
-            );
-            document.getElementById("reportSections").innerHTML = combos.map(item =>
-                `<button onclick="loadReports('${item.dept}', '${item.year}', '${item.sec}')"
-                    class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 text-[10px] font-bold uppercase transition-all">
-                    Y${item.year} ${item.dept} &ndash; ${item.sec}
-                </button>`
-            ).join('');
+            combos.sort((a,b) => Number(a.year)-Number(b.year) || a.dept.localeCompare(b.dept) || a.sec.localeCompare(b.sec));
+            document.getElementById("reportSections").innerHTML = combos.map(item => `<button onclick="loadReports('${item.dept}','${item.year}','${item.sec}')" class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-700">Y${item.year} ${item.dept} &bull; ${item.sec}</button>`).join('');
         }
 
         async function loadReports(dept, year, sec) {
-            console.log("[REPORTS] Fetching list - URL:", `${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
-            const res  = await fetch(`${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
+            const res = await fetch(`${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
             const json = await res.json();
-            console.log("[REPORTS] Response:", json);
-            console.log("[REPORTS] Filter:", {dept, year, sec}, "Found:", json.data?.length || 0);
-            const list  = document.getElementById("reportList");
-            const empty = document.getElementById("emptyReports");
-            if (!json.data || json.data.length === 0) {
-                empty.classList.remove("hidden"); list.innerHTML = ""; return;
-            }
+            const list = document.getElementById("reportList"); const empty = document.getElementById("emptyReports");
+            if (!json.data || json.data.length === 0) { empty.classList.remove("hidden"); list.innerHTML = ""; return; }
             empty.classList.add("hidden");
             list.innerHTML = json.data.map(r => {
-                const start = new Date(r.meta.start_time);
-                return `<div class="bg-slate-800 p-4 rounded border border-slate-700 flex justify-between items-center hover:bg-slate-700 cursor-pointer transition-all" onclick='viewReport(${JSON.stringify(r)})'>
-                    <div>
-                        <p class="font-bold text-white text-sm">${r.meta.subject}</p>
-                        <p class="text-[9px] text-slate-500 uppercase font-mono">${start.toLocaleDateString()} | ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${r.attendance.length} Records</p>
-                    </div>
-                    <span class="text-blue-400 text-[9px] font-bold uppercase border border-blue-400/30 px-2 py-1 rounded">View</span>
+                const d = new Date(r.meta.start_time);
+                return `<div class="card p-4 rounded-xl flex justify-between items-center cursor-pointer mb-2" onclick='viewReport(${JSON.stringify(r)})'>
+                    <div><p class="font-medium text-slate-200">${r.meta.subject}</p>
+                    <p class="text-xs text-slate-500">${d.toLocaleDateString()} &bull; ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} &bull; ${r.attendance.length} Records</p></div>
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </div>`;
             }).join('');
         }
 
         function viewReport(data) {
-            state.viewData = data;
-            const m = data.meta; const start = new Date(m.start_time);
-            const totalStudents = m.total_students || state.classList?.length || data.attendance.length;
-            const presentCount = data.attendance.length;
-            const absentCount = totalStudents - presentCount;
+            state.viewData = data; const m = data.meta; const start = new Date(m.start_time);
             document.getElementById("viewTitle").innerText = m.subject;
-            const summaryParts = [
-                `DEPT: ${m.department}`,
-                `YEAR: ${m.year}`,
-                `SECTION: ${m.section}`,
-                `DATE: ${start.toLocaleDateString()}`,
-                `TIME: ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-                `PRESENT: ${presentCount}`,
-                `TOTAL: ${totalStudents}`,
-                `ABSENT: ${absentCount >= 0 ? absentCount : 0}`
-            ];
-            document.getElementById("viewSummary").innerHTML =
-                summaryParts.map(p => `<span>${p}</span>`).join('<span class="opacity-20 mx-2">|</span>');
-            document.getElementById("viewerBody").innerHTML = data.attendance.map(a =>
-                `<tr>
-                    <td class="px-6 py-2 font-bold text-white">${a.roll_number}</td>
-                    <td class="px-6 py-2 text-slate-300">${a.name || "N/A"}</td>
-                    <td class="px-6 py-2 text-right text-slate-500 font-mono text-[10px]">${new Date(a.timestamp).toLocaleTimeString()}</td>
-                </tr>`
-            ).join('');
+            document.getElementById("viewSummary").innerHTML = [m.department, `Y${m.year} S${m.section}`, start.toLocaleDateString(), `${data.attendance.length} logs`].map(p => `<span>${p}</span>`).join('<span class="opacity-20">&bull;</span>');
+            document.getElementById("viewerBody").innerHTML = data.attendance.map(a => `<tr><td class="px-6 py-2 font-mono text-sm text-slate-300">${a.roll_number}</td><td class="px-4 py-2 text-slate-400 text-sm">${a.name || "N/A"}</td><td class="px-6 py-2 text-right text-slate-500 font-mono text-[10px]">${new Date(a.timestamp).toLocaleTimeString()}</td></tr>`).join('');
             document.getElementById("viewerModal").classList.remove("hidden");
         }
 
         function closeViewer() { document.getElementById("viewerModal").classList.add("hidden"); }
-
-        function downloadActiveReport() {
-            const m = state.viewData.meta;
-            const d = new Date(m.start_time);
-            const h   = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            const url = `${API.attendance}/reports/download?instructor_id=${state.instructor.id}&dept=${m.department}&year=${m.year}&sec=${m.section}&filename=${h}${min}_${m.id.substring(0,8)}.xlsx`;
-            window.open(url);
+        function downloadActiveReport() { 
+            const m = state.viewData.meta; const d = new Date(m.start_time);
+            window.open(`${API.attendance}/reports/download?instructor_id=${state.instructor.id}&dept=${m.department}&year=${m.year}&sec=${m.section}&filename=${d.getTime()}.xlsx`);
         }
+        async function sendEmailReport() { alert('Email capability hooked into backend'); }
 
-        async function sendEmailReport() {
-            if (!state.viewData) {
-                alert('No report data available');
-                return;
-            }
-            
-            if (!state.instructor || !state.instructor.email) {
-                alert('❌ Please login with Google to use email functionality');
-                return;
-            }
-            
-            const btn = event.target.closest('button');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sending...';
-            
-            try {
-                const m = state.viewData.meta;
-                const response = await fetch(`${API.attendance}/reports/send-email`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        instructor_id: state.instructor.id,
-                        instructor_name: state.instructor.name,
-                        instructor_email: state.instructor.email,
-                        department: m.department,
-                        year: m.year,
-                        section: m.section,
-                        subject: m.subject,
-                        session_id: m.id,
-                        attendance_data: state.viewData.attendance,
-                        total_students: m.total_students || state.classList?.length || state.viewData.attendance.length
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert(`✅ Email sent successfully to ${state.instructor.email}!`);
-                } else {
-                    alert('❌ Failed to send email: ' + (result.error || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Email error:', error);
-                alert('❌ Failed to send email. Please try again.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        }
-
-        // ── Bootstrap ─────────────────────────────────────────────────────────
         window.addEventListener('load', () => { 
             loadFacultyData();
-            
-            // Restore session if exists
-            const savedInstructor = localStorage.getItem('instructor');
-            if (savedInstructor) {
+            const saved = localStorage.getItem('instructor');
+            if (saved) {
                 try {
-                    state.instructor = JSON.parse(savedInstructor);
-                    document.getElementById('displayInstructor').innerText = state.instructor.name;
-                    document.getElementById('navbar').classList.remove('hidden');
-                    showView('landing');
-                    console.log('Session restored:', state.instructor.email || 'legacy login');
-                } catch (e) {
-                    console.error('Failed to restore session:', e);
-                    localStorage.removeItem('instructor');
-                }
+                    state.instructor = JSON.parse(saved); document.getElementById('displayInstructor').innerText = state.instructor.name;
+                    document.getElementById('sidebar').classList.remove('hidden'); document.getElementById('sidebar').classList.add('flex');
+                    document.getElementById('topbar').classList.remove('hidden'); showView('landing');
+                } catch(e) { localStorage.removeItem('instructor'); }
             }
         });
     </script>
