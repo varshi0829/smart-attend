@@ -90,7 +90,7 @@ router.post('/login', async (req, res) => {
     }
     
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, role: user.role, department: user.department, assignedClass: user.assignedClass },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -103,6 +103,8 @@ router.post('/login', async (req, res) => {
         email: user.email,
         role: user.role,
         name: user.name,
+        department: user.department,
+        assignedClass: user.assignedClass,
         rollNumber: user.rollNumber,
         authProvider: user.authProvider
       }
@@ -162,7 +164,7 @@ router.post('/google', async (req, res) => {
     
     // Generate JWT
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, role: user.role, department: user.department, assignedClass: user.assignedClass },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -175,6 +177,8 @@ router.post('/google', async (req, res) => {
         email: user.email,
         role: user.role,
         name: user.name,
+        department: user.department,
+        assignedClass: user.assignedClass,
         rollNumber: user.rollNumber,
         authProvider: user.authProvider,
         profilePicture: user.profilePicture

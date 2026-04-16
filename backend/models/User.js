@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['instructor', 'student']
+    enum: ['instructor', 'student', 'faculty', 'hod', 'principal']
   },
   name: {
     type: String,
@@ -31,6 +31,15 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  // Class Teacher assignment (applicable only if role is faculty/instructor)
+  assignedClass: {
+    isClassTeacher: {
+      type: Boolean,
+      default: false
+    },
+    year: String,
+    section: String
   },
   // Google Auth fields
   authProvider: {
