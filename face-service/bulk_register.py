@@ -136,34 +136,43 @@ def enroll_student(roll: str, photo_path: str, force: bool = False, write_db: bo
 
 
 def verify_embeddings():
-    """Post-enrollment sanity check: print shape + model tag of every .pkl."""
-    print("\n=== Embedding Verification ===")
-    issues = []
+    """
+    Sanity check all .pkl files.
+    Prints a clean summary line only — no per-file output.
+    Validation logic is unchanged; only the printing is condensed.
+    """
+    total   = 0
+    valid   = 0
+    invalid = []
+
     for fname in sorted(os.listdir(EMBEDDINGS_DIR)):
         if not fname.endswith(".pkl") or fname.endswith(".pkl.bak"):
             continue
+        total += 1
         fpath = os.path.join(EMBEDDINGS_DIR, fname)
-        with open(fpath, "rb") as f:
-            data = pickle.load(f)
-        if isinstance(data, dict):
-            raw   = data.get("embeddings", [data.get("embedding")])
-            model = data.get("model", "unknown")
-            ver   = data.get("version", 1)
-        else:
-            raw   = data if isinstance(data, list) else [data]
-            model = "legacy"
-            ver   = 0
-        shapes = [np.array(e, dtype=np.float32).shape for e in raw if e is not None]
-        ok     = all(s == (EXPECTED_DIM,) for s in shapes)
-        status = "OK " if ok else "BAD"
-        print(f"  [{status}] {fname:<25} emb={len(shapes)} shape={shapes} model={model} v={ver}")
-        if not ok:
-            issues.append(fname)
+        try:
+            with open(fpath, "rb") as f:
+                data = pickle.load(f)
+            if isinstance(data, dict):
+                raw = data.get("embeddings", [data.get("embedding")])
+            else:
+                raw = data if isinstance(data, list) else [data]
+            shapes = [np.array(e, dtype=np.float32).shape for e in raw if e is not None]
+            if shapes and all(s == (EXPECTED_DIM,) for s in shapes):
+                valid += 1
+            else:
+                invalid.append(fname)
+        except Exception:
+            invalid.append(fname)
 
-    if issues:
-        print(f"\n[WARN] {len(issues)} file(s) have unexpected shape: {issues}")
+    if not invalid:
+        print(f"✅ Embeddings: VERIFIED ({valid}/{total})")
     else:
-        print(f"\nAll embeddings are {EXPECTED_DIM}-dim and valid.")
+        print(f"❌ Embeddings: FAILED ({valid}/{total})")
+        print("\nInvalid files:")
+        for f in invalid:
+            print(f"  - {f}")
+        sys.exit(1)
 
 
 def main():

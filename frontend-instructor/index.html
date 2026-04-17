@@ -249,8 +249,28 @@
 
         <!-- SUMMARY MODAL -->
         <div id="summaryModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur z-[300] flex items-center justify-center p-6">
-            <div class="bg-slate-800 w-full max-w-sm rounded border border-slate-700 p-8 text-center space-y-6 shadow-2xl">
+            <div class="bg-slate-800 w-full max-w-sm rounded border border-slate-700 p-8 text-center space-y-5 shadow-2xl">
                 <h3 class="text-lg font-bold text-white uppercase tracking-widest border-b border-slate-700 pb-2">Session Summary</h3>
+                <!-- Session details — filled immediately from state, no network needed -->
+                <div class="text-left space-y-1.5 text-xs border border-slate-700 rounded p-3 bg-slate-900/60">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-bold uppercase tracking-wide">Subject</span>
+                        <span id="sumSubject" class="text-white font-bold text-right max-w-[60%] truncate">—</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-bold uppercase tracking-wide">Class</span>
+                        <span id="sumClass" class="text-slate-300 text-right">—</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-bold uppercase tracking-wide">Date</span>
+                        <span id="sumDate" class="text-slate-300">—</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-bold uppercase tracking-wide">Start Time</span>
+                        <span id="sumTime" class="text-slate-300">—</span>
+                    </div>
+                </div>
+                <!-- Attendance counts -->
                 <div class="grid grid-cols-3 gap-4">
                     <div class="bg-slate-900 p-4 rounded">
                         <p class="text-[9px] font-bold text-slate-500 uppercase">Present</p>
@@ -265,7 +285,21 @@
                         <p id="sumAbsent" class="text-2xl font-bold text-red-500">0</p>
                     </div>
                 </div>
-                <button onclick="closeSummary()" class="w-full bg-blue-600 text-white py-2 rounded font-bold uppercase text-xs tracking-widest">Back to Dashboard</button>
+                <!-- Report actions — disabled until background report task completes -->
+                <div class="space-y-3">
+                    <p id="summaryMailMsg" class="hidden text-xs font-bold leading-relaxed"></p>
+                    <div class="flex gap-3">
+                        <button id="sendMailBtn" onclick="sendMail()"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-30 text-white py-2 rounded font-bold text-xs uppercase tracking-wide transition-all">
+                            Send Mail
+                        </button>
+                        <button id="downloadExcelBtn" onclick="downloadSessionExcel()"
+                            class="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 rounded font-bold text-xs uppercase tracking-wide transition-all">
+                            Download Excel
+                        </button>
+                    </div>
+                </div>
+                <button onclick="closeSummary()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded font-bold uppercase text-xs tracking-widest transition-all">Back to Dashboard</button>
             </div>
         </div>
     </main>
@@ -604,9 +638,84 @@
             }, 1000);
         }
 
+        // ── Report readiness polling ──────────────────────────────────────────
+        let _reportPoller = null;
+        let _reportReady = false;
+        let _reportFailed = false;
+
+        function _startReportReadinessPolling(sessionId) {
+            const mailBtn    = document.getElementById("sendMailBtn");
+            const dlBtn      = document.getElementById("downloadExcelBtn");
+            const mailMsg    = document.getElementById("summaryMailMsg");
+
+            // Reset state
+            _reportReady = false;
+            _reportFailed = false;
+
+            // Disable both action buttons while report generates
+            mailBtn.disabled = true;
+            mailBtn.innerText = "Send Mail";
+            mailBtn.className = "flex-1 bg-blue-600 disabled:opacity-30 text-white py-2 rounded font-bold text-xs uppercase tracking-wide transition-all";
+            dlBtn.disabled = true;
+            dlBtn.className = "flex-1 bg-slate-600 disabled:opacity-30 text-white py-2 rounded font-bold text-xs uppercase tracking-wide transition-all";
+
+            // Show clear status message
+            mailMsg.classList.remove("hidden");
+            mailMsg.className = "text-xs font-bold text-blue-400 leading-relaxed";
+            mailMsg.innerText = "Session summary is ready. Preparing downloadable report and mail attachment...";
+
+            if (_reportPoller) clearInterval(_reportPoller);
+
+            _reportPoller = setInterval(async () => {
+                // Skip if already settled
+                if (_reportReady || _reportFailed) {
+                    clearInterval(_reportPoller);
+                    _reportPoller = null;
+                    return;
+                }
+
+                try {
+                    const res  = await fetch(`${API.attendance}/sessions/${sessionId}/report-status`);
+                    const json = await res.json();
+                    const status = json.data?.status || "unknown";
+
+                    if (status === "ready") {
+                        _reportReady = true;
+                        // Enable both buttons
+                        mailBtn.disabled = false;
+                        mailBtn.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold text-xs uppercase tracking-wide transition-all";
+                        dlBtn.disabled = false;
+                        dlBtn.className = "flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 rounded font-bold text-xs uppercase tracking-wide transition-all";
+                        // Show success message
+                        mailMsg.className = "text-xs font-bold text-green-400 leading-relaxed";
+                        mailMsg.innerText = "Report ready — you can now download or send via email.";
+                        // Auto-clear after 3 seconds
+                        setTimeout(() => {
+                            mailMsg.classList.add("hidden");
+                            mailMsg.innerText = "";
+                        }, 3000);
+                        clearInterval(_reportPoller);
+                        _reportPoller = null;
+
+                    } else if (status === "failed") {
+                        _reportFailed = true;
+                        // Keep buttons disabled, show error
+                        mailMsg.className = "text-xs font-bold text-red-400 leading-relaxed";
+                        mailMsg.innerText = "Report generation failed. Download and mail features are unavailable.";
+                        clearInterval(_reportPoller);
+                        _reportPoller = null;
+                    }
+                    // "generating" / "unknown" — keep polling
+                } catch (e) {
+                    console.warn("[POLL] report-status fetch error:", e);
+                }
+            }, 1500);
+        }
+
         async function stopSession() {
             if (!confirm("End session?")) return;
             console.log("[SESSION] Stopping session...");
+
             const stopRes = await fetch(`${API.qr}/session/stop`, {
                 method: 'POST',
                 body: JSON.stringify({ instructor_id: state.instructor.id }),
@@ -614,17 +723,102 @@
             });
             const stopJson = await stopRes.json();
             console.log("[SESSION] Stop response:", stopJson);
+
+            // Get counts from UI
             const present = parseInt(document.getElementById("presentCount").innerText);
             const total = parseInt(document.getElementById("totalCount").innerText);
             const absent = total - present;
+
+            // Populate ALL summary fields immediately from local state (no waiting)
+            const sess = state.activeSession || {};
+            const startTime = sess.start_time ? new Date(sess.start_time) : new Date();
+
+            // Subject
+            document.getElementById("sumSubject").innerText = sess.subject || state.form.subject || "—";
+            // Class (department-section)
+            document.getElementById("sumClass").innerText = sess.department && sess.section
+                ? `${sess.department} ${sess.section}`
+                : (state.form.dept && state.form.section ? `${state.form.dept} ${state.form.section}` : "—");
+            // Date
+            document.getElementById("sumDate").innerText = startTime.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+            // Start Time
+            document.getElementById("sumTime").innerText = startTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+            // Attendance counts
             document.getElementById("sumPresent").innerText = present;
             document.getElementById("sumTotal").innerText = total;
             document.getElementById("sumAbsent").innerText = absent >= 0 ? absent : 0;
+
+            // Clear all intervals
             Object.values(state.intervals).forEach(i => clearInterval(i));
+
+            // Show summary modal immediately (no waiting for report)
             document.getElementById("summaryModal").classList.remove("hidden");
+
+            // Start background polling for report readiness — buttons disabled until ready
+            const sessionId = sess.session_id;
+            if (sessionId) {
+                _startReportReadinessPolling(sessionId);
+            }
         }
 
         function closeSummary() { location.reload(); }
+
+        // ── Phase 2: Send Mail ────────────────────────────────────────────────
+        async function sendMail() {
+            const sessionId = state.activeSession?.session_id;
+            if (!sessionId) {
+                showMailMsg("No active session found.", "text-red-400");
+                return;
+            }
+
+            const mailBtn = document.getElementById("sendMailBtn");
+            if (mailBtn.disabled) return; // prevent double-click
+
+            mailBtn.disabled = true;
+            mailBtn.innerText = "Sending…";
+            showMailMsg("", "hidden");
+
+            try {
+                const res = await fetch(`${API.attendance}/sessions/${sessionId}/send-mail`, {
+                    method: 'POST'
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    mailBtn.innerText = "Mail Sent ✓";
+                    mailBtn.className = "flex-1 bg-green-700 text-white py-2 rounded font-bold text-xs uppercase tracking-wide cursor-default";
+                    showMailMsg(json.message || "Email sent successfully.", "text-green-400");
+                    // Leave button disabled — mail is sent, no duplicate
+                } else {
+                    mailBtn.disabled = false;
+                    mailBtn.innerText = "Send Mail";
+                    const msg = json.message || "Send failed. Please try again.";
+                    showMailMsg(msg, "text-red-400");
+                }
+            } catch (e) {
+                mailBtn.disabled = false;
+                mailBtn.innerText = "Send Mail";
+                showMailMsg("Network error. Please try again.", "text-red-400");
+            }
+        }
+
+        function showMailMsg(text, colorClass) {
+            const el = document.getElementById("summaryMailMsg");
+            if (!text) { el.className = "hidden text-xs font-bold"; el.innerText = ""; return; }
+            el.className = `text-xs font-bold ${colorClass}`;
+            el.innerText = text;
+        }
+
+        // ── Phase 2: Download Excel from summary modal ────────────────────────
+        function downloadSessionExcel() {
+            const sess = state.activeSession;
+            if (!sess) return;
+            const d = new Date(sess.start_time);
+            const h   = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const url = `${API.attendance}/reports/download?instructor_id=${state.instructor.id}&dept=${sess.dept}&year=${sess.year}&sec=${sess.section}&filename=${h}${min}_${sess.session_id.substring(0,8)}.xlsx`;
+            window.open(url);
+        }
 
         async function refreshAttendance() {
             if (!state.activeSession) return;

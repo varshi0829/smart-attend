@@ -23,3 +23,14 @@ ATTENDANCE_TIMEZONE = os.getenv("ATTENDANCE_TIMEZONE", "Asia/Kolkata")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 INSTRUCTOR_CONFIG_PATH = os.path.join(BASE_DIR, "instructor_config.json")
+
+# ── Mail / SMTP config ────────────────────────────────────────────────────────
+# Set these via environment variables. Never hardcode credentials.
+# See attendance-service/.env for the template.
+MAIL_ENABLED   = os.getenv("MAIL_ENABLED", "false").lower() == "true"
+SMTP_HOST      = os.getenv("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT      = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USERNAME  = os.getenv("SMTP_USERNAME", "smartattenBVRITH@gmail.com")
+SMTP_PASSWORD  = os.getenv("SMTP_PASSWORD", "").replace(" ", "")  # Gmail App Passwords shown with spaces; strip them
+MAIL_FROM      = os.getenv("MAIL_FROM", "smartattenBVRITH@gmail.com")
+MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "SmartAttend")

@@ -62,11 +62,12 @@ async def get_status(instructor_id: str = Query(..., min_length=1)):
 async def stop_session(instructor_id: str = Body(..., embed=True)):
     session, error = store.stop_session(instructor_id)
     if error: return standard_response(False, error, status_code=404)
+    logger.info(f"[SESSION] Session {session['id']} stopped by {instructor_id} — triggering background report generation")
     try:
         # Trigger report generation in background
         async with httpx.AsyncClient(verify=False, timeout=5.0) as client:
             await client.post(f"https://127.0.0.1:5003/attendance/session/{session['id']}/generate-report")
-    except Exception as e: logger.error(f"Excel trigger failed: {e}")
+    except Exception as e: logger.error(f"[SESSION] Excel trigger failed: {e}")
     return standard_response(True, "Session stopped", {"session_id": session["id"]})
 
 @app.post("/session/increment-retry")

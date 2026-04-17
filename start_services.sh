@@ -81,13 +81,33 @@ for service_info in "${SERVICES[@]}"; do
     
     (
         cd "$ROOT_DIR/$DIR"
-        
+
+        # Load service-specific .env safely (handles values with spaces, e.g. Gmail App Passwords).
+        # Plain `source .env` fails when a value contains spaces because bash tries to execute
+        # the extra words as commands. This parser reads KEY=VALUE lines manually.
+        if [[ -f ".env" ]]; then
+            while IFS= read -r _line || [[ -n "$_line" ]]; do
+                # Skip blank lines and comments
+                [[ -z "$_line" || "$_line" =~ ^[[:space:]]*# ]] && continue
+                # Only process valid KEY=VALUE lines
+                if [[ "$_line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+                    _key="${BASH_REMATCH[1]}"
+                    _val="${BASH_REMATCH[2]}"
+                    # Strip surrounding quotes if the whole value is quoted
+                    if [[ "$_val" =~ ^\"(.*)\"$ ]]; then _val="${BASH_REMATCH[1]}"; fi
+                    if [[ "$_val" =~ ^\'(.*)\'$ ]]; then _val="${BASH_REMATCH[1]}"; fi
+                    export "$_key=$_val"
+                fi
+            done < ".env"
+            unset _line _key _val
+        fi
+
         # Determine Python execution (Check for virtual environment)
         PYTHON_CMD="python3"
         if [[ -f "./venv/bin/python3" ]]; then
             PYTHON_CMD="./venv/bin/python3"
         fi
-        
+
         # Start uvicorn in the background
         nohup $PYTHON_CMD -m uvicorn app.main:app \
             --host 0.0.0.0 \
