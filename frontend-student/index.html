@@ -3,195 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Portal - SmartAttend</title>
+    <title>Student Portal — SmartAttend</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { 
-            background: #0f172a; 
+        /* ── Design Tokens (shared with instructor portal) ── */
+        :root {
+            --bg:           #09090b;
+            --surface:      #111113;
+            --surface-2:    #1c1c21;
+            --border:       #27272a;
+            --border-light: #3f3f46;
+            --text:         #fafafa;
+            --text-2:       #a1a1aa;
+            --text-muted:   #52525b;
+            --accent:       #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-bg:    rgba(59,130,246,0.09);
+            --accent-ring:  rgba(59,130,246,0.3);
+            --success:      #22c55e;
+            --success-bg:   rgba(34,197,94,0.1);
+            --danger:       #ef4444;
+            --danger-bg:    rgba(239,68,68,0.08);
         }
-        
-        .card { 
-            background: #1e293b; 
-            border: 1px solid #334155; 
-            transition: all 0.2s ease; 
-        }
-        
-        .btn-primary { 
-            background: #2563eb; 
-            transition: all 0.2s ease; 
-        }
-        
-        .btn-primary:active, .btn-primary:hover:not(:disabled) { 
-            background: #1d4ed8; 
-            transform: scale(0.98);
-        }
-        
-        .btn-success { background: #059669; }
-        
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        @keyframes pulse-ring { 0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
-        .pulse-camera { animation: pulse-ring 2s infinite; }
-        
-        #reader__scan_region video {
-            border-radius: 0.75rem;
-            object-fit: cover !important;
-        }
-        #facePreview, #reviewImg { transform: scaleX(-1); background: #0f172a; border-radius: 0.75rem; }
-        #reader { border: none !important; }
-        .spinner { border: 3px solid rgba(59, 130, 246, 0.2); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .step-active { color: #60a5fa; border-bottom: 2px solid #60a5fa; }
-        .step-inactive { color: #64748b; border-bottom: 2px solid transparent; }
-        
-        /* Mobile safe area padding for bottom actions */
-        .bottom-action-area { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-2);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeUp    { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes spin      { to { transform:rotate(360deg); } }
+        @keyframes pulse-ring { 0%   { box-shadow:0 0 0 0   rgba(59,130,246,0.5); }
+                                 70%  { box-shadow:0 0 0 12px rgba(59,130,246,0);   }
+                                 100% { box-shadow:0 0 0 0   rgba(59,130,246,0);   } }
+        @keyframes successPop { 0% { transform:scale(0.4); opacity:0; }
+                                 65% { transform:scale(1.1); }
+                                 100% { transform:scale(1); opacity:1; } }
+
+        .fade-in          { animation: fadeUp 0.25s ease-out both; }
+        .pulse-camera     { animation: pulse-ring 2.2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite; }
+        .result-pop       { animation: successPop 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+        /* ── Step indicator ── */
+        .step-dot {
+            width:28px; height:28px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:11px; font-weight:700; flex-shrink:0;
+            border:1.5px solid var(--border);
+            color:var(--text-muted); background:var(--surface-2);
+            transition:all 0.25s ease;
+        }
+        .step-line { flex:1; height:1px; background:var(--border); transition:background 0.25s; }
+
+        [id^="nav-step-"].step-active  .step-dot   { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-ring); }
+        [id^="nav-step-"].step-done    .step-dot   { background:var(--success); color:#fff; border-color:var(--success); }
+        [id^="nav-step-"].step-active  .step-label { color:var(--accent); }
+        [id^="nav-step-"].step-done    .step-label { color:var(--success); }
+        [id^="nav-step-"].step-inactive .step-label { color:var(--text-muted); }
+
+        /* ── Card ── */
+        .card { background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+
+        /* ── Buttons ── */
+        .btn {
+            display:inline-flex; align-items:center; justify-content:center; gap:6px;
+            padding:0.55rem 1rem; border-radius:8px; font-size:0.875rem; font-weight:600;
+            cursor:pointer; transition:all 0.15s ease; border:1px solid transparent;
+            font-family:inherit;
+        }
+        .btn-primary  { background:var(--accent); color:#fff; }
+        .btn-primary:hover:not(:disabled) { background:var(--accent-hover); transform:translateY(-1px); box-shadow:0 4px 12px rgba(59,130,246,0.3); }
+        .btn-primary:active:not(:disabled) { transform:scale(0.98); }
+        .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+        .btn-success  { background:var(--success); color:#fff; }
+        .btn-success:hover { background:#16a34a; }
+        .btn-ghost    { background:var(--surface-2); color:var(--text-2); border-color:var(--border); }
+        .btn-ghost:hover { background:var(--border); color:var(--text); }
+
+        /* ── Input ── */
+        .input {
+            width:100%; background:var(--bg); border:1px solid var(--border);
+            border-radius:8px; padding:0.7rem 0.875rem; font-size:0.9375rem;
+            color:var(--text); outline:none; transition:border-color 0.15s, box-shadow 0.15s;
+            font-family:'JetBrains Mono', monospace; letter-spacing:0.06em; text-transform:uppercase;
+        }
+        .input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-ring); }
+        .input::placeholder { color:var(--text-muted); font-family:'Inter', sans-serif; letter-spacing:0; text-transform:none; }
+
+        /* ── Scanner ── */
+        #reader__scan_region video { border-radius:0; object-fit:cover !important; }
+        #facePreview, #reviewImg   { transform:scaleX(-1); background:var(--bg); }
+        #reader                    { border:none !important; }
+
+        /* ── Spinner ── */
+        .spinner {
+            border:2.5px solid rgba(59,130,246,0.15);
+            border-top-color:var(--accent);
+            border-radius:50%; animation:spin 0.85s linear infinite;
+        }
+
+        /* ── Misc ── */
+        .hidden { display:none !important; }
+        .mono   { font-family:'JetBrains Mono', monospace; }
+        .label  { display:block; font-size:0.75rem; font-weight:500; color:var(--text-muted); margin-bottom:6px; }
+        .pb-safe { padding-bottom:env(safe-area-inset-bottom, 1rem); }
+
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--border-light); border-radius:99px; }
     </style>
 </head>
-<body class="min-h-screen font-sans flex flex-col text-slate-300">
+<body>
 
-    <header class="bg-slate-900 border-b border-slate-800 px-5 py-4 sticky top-0 z-50 shadow-sm">
-        <div class="flex justify-between items-center max-w-lg mx-auto w-full">
-            <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                <div class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-xs">S</div>
-                SmartAttend
-            </h1>
-        </div>
-        
-        <!-- Step Indicator -->
-        <div class="max-w-lg mx-auto w-full mt-4 flex justify-between text-xs font-semibold uppercase tracking-wider relative">
-            <div class="absolute top-1/2 left-0 w-full h-[1px] bg-slate-800 -z-10"></div>
-            <div id="nav-step-1" class="step-active pb-2 transition-colors bg-slate-900 px-2 rounded-full">1. Identify</div>
-            <div id="nav-step-2" class="step-inactive pb-2 transition-colors bg-slate-900 px-2 rounded-full">2. Scan</div>
-            <div id="nav-step-3" class="step-inactive pb-2 transition-colors bg-slate-900 px-2 rounded-full">3. Self</div>
-            <div id="nav-step-4" class="step-inactive pb-2 transition-colors bg-slate-900 px-2 rounded-full hidden">4. Done</div>
+    <!-- ── HEADER ── -->
+    <header style="background:var(--surface); border-bottom:1px solid var(--border);" class="sticky top-0 z-50 px-5 pt-3 pb-4">
+        <div class="max-w-md mx-auto w-full">
+
+            <!-- Branding row -->
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0" style="background:var(--accent);">S</div>
+                <span class="text-sm font-semibold" style="color:var(--text);">SmartAttend</span>
+                <span class="ml-auto text-xs font-medium" style="color:var(--text-muted);">Student Portal</span>
+            </div>
+
+            <!-- Step indicator -->
+            <div class="flex items-center">
+                <div id="nav-step-1" class="step-active flex flex-col items-center gap-1 shrink-0">
+                    <div class="step-dot">1</div>
+                    <span class="step-label text-[9px] font-semibold uppercase tracking-wider transition-colors">ID</span>
+                </div>
+                <div class="step-line"></div>
+                <div id="nav-step-2" class="step-inactive flex flex-col items-center gap-1 shrink-0">
+                    <div class="step-dot">2</div>
+                    <span class="step-label text-[9px] font-semibold uppercase tracking-wider transition-colors">QR</span>
+                </div>
+                <div class="step-line"></div>
+                <div id="nav-step-3" class="step-inactive flex flex-col items-center gap-1 shrink-0">
+                    <div class="step-dot">3</div>
+                    <span class="step-label text-[9px] font-semibold uppercase tracking-wider transition-colors">Face</span>
+                </div>
+                <div class="step-line"></div>
+                <div id="nav-step-4" class="step-inactive hidden flex flex-col items-center gap-1 shrink-0">
+                    <div class="step-dot">4</div>
+                    <span class="step-label text-[9px] font-semibold uppercase tracking-wider transition-colors">Done</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow p-5 flex flex-col max-w-lg mx-auto w-full">
-        
-        <div id="errorAlert" class="hidden w-full bg-red-950/40 border border-red-900 text-red-400 px-4 py-3 rounded-lg flex items-start gap-3 fade-in mb-6">
-            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p class="text-sm font-medium" id="errorAlertMsg"></p>
+    <main class="flex-1 px-5 py-5 flex flex-col max-w-md mx-auto w-full gap-4">
+
+        <!-- Error alert -->
+        <div id="errorAlert" class="hidden fade-in rounded-lg p-3 flex items-start gap-2.5" style="background:var(--danger-bg); border:1px solid rgba(239,68,68,0.22);">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:var(--danger);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="text-sm font-medium" id="errorAlertMsg" style="color:#f87171;"></p>
         </div>
 
-        <!-- Step 1: Roll Number -->
-        <div id="step1" class="w-full space-y-6 fade-in flex-grow flex flex-col justify-center">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-white mb-2">Student Identity</h2>
-                <p class="text-slate-400 text-sm">Enter your university roll number</p>
+        <!-- ══ STEP 1: Identity ══ -->
+        <div id="step1" class="fade-in flex-1 flex flex-col justify-center space-y-5">
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background:var(--accent-bg); border:1px solid rgba(59,130,246,0.2);">
+                    <svg class="w-7 h-7" style="color:var(--accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c0 1.306.835 2.417 2 2.83"/></svg>
+                </div>
+                <h2 class="text-xl font-bold mb-1" style="color:var(--text);">Enter Your Roll Number</h2>
+                <p class="text-sm" style="color:var(--text-muted);">Your unique university identifier</p>
             </div>
-            <div class="card p-6 rounded-xl shadow-lg space-y-6">
+
+            <div class="card p-5 space-y-4">
                 <div>
-                    <label class="text-xs font-semibold text-slate-500 uppercase block mb-2">Roll Number</label>
-                    <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527" class="w-full bg-slate-900 px-4 py-3 border border-slate-700 rounded-lg outline-none text-white font-mono tracking-widest uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    <label class="label">Roll Number</label>
+                    <input type="text" id="rollNumber" placeholder="e.g. 24WH1A0527"
+                           class="input" autocomplete="off" spellcheck="false"
+                           onkeydown="if(event.key==='Enter') goToStep(2)">
                 </div>
-                <button onclick="goToStep(2)" class="w-full btn-primary text-white py-3.5 rounded-lg font-semibold shadow-md">Continue</button>
+                <button onclick="goToStep(2)" class="btn btn-primary w-full py-3 text-base">
+                    Continue to QR Scan
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
             </div>
+
+            <p class="text-center text-xs" style="color:var(--text-muted);">
+                Ensure your instructor has started a session before proceeding.
+            </p>
         </div>
 
-        <!-- Step 2: QR Scanner -->
-        <div id="step2" class="hidden w-full space-y-6 fade-in flex-grow flex flex-col">
-            <div class="text-center mb-2 pt-4">
-                <h2 class="text-xl font-bold text-white mb-1">Scan Session QR</h2>
-                <p class="text-slate-400 text-sm">Focus camera on the instructor's screen</p>
+        <!-- ══ STEP 2: QR Scan ══ -->
+        <div id="step2" class="hidden fade-in flex-1 flex flex-col space-y-4">
+            <div class="text-center pt-1">
+                <h2 class="text-xl font-bold mb-1" style="color:var(--text);">Scan Session QR</h2>
+                <p class="text-sm" style="color:var(--text-muted);">Point your camera at the instructor's screen</p>
             </div>
-            
-            <div class="card p-3 rounded-xl flex-grow flex flex-col min-h-[350px]">
-                <div id="reader" class="w-full flex-grow rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center text-center relative pointer-events-none">
-                    <!-- Scanner frame overlay -->
-                    <div class="absolute inset-0 border-[60px] border-slate-950/60 z-10 custom-scan-overlay flex items-center justify-center">
-                        <div class="w-full max-w-[200px] aspect-square border-2 border-blue-500/50 rounded-lg relative pulse-camera"></div>
+
+            <div class="card overflow-hidden flex-1 flex flex-col" style="min-height:300px;">
+                <!-- Camera feed area -->
+                <div id="reader" class="w-full flex-1 relative flex items-center justify-center overflow-hidden" style="background:#000; min-height:280px;">
+                    <!-- Corner bracket overlay -->
+                    <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                        <div class="w-48 h-48 relative">
+                            <div class="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2" style="border-color:var(--accent); border-top-left-radius:4px;"></div>
+                            <div class="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2" style="border-color:var(--accent); border-top-right-radius:4px;"></div>
+                            <div class="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2" style="border-color:var(--accent); border-bottom-left-radius:4px;"></div>
+                            <div class="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2" style="border-color:var(--accent); border-bottom-right-radius:4px;"></div>
+                            <div class="absolute inset-6 rounded-lg pulse-camera" style="border:1px solid rgba(59,130,246,0.25);"></div>
+                        </div>
                     </div>
-                    
-                    <div class="flex flex-col items-center gap-3 z-20" id="scannerLoader">
+                    <!-- Init loader -->
+                    <div id="scannerLoader" class="flex flex-col items-center gap-3 z-20">
                         <div class="w-8 h-8 spinner"></div>
-                        <span class="text-xs text-slate-400 font-medium tracking-wide" id="scanner-status">Initializing scanner...</span>
+                        <span id="scanner-status" class="text-xs font-medium" style="color:var(--text-muted);">Initializing scanner...</span>
                     </div>
                 </div>
+                <!-- QR error strip -->
+                <div id="qr-error" class="hidden px-4 py-2 text-xs font-medium text-center" style="background:var(--danger-bg); color:#f87171; border-top:1px solid rgba(239,68,68,0.15);"></div>
             </div>
-            
-            <div id="qr-error" class="hidden text-center text-red-400 font-medium text-xs bg-red-950/30 p-2 rounded pb-2 border border-red-900/50"></div>
-            
-            <div class="bottom-action-area pt-2">
-                <button onclick="goToStep(1)" class="w-full text-slate-500 text-sm font-semibold hover:text-white transition-colors bg-slate-800/50 py-3 rounded-lg border border-slate-800">Cancel & Go Back</button>
-            </div>
+
+            <button onclick="goToStep(1)" class="btn btn-ghost w-full py-2.5 pb-safe">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Back
+            </button>
         </div>
 
-        <!-- Step 3: Selfie Capture -->
-        <div id="step3" class="hidden w-full space-y-6 fade-in flex-grow flex flex-col">
-            <div class="text-center mb-2 pt-4 flex flex-col items-center">
-                <h2 class="text-xl font-bold text-white mb-2">Face Verification</h2>
-                
-                <div class="bg-indigo-900/30 border border-indigo-500/30 px-3 py-1.5 rounded-full flex items-center gap-2">
-                    <span class="text-[10px] text-indigo-300 font-semibold uppercase tracking-widest">Time Remaining</span>
-                    <span id="grantTimer" class="text-sm font-bold text-indigo-400 font-mono">30s</span>
+        <!-- ══ STEP 3: Face Capture ══ -->
+        <div id="step3" class="hidden fade-in flex-1 flex flex-col space-y-4">
+            <div class="text-center pt-1">
+                <h2 class="text-xl font-bold mb-2" style="color:var(--text);">Face Verification</h2>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold" style="background:var(--accent-bg); border:1px solid rgba(59,130,246,0.2); color:var(--accent);">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Grant expires in <span id="grantTimer" class="font-bold mono ml-0.5">30s</span>
                 </div>
-                <p id="camStatus" class="text-xs text-slate-500 mt-2 font-medium">Starting camera...</p>
+                <p id="camStatus" class="text-xs mt-2 text-slate-500 transition-colors" style="color:var(--text-muted);">Starting camera...</p>
             </div>
-            
-            <div class="card p-3 rounded-xl flex-grow max-h-[400px] relative">
-                <!-- LIVE PREVIEW -->
-                <div id="previewContainer" class="w-full h-full relative rounded-lg overflow-hidden bg-slate-900">
-                    <video id="facePreview" autoplay playsinline class="w-full h-full object-cover"></video>
-                    <!-- Face Guide Overlay -->
-                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none border-4 border-slate-900/20">
-                        <div class="w-48 h-64 border-2 border-dashed border-blue-400/50 rounded-[40%] flex items-center justify-center opacity-70"></div>
+
+            <div class="card overflow-hidden flex-1 relative" style="min-height:280px; max-height:400px;">
+                <!-- Live preview -->
+                <div id="previewContainer" class="w-full h-full absolute inset-0">
+                    <video id="facePreview" autoplay playsinline class="w-full h-full object-cover" style="transform:scaleX(-1); background:var(--bg);"></video>
+                    <!-- Oval face guide -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="w-40 h-52 rounded-[50%] border-2 border-dashed opacity-55" style="border-color:var(--accent);"></div>
+                    </div>
+                    <!-- Guide label -->
+                    <div class="absolute bottom-3 inset-x-0 flex justify-center">
+                        <span class="text-xs font-medium px-3 py-1 rounded-full" style="background:rgba(0,0,0,0.6); color:var(--text-2);">Align face within oval</span>
                     </div>
                 </div>
-                
-                <!-- CAPTURED REVIEW -->
-                <div id="reviewContainer" class="hidden w-full h-full relative rounded-lg overflow-hidden bg-slate-900">
-                    <img id="reviewImg" class="w-full h-full object-cover">
-                    <div class="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur pb-4 pt-3 flex justify-center">
-                        <p class="text-xs text-green-400 font-medium">✓ Photo ready for verification</p>
+                <!-- Review photo -->
+                <div id="reviewContainer" class="hidden w-full h-full absolute inset-0">
+                    <img id="reviewImg" class="w-full h-full object-cover" style="transform:scaleX(-1); background:var(--bg);">
+                    <div class="absolute bottom-0 inset-x-0 p-3 flex justify-center" style="background:linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                        <span class="text-xs font-semibold flex items-center gap-1.5" style="color:var(--success);">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            Photo ready for verification
+                        </span>
                     </div>
                 </div>
                 <canvas id="snapshotCanvas" class="hidden"></canvas>
             </div>
 
-            <div class="bottom-action-area pt-2 space-y-3">
-                <button id="captureBtn" onclick="captureSelfie()" disabled class="w-full btn-primary disabled:opacity-50 text-white py-4 rounded-xl font-semibold shadow-md flex items-center justify-center gap-2">
+            <!-- Action buttons -->
+            <div class="space-y-2 pb-safe">
+                <button id="captureBtn" onclick="captureSelfie()" disabled class="btn btn-primary w-full py-3.5 text-base">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Capture Photo
                 </button>
-                <div id="reviewActions" class="hidden grid grid-cols-2 gap-3">
-                    <button onclick="retakeSelfie()" class="bg-slate-800 text-slate-300 border border-slate-700 py-3.5 rounded-xl font-medium text-sm transition-colors hover:bg-slate-700">Retake</button>
-                    <button onclick="submitAttendance()" class="btn-success text-white py-3.5 rounded-xl font-semibold shadow-md">Confirm Identity</button>
+                <div id="reviewActions" class="hidden grid grid-cols-2 gap-2">
+                    <button onclick="retakeSelfie()" class="btn btn-ghost py-3.5">Retake</button>
+                    <button onclick="submitAttendance()" class="btn btn-success py-3.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        Confirm
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Step 4: Final Results -->
-        <div id="step4" class="hidden w-full text-center fade-in flex-grow flex flex-col justify-center pb-12">
-            <div id="loadingUI" class="space-y-6">
-                <div class="relative w-16 h-16 mx-auto">
-                    <div class="absolute inset-0 spinner w-16 h-16 border-[3px]"></div>
-                </div>
-                <div class="space-y-1">
-                    <h2 class="text-2xl font-bold text-white">Verifying Identity</h2>
-                    <p class="text-slate-400 text-sm">Processing face verification...</p>
+        <!-- ══ STEP 4: Result ══ -->
+        <div id="step4" class="hidden fade-in flex-1 flex flex-col justify-center py-6">
+            <!-- Loading state -->
+            <div id="loadingUI" class="flex flex-col items-center gap-5 py-8">
+                <div class="w-12 h-12 spinner"></div>
+                <div class="text-center">
+                    <h2 class="text-xl font-bold mb-1" style="color:var(--text);">Verifying Identity</h2>
+                    <p class="text-sm" style="color:var(--text-muted);">Processing face verification…</p>
                 </div>
             </div>
-            
-            <div id="resultUI" class="hidden space-y-6 card p-8 rounded-2xl mx-auto w-full">
-                <div id="resultIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm"></div>
-                <div class="space-y-2">
-                    <h2 id="resultTitle" class="text-2xl font-bold text-white"></h2>
-                    <p id="resultMsg" class="text-slate-400 text-sm leading-relaxed"></p>
+
+            <!-- Result card -->
+            <div id="resultUI" class="hidden card p-7 text-center space-y-5 fade-in">
+                <div id="resultIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto"></div>
+                <div>
+                    <h2 id="resultTitle" class="text-xl font-bold mb-2" style="color:var(--text);"></h2>
+                    <p id="resultMsg" class="text-sm leading-relaxed" style="color:var(--text-2);"></p>
                 </div>
-                <div id="resultMeta" class="text-[10px] font-mono bg-slate-900/50 p-3 rounded border border-slate-800 text-left text-slate-500 hidden whitespace-pre"></div>
-                <button onclick="location.reload()" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 mt-4 rounded-xl font-semibold transition-colors">Start Over</button>
+                <div id="resultMeta" class="hidden text-left rounded-lg p-3 mono text-xs" style="background:var(--surface); border:1px solid var(--border); color:var(--text-muted); white-space:pre;"></div>
+                <button onclick="location.reload()" class="btn btn-ghost w-full py-2.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Start Over
+                </button>
             </div>
         </div>
+
     </main>
 
     <script>
         const API = { face: "/api/face", qr: "/api/qr", attendance: "/api/attendance" };
-        let state = { 
+        let state = {
             step: 1, rollNumber: "", qrToken: "", grantId: "", sessionId: "",
             grantExpiresAt: null, grantInterval: null, faceBlob: null, stream: null, scanner: null,
             qrLocked: false, isCamReady: false, isStartingScanner: false, isStartingCamera: false,
@@ -201,26 +326,34 @@
         async function goToStep(step) {
             state.step = step;
             hideError();
-            
+
             if (state.scannerTimeout) { clearTimeout(state.scannerTimeout); state.scannerTimeout = null; }
-            if (state.camTimeout) { clearTimeout(state.camTimeout); state.camTimeout = null; }
-            if (state.camReadyTimeout) { clearTimeout(state.camReadyTimeout); state.camReadyTimeout = null; }
-            
-            // Nav indicators
+            if (state.camTimeout)     { clearTimeout(state.camTimeout);     state.camTimeout = null; }
+            if (state.camReadyTimeout){ clearTimeout(state.camReadyTimeout); state.camReadyTimeout = null; }
+
+            // Update step indicator: active / done / inactive
             [1, 2, 3, 4].forEach(s => {
-                const el = document.getElementById(`step${s}`);
+                const el  = document.getElementById(`step${s}`);
                 if (el) el.classList.add("hidden");
                 const nav = document.getElementById(`nav-step-${s}`);
                 if (nav) {
-                    nav.classList.remove('step-active', 'step-inactive');
-                    if(s === step) nav.classList.add('step-active');
-                    else if(s < step) nav.classList.add('step-inactive'); // could style past differently
-                    else nav.classList.add('step-inactive');
+                    nav.classList.remove('step-active', 'step-inactive', 'step-done');
+                    const dot = nav.querySelector('.step-dot');
+                    if (s === step) {
+                        nav.classList.add('step-active');
+                        if (dot) dot.innerHTML = s;
+                    } else if (s < step) {
+                        nav.classList.add('step-done');
+                        if (dot) dot.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+                    } else {
+                        nav.classList.add('step-inactive');
+                        if (dot) dot.innerHTML = s;
+                    }
                 }
             });
             const nextStepEl = document.getElementById(`step${step}`);
             if (nextStepEl) nextStepEl.classList.remove("hidden");
-            
+
             if (step === 2) {
                 await stopScanner(); state.qrLocked = false; state.qrToken = ""; state.grantId = ""; state.sessionId = "";
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
@@ -228,7 +361,7 @@
                 const roll = rollInput ? rollInput.value.trim() : "";
                 if (!roll) return goToStep(1);
                 state.rollNumber = roll.toUpperCase();
-                state.scannerTimeout = setTimeout(startScanner, 300); 
+                state.scannerTimeout = setTimeout(startScanner, 300);
             } else if (step === 3) {
                 await stopScanner(); state.isCamReady = false; retakeSelfie();
                 state.camTimeout = setTimeout(startCamera, 300);
@@ -253,10 +386,10 @@
         }
         function setScannerStatus(msg) {
             const el = document.getElementById("scanner-status");
-            const l = document.getElementById("scannerLoader");
+            const l  = document.getElementById("scannerLoader");
             if (el) el.innerText = msg;
-            if(l && msg.includes("Verifying")) { l.classList.remove('hidden'); }
-            else if(l && msg.includes("Scanning")) { l.classList.add('hidden'); }
+            if (l && msg.includes("Verifying")) l.classList.remove('hidden');
+            else if (l && msg.includes("Scanning")) l.classList.add('hidden');
         }
 
         if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) {
@@ -265,22 +398,25 @@
 
         function mapCameraError(err) {
             const name = err?.name || ""; const msg = (err?.message || "").toLowerCase();
-            if (name === "NotAllowedError" || name === "SecurityError") return "Camera permission denied.";
-            if (name === "NotReadableError" || msg.includes("in use")) return "Camera busy. Close other tabs.";
-            if (name === "NotFoundError" || name === "DevicesNotFoundError") return "No camera device found.";
+            if (name === "NotAllowedError" || name === "SecurityError")            return "Camera permission denied.";
+            if (name === "NotReadableError" || msg.includes("in use"))             return "Camera busy. Close other tabs.";
+            if (name === "NotFoundError"    || name === "DevicesNotFoundError")    return "No camera device found.";
             return `Camera failed: ${err?.message || name || "Unknown error"}`;
         }
 
         async function ensureScannerVideoPlaying() {
             const video = document.querySelector("#reader video");
             if (!video) return false;
-            try { video.setAttribute("playsinline", "true"); video.muted = true; await video.play(); return !!video.srcObject && video.readyState >= 2; } catch (e) { return false; }
+            try { video.setAttribute("playsinline","true"); video.muted = true; await video.play(); return !!video.srcObject && video.readyState >= 2; } catch(e) { return false; }
         }
 
         async function buildScannerCandidates() {
-            const candidates = [ { type: "config", value: { facingMode: { exact: "environment" } }, label: "back" }, { type: "config", value: { facingMode: "environment" }, label: "back" } ];
-            try { const cameras = await Html5Qrcode.getCameras(); if (Array.isArray(cameras) && cameras.length > 0) candidates.push({ type: "id", value: cameras[0].id, label: "default" }); } catch (e) {}
-            candidates.push({ type: "config", value: { facingMode: "user" }, label: "front" });
+            const candidates = [
+                { type:"config", value:{ facingMode:{ exact:"environment" } }, label:"back" },
+                { type:"config", value:{ facingMode:"environment" },           label:"back" }
+            ];
+            try { const cameras = await Html5Qrcode.getCameras(); if (Array.isArray(cameras) && cameras.length > 0) candidates.push({ type:"id", value:cameras[0].id, label:"default" }); } catch(e) {}
+            candidates.push({ type:"config", value:{ facingMode:"user" }, label:"front" });
             return candidates;
         }
 
@@ -292,10 +428,10 @@
 
         function mapQrValidationError(data, statusCode) {
             const code = data?.error_code || "";
-            if (code === "QR_EXPIRED") return "QR expired. Try active QR code.";
-            if (code === "QR_INVALID") return "Invalid code format.";
+            if (code === "QR_EXPIRED")     return "QR expired. Try the active QR code.";
+            if (code === "QR_INVALID")     return "Invalid code format.";
             if (code === "SESSION_CLOSED") return "Session closed by instructor.";
-            return data?.message || "QR failed.";
+            return data?.message || "QR validation failed.";
         }
 
         async function startScanner() {
@@ -305,7 +441,7 @@
                 setScannerStatus("Initializing Scanner...");
                 if (state.scanner) await stopScanner();
                 state.scanner = new Html5Qrcode("reader");
-                const config = { fps: 15, qrbox: (vw, vh) => { return { width: Math.min(vw, 250), height: Math.min(vh, 250) }; }, aspectRatio: 1.0, disableFlip: false };
+                const config = { fps:15, qrbox:(vw,vh) => ({ width:Math.min(vw,250), height:Math.min(vh,250) }), aspectRatio:1.0, disableFlip:false };
                 const candidates = await buildScannerCandidates();
                 let started = false;
                 for (const cand of candidates) {
@@ -313,11 +449,12 @@
                     try {
                         await state.scanner.start(cand.value, config, onScanSuccess);
                         if (await ensureScannerVideoPlaying()) { started = true; break; }
-                    } catch (e) { if (state.scanner?.isScanning) await state.scanner.stop(); }
+                    } catch(e) { if (state.scanner?.isScanning) await state.scanner.stop(); }
                 }
                 if (!started && state.step === 2) throw new Error("Unable to start camera.");
                 setScannerStatus("Scanning QR Code...");
-            } catch (err) { if (state.step === 2) showError(mapCameraError(err)); } finally { state.isStartingScanner = false; }
+            } catch(err) { if (state.step === 2) showError(mapCameraError(err)); }
+            finally { state.isStartingScanner = false; }
         }
 
         async function onScanSuccess(text) {
@@ -326,18 +463,22 @@
             if (!token) { showQrError("Use SmartAttend QR."); return; }
             state.qrLocked = true; setScannerStatus("Verifying...");
             try {
-                const res = await fetch(`${API.qr}/session/verify-qr`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ roll_number: state.rollNumber, qr_token: token }) });
+                const res = await fetch(`${API.qr}/session/verify-qr`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ roll_number:state.rollNumber, qr_token:token })
+                });
                 const data = await res.json();
                 if (data.success && state.step === 2) {
                     const payload = data.data || data;
-                    state.grantId = payload.grant_id; state.sessionId = payload.session_id; state.grantExpiresAt = new Date(Date.now() + ((payload.expires_in || 30) * 1000));
+                    state.grantId = payload.grant_id; state.sessionId = payload.session_id;
+                    state.grantExpiresAt = new Date(Date.now() + ((payload.expires_in || 30) * 1000));
                     await stopScanner(); startGrantCountdown(); await goToStep(3);
                 } else {
                     state.qrLocked = false; showQrError(mapQrValidationError(data, res.status)); setScannerStatus("Scanning QR Code...");
                 }
-            } catch (err) {
+            } catch(err) {
                 state.qrLocked = false;
-                if (err && err.name === 'TypeError' && err.message === 'Failed to fetch') showQrError("Network Error."); else showQrError("Connection failed.");
+                showQrError(err?.name === 'TypeError' ? "Network Error." : "Connection failed.");
                 setScannerStatus("Scanning QR Code...");
             }
         }
@@ -350,16 +491,17 @@
                 const diff = state.grantExpiresAt - new Date();
                 if (diff <= 0) {
                     clearInterval(state.grantInterval); timerEl.innerText = "EXP";
+                    timerEl.style.color = 'var(--danger)';
                     if (state.step === 3) { showError("Time expired. Scan again."); setTimeout(() => goToStep(2), 2000); }
                     return;
                 }
                 const sec = Math.ceil(diff / 1000);
                 timerEl.innerText = `${sec}s`;
-                if(sec <= 10) timerEl.classList.add("text-red-400"); else timerEl.classList.remove("text-red-400");
+                timerEl.style.color = sec <= 10 ? 'var(--danger)' : '';
             }, 1000);
         }
 
-        async function stopScanner() { 
+        async function stopScanner() {
             if (state.scanner) {
                 if (state.scanner.isScanning) try { await state.scanner.stop(); } catch(e) {}
                 try { await state.scanner.clear(); } catch(e) {}
@@ -370,10 +512,12 @@
         async function startCamera() {
             if (state.isStartingCamera || state.step !== 3) return;
             state.isStartingCamera = true;
-            const statusEl = document.getElementById("camStatus"); const btn = document.getElementById("captureBtn"); const video = document.getElementById("facePreview");
+            const statusEl = document.getElementById("camStatus");
+            const btn      = document.getElementById("captureBtn");
+            const video    = document.getElementById("facePreview");
             try {
                 stopCamera();
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } });
+                const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:"user", width:{ ideal:1280 }, height:{ ideal:720 } } });
                 if (state.step !== 3) { stream.getTracks().forEach(t => t.stop()); return; }
                 state.stream = stream;
                 if (video) { video.srcObject = stream; await video.play(); }
@@ -381,30 +525,39 @@
                     if (state.step !== 3) return;
                     state.isCamReady = true;
                     if (btn) btn.disabled = false;
-                    if (statusEl) { statusEl.innerText = "Position face in guide"; statusEl.classList.replace("text-slate-500", "text-blue-400"); }
+                    if (statusEl) { statusEl.innerText = "Position face in oval guide"; statusEl.style.color = 'var(--accent)'; }
                     state.isStartingCamera = false;
                 }, 500);
-            } catch (err) { state.isStartingCamera = false; if (state.step === 3) showError(mapCameraError(err)); }
+            } catch(err) { state.isStartingCamera = false; if (state.step === 3) showError(mapCameraError(err)); }
         }
 
-        function stopCamera() { if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; } state.isCamReady = false; }
+        function stopCamera() {
+            if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+            state.isCamReady = false;
+        }
 
         function captureSelfie() {
             if (!state.isCamReady) return;
-            const video = document.getElementById("facePreview"); const canvas = document.getElementById("snapshotCanvas"); const reviewImg = document.getElementById("reviewImg");
+            const video = document.getElementById("facePreview");
+            const canvas = document.getElementById("snapshotCanvas");
+            const reviewImg = document.getElementById("reviewImg");
             if (!video || !canvas || !reviewImg) return;
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob((blob) => { 
+            canvas.toBlob(blob => {
                 state.faceBlob = blob; reviewImg.src = URL.createObjectURL(blob);
-                document.getElementById("previewContainer").classList.add("hidden"); document.getElementById("reviewContainer").classList.remove("hidden");
-                document.getElementById("captureBtn").classList.add("hidden"); document.getElementById("reviewActions").classList.remove("hidden");
+                document.getElementById("previewContainer").classList.add("hidden");
+                document.getElementById("reviewContainer").classList.remove("hidden");
+                document.getElementById("captureBtn").classList.add("hidden");
+                document.getElementById("reviewActions").classList.remove("hidden");
             }, "image/jpeg", 0.95);
         }
 
         function retakeSelfie() {
-            document.getElementById("previewContainer").classList.remove("hidden"); document.getElementById("reviewContainer").classList.add("hidden");
-            document.getElementById("captureBtn").classList.remove("hidden"); document.getElementById("reviewActions").classList.add("hidden");
+            document.getElementById("previewContainer").classList.remove("hidden");
+            document.getElementById("reviewContainer").classList.add("hidden");
+            document.getElementById("captureBtn").classList.remove("hidden");
+            document.getElementById("reviewActions").classList.add("hidden");
             state.faceBlob = null;
         }
 
@@ -414,56 +567,67 @@
             goToStep(4);
             const form = new FormData();
             form.append("roll_number", state.rollNumber.trim().toUpperCase());
-            form.append("grant_id", state.grantId); form.append("session_id", state.sessionId); form.append("image", state.faceBlob, "selfie.jpg");
-            
+            form.append("grant_id", state.grantId);
+            form.append("session_id", state.sessionId);
+            form.append("image", state.faceBlob, "selfie.jpg");
             try {
-                const httpRes = await fetch(`${API.attendance}/mark`, { method: 'POST', body: form });
+                const httpRes = await fetch(`${API.attendance}/mark`, { method:'POST', body:form });
                 let data;
                 try {
                     const text = await httpRes.text();
-                    try { data = JSON.parse(text); } catch { data = httpRes.ok ? { success: true, message: "Attendance marked", data: {} } : { success: false, message: text || "Server error", error_code: "SERVER_ERROR" }; }
-                } catch { data = { success: false, message: "Network Parse Error", error_code: "INVALID_RESPONSE" }; }
-                
+                    try { data = JSON.parse(text); }
+                    catch { data = httpRes.ok ? { success:true, message:"Attendance marked", data:{} } : { success:false, message:text||"Server error", error_code:"SERVER_ERROR" }; }
+                } catch { data = { success:false, message:"Network Parse Error", error_code:"INVALID_RESPONSE" }; }
                 if (!httpRes.ok && data.success) { data.success = false; data.message = data.message || `Error: ${httpRes.status}`; data.error_code = data.error_code || "HTTP_ERROR"; }
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
                 renderResult(data);
-            } catch (err) { 
+            } catch(err) {
                 if (state.grantInterval) { clearInterval(state.grantInterval); state.grantInterval = null; }
-                const errorInfo = mapAttendanceError(null, err); renderResult({ success: false, message: errorInfo.msg, error_code: errorInfo.code }); 
+                const errorInfo = mapAttendanceError(null, err);
+                renderResult({ success:false, message:errorInfo.msg, error_code:errorInfo.code });
             }
         }
 
         function mapAttendanceError(res, err) {
             if (err) {
-                if (err.name === 'TypeError' && err.message === 'Failed to fetch') return { title: "Network Error", msg: "Server unreachable.", code: "NETWORK_ERROR" };
-                return { title: "Error", msg: err.message || "Unknown error.", code: "ERROR" };
+                if (err.name === 'TypeError' && err.message === 'Failed to fetch') return { title:"Network Error", msg:"Server unreachable.", code:"NETWORK_ERROR" };
+                return { title:"Error", msg:err.message||"Unknown error.", code:"ERROR" };
             }
-            if (!res) return { title: "Connection Failed", msg: "No response.", code: "NO_RESPONSE" };
-            const code = res.error_code || ""; const msg = res.message || "";
-            if (code === "DUPLICATE_ATTENDANCE" || msg.includes("already marked")) return { title: "Already Marked", msg: "Attendance is already recorded.", code: "DUPLICATE" };
-            if (code === "FACE_MISMATCH" || msg.includes("face")) return { title: "Face Mismatch", msg: "Verification failed. Try better lighting.", code: "FACE_MISMATCH" };
-            if (code === "NO_FACE_DETECTED") return { title: "No Face", msg: "Face not detected.", code: "NO_FACE" };
-            if (code === "MULTIPLE_FACES") return { title: "Multiple Faces", msg: "Only one person in frame.", code: "MULTIPLE_FACES" };
-            if (code === "STUDENT_NOT_IN_SESSION_CLASS") return { title: "Wrong Class", msg: "Not enrolled in this section.", code: "WRONG_CLASS" };
-            if (code === "INVALID_GRANT" || code === "USED_SCAN_GRANT" || code === "SCAN_GRANT_EXPIRED") return { title: "Expired", msg: "Verify session and scan again.", code: "GRANT_INVALID" };
-            if (code === "SESSION_CLOSED") return { title: "Closed", msg: "Session inactive.", code: "SESSION_CLOSED" };
-            return { title: "Denied", msg: msg || "Verification failed.", code: code || "UNKNOWN" };
+            if (!res) return { title:"Connection Failed", msg:"No response.", code:"NO_RESPONSE" };
+            const code = res.error_code||""; const msg = res.message||"";
+            if (code==="DUPLICATE_ATTENDANCE"||msg.includes("already marked")) return { title:"Already Marked",    msg:"Attendance is already recorded.",         code:"DUPLICATE" };
+            if (code==="FACE_MISMATCH"       ||msg.includes("face"))           return { title:"Face Mismatch",     msg:"Verification failed. Try better lighting.", code:"FACE_MISMATCH" };
+            if (code==="NO_FACE_DETECTED")                                     return { title:"No Face",           msg:"Face not detected.",                       code:"NO_FACE" };
+            if (code==="MULTIPLE_FACES")                                        return { title:"Multiple Faces",    msg:"Only one person in frame.",                code:"MULTIPLE_FACES" };
+            if (code==="STUDENT_NOT_IN_SESSION_CLASS")                          return { title:"Wrong Class",       msg:"Not enrolled in this section.",            code:"WRONG_CLASS" };
+            if (["INVALID_GRANT","USED_SCAN_GRANT","SCAN_GRANT_EXPIRED"].includes(code)) return { title:"Expired", msg:"Verify session and scan again.",            code:"GRANT_INVALID" };
+            if (code==="SESSION_CLOSED")                                        return { title:"Closed",            msg:"Session is inactive.",                     code:"SESSION_CLOSED" };
+            return { title:"Denied", msg:msg||"Verification failed.", code:code||"UNKNOWN" };
         }
 
         function renderResult(res) {
-            document.getElementById("loadingUI").classList.add("hidden"); document.getElementById("resultUI").classList.remove("hidden");
-            const icon = document.getElementById("resultIcon"); const meta = document.getElementById("resultMeta"); const title = document.getElementById("resultTitle"); const msg = document.getElementById("resultMsg");
+            document.getElementById("loadingUI").classList.add("hidden");
+            document.getElementById("resultUI").classList.remove("hidden");
+            const icon  = document.getElementById("resultIcon");
+            const meta  = document.getElementById("resultMeta");
+            const title = document.getElementById("resultTitle");
+            const msg   = document.getElementById("resultMsg");
+
             if (res.success) {
-                title.innerText = "Verified Successfully"; msg.innerText = "Your attendance has been recorded.";
-                icon.className = "w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto";
-                icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
-                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ID: ${res.data.attendance_id || 'N/A'}\nCONF: ${res.data.confidence ? (res.data.confidence * 100).toFixed(1)+'%' : 'N/A'}`; }
+                title.innerText = "Verified Successfully";
+                msg.innerText   = "Your attendance has been recorded.";
+                icon.className  = "w-20 h-20 rounded-full flex items-center justify-center mx-auto result-pop";
+                icon.style.cssText = "background:rgba(34,197,94,0.12); border:2px solid rgba(34,197,94,0.3); color:#22c55e;";
+                icon.innerHTML  = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ID:   ${res.data?.attendance_id||'N/A'}\nCONF: ${res.data?.confidence ? (res.data.confidence*100).toFixed(1)+'%' : 'N/A'}`; }
             } else {
-                const errInfo = mapAttendanceError(res, null);
-                title.innerText = errInfo.title; msg.innerText = errInfo.msg;
-                icon.className = "w-20 h-20 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mx-auto";
-                icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                if (meta) { meta.classList.remove("hidden"); meta.innerText = `ERR: ${errInfo.code}`; }
+                const errInfo   = mapAttendanceError(res, null);
+                title.innerText = errInfo.title;
+                msg.innerText   = errInfo.msg;
+                icon.className  = "w-20 h-20 rounded-full flex items-center justify-center mx-auto fade-in";
+                icon.style.cssText = "background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.25); color:#f87171;";
+                icon.innerHTML  = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>';
+                if (meta) { meta.classList.remove("hidden"); meta.innerText = `CODE: ${errInfo.code}`; }
             }
         }
     </script>
