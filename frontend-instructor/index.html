@@ -306,10 +306,13 @@
 
     <script>
         // ── STEP 1: API constants — single source of truth ────────────────────
+        // Backend always runs on port 5000; frontends may be served on a different port.
+        // Using the same hostname ensures this works on both localhost and LAN.
+        const BACKEND = `${window.location.protocol}//${window.location.hostname}:5000`;
         const API = {
-            auth:       '/api/auth',
-            instructor: '/api/instructor',
-            attendance: '/api/attendance'   // legacy email/download routes only
+            auth:       `${BACKEND}/api/auth`,
+            instructor: `${BACKEND}/api/instructor`,
+            attendance: `${BACKEND}/api/attendance`
         };
 
         // ── STEP 2: Auth header helper — every authenticated request uses this ─
@@ -327,7 +330,7 @@
 
         async function loadFacultyData() {
             try {
-                const res = await fetch('/instructor-static/faculty_assignments.json');
+                const res = await fetch('/faculty_assignments.json');
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 FACULTY_DATA = await res.json();
                 console.log(`Faculty data loaded: ${Object.keys(FACULTY_DATA.faculty).length} teachers`);
@@ -511,7 +514,7 @@
             try {
                 const token = state.instructor.jwtToken;
                 if (!token) return;
-                const res = await fetch('/api/instructor/institution-overview', { headers: { Authorization: `Bearer ${token}` } });
+                const res = await fetch(`${API.instructor}/institution-overview`, { headers: { Authorization: `Bearer ${token}` } });
                 if (!res.ok) return;
                 const data = await res.json();
                 const s = data.stats || {};
@@ -526,7 +529,7 @@
             try {
                 const token = state.instructor.jwtToken;
                 if (!token) return;
-                const res = await fetch('/api/instructor/department-summary', { headers: { Authorization: `Bearer ${token}` } });
+                const res = await fetch(`${API.instructor}/department-summary`, { headers: { Authorization: `Bearer ${token}` } });
                 if (!res.ok) return;
                 const data = await res.json();
                 const s = data.stats || {};
