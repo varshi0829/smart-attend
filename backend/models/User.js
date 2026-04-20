@@ -10,12 +10,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: false  // Not required for Google auth users
+    required: false
   },
   role: {
     type: String,
     required: true,
-    enum: ['instructor', 'student']
+    enum: ['instructor', 'student', 'faculty', 'hod', 'principal']
   },
   name: {
     type: String,
@@ -32,7 +32,16 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  // Google Auth fields
+  // Class Teacher assignment (faculty/instructor only)
+  assignedClass: {
+    isClassTeacher: {
+      type: Boolean,
+      default: false
+    },
+    year: String,
+    section: String
+  },
+  // Google Auth
   authProvider: {
     type: String,
     enum: ['local', 'google'],
@@ -48,6 +57,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
+userSchema.index({ department: 1 });
 userSchema.index({ googleId: 1 });
 
 module.exports = mongoose.model('User', userSchema);

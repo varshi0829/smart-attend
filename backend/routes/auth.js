@@ -17,21 +17,31 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    if (!['instructor', 'student'].includes(role)) {
-      return res.status(400).json({ error: 'Invalid role' });
+    const VALID_ROLES = ['instructor', 'student', 'faculty', 'hod', 'principal'];
+    if (!VALID_ROLES.includes(role)) {
+      return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_ROLES.join(', ')}` });
     }
-    
+
     if (role === 'student' && !rollNumber) {
       return res.status(400).json({ error: 'Roll number is required for students' });
     }
-    
+
+    if (['hod', 'faculty', 'instructor'].includes(role) && !department) {
+      return res.status(400).json({ error: 'Department is required for faculty/HOD roles' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
+    const { isClassTeacher, assignedYear, assignedSection } = req.body;
+    const assignedClass = (isClassTeacher && (role === 'faculty' || role === 'instructor'))
+      ? { isClassTeacher: true, year: assignedYear, section: assignedSection }
+      : { isClassTeacher: false };
+
     const user = await User.create({
       email,
       password: hashedPassword,
@@ -40,6 +50,7 @@ router.post('/register', async (req, res) => {
       rollNumber,
       department,
       phone,
+      assignedClass,
       authProvider: 'local'
     });
     
@@ -90,7 +101,7 @@ router.post('/login', async (req, res) => {
     }
     
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, role: user.role, department: user.department, assignedClass: user.assignedClass },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -162,7 +173,7 @@ router.post('/google', async (req, res) => {
     
     // Generate JWT
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, role: user.role, department: user.department, assignedClass: user.assignedClass },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );

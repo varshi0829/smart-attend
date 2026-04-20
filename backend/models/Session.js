@@ -11,6 +11,9 @@ const sessionSchema = new mongoose.Schema({
     required: true
   },
   subject: String,
+  department: String,
+  year: String,
+  section: String,
   status: {
     type: String,
     required: true,
@@ -31,6 +34,8 @@ const sessionSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 sessionSchema.index({ instructorId: 1, createdAt: -1 });
+sessionSchema.index({ department: 1, createdAt: -1 });
+sessionSchema.index({ year: 1, section: 1 });
 sessionSchema.index({ status: 1 });
 
 module.exports = mongoose.model('Session', sessionSchema);
