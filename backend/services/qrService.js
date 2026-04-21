@@ -1,55 +1,30 @@
 const jwt = require('jsonwebtoken');
 const QRCode = require('qrcode');
-const crypto = require('crypto');
 
-// Generate QR token with JWT
-const generateQRToken = (sessionId, instructorId) => {
-  const payload = {
-    sessionId,
-    instructorId,
-    timestamp: Date.now(),
-    expiresAt: Date.now() + 45000, // 45 seconds
-    nonce: crypto.randomBytes(16).toString('hex')
-  };
+const QR_SECRET = process.env.JWT_SECRET + '_qr';
+const QR_TTL_SECONDS = 45;
 
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '45s' });
-};
+function generateQRToken(sessionId, instructorId) {
+  return jwt.sign(
+    { sessionId, instructorId, type: 'qr' },
+    QR_SECRET,
+    { expiresIn: QR_TTL_SECONDS }
+  );
+}
 
-// Verify QR token
-const verifyQRToken = (token) => {
+function verifyQRToken(token) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Check if token is expired
-    if (decoded.expiresAt < Date.now()) {
-      return { valid: false, error: 'QR token expired' };
-    }
-    
-    return { valid: true, data: decoded };
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return { valid: false, error: 'QR token expired' };
-    }
-    return { valid: false, error: 'Invalid QR token' };
+    const data = jwt.verify(token, QR_SECRET);
+    if (data.type !== 'qr') return { valid: false, error: 'Invalid QR token type' };
+    return { valid: true, data };
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') return { valid: false, error: 'QR code has expired' };
+    return { valid: false, error: 'Invalid QR code' };
   }
-};
+}
 
-// Generate QR code image
-const generateQRImage = async (token) => {
-  try {
-    const qrDataURL = await QRCode.toDataURL(token, {
-      errorCorrectionLevel: 'M',
-      width: 300,
-      margin: 2
-    });
-    return qrDataURL;
-  } catch (error) {
-    throw new Error('Failed to generate QR code image');
-  }
-};
+async function generateQRImage(token) {
+  return QRCode.toDataURL(token, { width: 300, margin: 2 });
+}
 
-module.exports = {
-  generateQRToken,
-  verifyQRToken,
-  generateQRImage
-};
+module.exports = { generateQRToken, verifyQRToken, generateQRImage };

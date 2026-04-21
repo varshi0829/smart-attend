@@ -1,57 +1,40 @@
 const express = require('express');
-const router = express.Router();
-const Session = require('../models/Session');
-const Attendance = require('../models/Attendance');
+const { randomUUID } = require('crypto');
+const pool = require('../config/db');
 const { authMiddleware, requireRole } = require('../middleware/auth');
 const { generateQRToken, generateQRImage } = require('../services/qrService');
+const { buildSessionFilter } = require('../utils/roleUtils');
 
-// Start attendance session
-router.post('/session/start', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
+const router = express.Router();
+const ALLOWED = ['instructor', 'faculty', 'hod', 'principal'];
+
+// Start session
+router.post('/session/start', authMiddleware, requireRole(...ALLOWED), async (req, res) => {
   try {
-    const { className, subject } = req.body;
+    const { className, subject, year, section } = req.body;
+    if (!className) return res.status(400).json({ error: 'Class name is required' });
 
-    if (!className) {
-      return res.status(400).json({ error: 'Class name is required' });
-    }
-
-    // Check if instructor already has an active session
-    const activeSession = await Session.findOne({
-      instructorId: req.user.id,
-      status: 'active'
-    });
-
-    if (activeSession) {
+    const active = await pool.query(
+      "SELECT session_id FROM sessions WHERE teacher_id = $1 AND status = 'active'",
+      [req.user.id]
+    );
+    if (active.rows[0]) {
       return res.status(400).json({ error: 'You already have an active session. Please stop it first.' });
     }
 
-    // Create session
-    const session = new Session({
-      instructorId: req.user.id,
-      className,
-      subject,
-      department: req.user.department,
-      status: 'active',
-      startTime: new Date()
-    });
+    const id = randomUUID();
+    const qrToken = generateQRToken(id, req.user.id);
+    const qrExpiresAt = new Date(Date.now() + 45000);
 
-    await session.save();
-
-    // Generate initial QR token
-    const qrToken = generateQRToken(session._id.toString(), req.user.id);
-    session.currentQRToken = qrToken;
-    session.qrExpiresAt = new Date(Date.now() + 45000);
-    await session.save();
+    await pool.query(
+      `INSERT INTO sessions (session_id, teacher_id, class_name, subject, department, year, section, status, start_time, current_qr_token, qr_expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', NOW(), $8, $9)`,
+      [id, req.user.id, className, subject || null, req.user.department || null, year || null, section || null, qrToken, qrExpiresAt]
+    );
 
     res.status(201).json({
       message: 'Session started successfully',
-      session: {
-        id: session._id,
-        className: session.className,
-        subject: session.subject,
-        status: session.status,
-        startTime: session.startTime,
-        qrToken
-      }
+      session: { id, className, subject, status: 'active', startTime: new Date(), qrToken }
     });
   } catch (error) {
     console.error('Start session error:', error);
@@ -59,37 +42,30 @@ router.post('/session/start', authMiddleware, requireRole('instructor', 'faculty
   }
 });
 
-// Stop attendance session
-router.post('/session/:id/stop', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
+// Stop session
+router.post('/session/:id/stop', authMiddleware, requireRole(...ALLOWED), async (req, res) => {
   try {
-    const session = await Session.findOne({
-      _id: req.params.id,
-      instructorId: req.user.id
-    });
+    const { rows } = await pool.query(
+      'SELECT * FROM sessions WHERE session_id = $1 AND teacher_id = $2',
+      [req.params.id, req.user.id]
+    );
+    const session = rows[0];
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (session.status === 'stopped') return res.status(400).json({ error: 'Session already stopped' });
 
-    if (!session) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-
-    if (session.status === 'stopped') {
-      return res.status(400).json({ error: 'Session already stopped' });
-    }
-
-    // Stop session and invalidate QR
-    session.status = 'stopped';
-    session.stopTime = new Date();
-    session.currentQRToken = null;
-    session.qrExpiresAt = null;
-    await session.save();
+    const { rows: updated } = await pool.query(
+      "UPDATE sessions SET status = 'stopped', stop_time = NOW(), current_qr_token = NULL, qr_expires_at = NULL WHERE session_id = $1 RETURNING *",
+      [session.session_id]
+    );
 
     res.json({
       message: 'Session stopped successfully',
       session: {
-        id: session._id,
-        className: session.className,
-        status: session.status,
-        stopTime: session.stopTime,
-        presentCount: session.presentCount
+        id: updated[0].session_id,
+        className: updated[0].class_name,
+        status: updated[0].status,
+        stopTime: updated[0].stop_time,
+        presentCount: updated[0].present_count
       }
     });
   } catch (error) {
@@ -99,39 +75,48 @@ router.post('/session/:id/stop', authMiddleware, requireRole('instructor', 'facu
 });
 
 // Get session details
-router.get('/session/:id', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
+router.get('/session/:id', authMiddleware, requireRole(...ALLOWED), async (req, res) => {
   try {
-    let query = { _id: req.params.id };
-    if (req.user.role === 'hod') query.department = req.user.department;
-    else if (['instructor', 'faculty'].includes(req.user.role)) query.instructorId = req.user.id;
-
-    const session = await Session.findOne(query).populate('instructorId', 'name email');
-
-    if (!session) {
-      return res.status(404).json({ error: 'Session not found' });
+    let query, queryParams;
+    if (req.user.role === 'principal') {
+      query = 'SELECT s.*, u.name AS instructor_name, u.email AS instructor_email FROM sessions s LEFT JOIN users u ON s.teacher_id = u.id WHERE s.session_id = $1';
+      queryParams = [req.params.id];
+    } else if (req.user.role === 'hod') {
+      query = 'SELECT s.*, u.name AS instructor_name, u.email AS instructor_email FROM sessions s LEFT JOIN users u ON s.teacher_id = u.id WHERE s.session_id = $1 AND s.department = $2';
+      queryParams = [req.params.id, req.user.department];
+    } else {
+      query = 'SELECT s.*, u.name AS instructor_name, u.email AS instructor_email FROM sessions s LEFT JOIN users u ON s.teacher_id = u.id WHERE s.session_id = $1 AND s.teacher_id = $2';
+      queryParams = [req.params.id, req.user.id];
     }
 
-    // Get attendance list
-    const attendanceList = await Attendance.find({ sessionId: session._id })
-      .populate('studentId', 'name email rollNumber')
-      .sort({ markedAt: -1 });
+    const { rows } = await pool.query(query, queryParams);
+    const session = rows[0];
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+
+    const { rows: att } = await pool.query(
+      `SELECT a.*, u.name AS student_name, u.email AS student_email, u.roll_number
+       FROM attendance a LEFT JOIN users u ON a.roll_number = u.roll_number
+       WHERE a.session_id = $1 ORDER BY a.timestamp DESC`,
+      [session.session_id]
+    );
 
     res.json({
       session: {
-        id: session._id,
-        className: session.className,
+        id: session.session_id,
+        className: session.class_name,
         subject: session.subject,
         status: session.status,
-        startTime: session.startTime,
-        stopTime: session.stopTime,
-        presentCount: session.presentCount,
-        instructor: session.instructorId
+        startTime: session.start_time,
+        stopTime: session.stop_time,
+        presentCount: session.present_count,
+        instructor: { name: session.instructor_name, email: session.instructor_email }
       },
-      attendance: attendanceList.map(a => ({
-        student: a.studentId,
-        markedAt: a.markedAt,
-        faceVerified: a.faceVerified,
-        qrVerified: a.qrVerified
+      attendance: att.map(a => ({
+        student: { rollNumber: a.roll_number, name: a.student_name, email: a.student_email },
+        markedAt: a.timestamp,
+        faceVerified: a.face_verified,
+        qrVerified: a.qr_verified,
+        confidence: a.confidence
       }))
     });
   } catch (error) {
@@ -140,63 +125,60 @@ router.get('/session/:id', authMiddleware, requireRole('instructor', 'faculty', 
   }
 });
 
-// Get current QR code
-router.get('/session/:id/qr', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
+// Get/refresh QR code
+router.get('/session/:id/qr', authMiddleware, requireRole(...ALLOWED), async (req, res) => {
   try {
-    const session = await Session.findOne({
-      _id: req.params.id,
-      instructorId: req.user.id
-    });
+    const { rows } = await pool.query(
+      'SELECT * FROM sessions WHERE session_id = $1 AND teacher_id = $2',
+      [req.params.id, req.user.id]
+    );
+    const session = rows[0];
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (session.status !== 'active') return res.status(400).json({ error: 'Session is not active' });
 
-    if (!session) {
-      return res.status(404).json({ error: 'Session not found' });
+    let { current_qr_token: qrToken, qr_expires_at: qrExpiresAt } = session;
+
+    if (!qrToken || !qrExpiresAt || new Date(qrExpiresAt) < new Date()) {
+      qrToken = generateQRToken(session.session_id, req.user.id);
+      qrExpiresAt = new Date(Date.now() + 45000);
+      await pool.query(
+        'UPDATE sessions SET current_qr_token = $1, qr_expires_at = $2 WHERE session_id = $3',
+        [qrToken, qrExpiresAt, session.session_id]
+      );
     }
 
-    if (session.status !== 'active') {
-      return res.status(400).json({ error: 'Session is not active' });
-    }
-
-    // Check if QR expired, generate new one
-    if (!session.currentQRToken || !session.qrExpiresAt || session.qrExpiresAt < new Date()) {
-      const qrToken = generateQRToken(session._id.toString(), req.user.id);
-      session.currentQRToken = qrToken;
-      session.qrExpiresAt = new Date(Date.now() + 45000);
-      await session.save();
-    }
-
-    const qrImage = await generateQRImage(session.currentQRToken);
-
-    res.json({
-      qrToken: session.currentQRToken,
-      qrImage,
-      expiresAt: session.qrExpiresAt
-    });
+    const qrImage = await generateQRImage(qrToken);
+    res.json({ qrToken, qrImage, expiresAt: qrExpiresAt });
   } catch (error) {
     console.error('Get QR error:', error);
     res.status(500).json({ error: 'Failed to generate QR code' });
   }
 });
 
-// Get all sessions for instructor
-router.get('/sessions', authMiddleware, requireRole('instructor', 'faculty', 'hod', 'principal'), async (req, res) => {
+// List sessions (role-filtered)
+router.get('/sessions', authMiddleware, requireRole(...ALLOWED), async (req, res) => {
   try {
-    let filter = {};
-    if (req.user.role === 'hod') filter.department = req.user.department;
-    else if (['instructor', 'faculty'].includes(req.user.role)) filter.instructorId = req.user.id;
-
-    const sessions = await Session.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(50);
+    const { where, params } = buildSessionFilter(req.user);
+    const { rows } = await pool.query(
+      `SELECT s.*, u.name AS instructor_name FROM sessions s
+       LEFT JOIN users u ON s.teacher_id = u.id
+       WHERE ${where} ORDER BY s.start_time DESC LIMIT 100`,
+      params
+    );
 
     res.json({
-      sessions: sessions.map(s => ({
-        id: s._id,
-        className: s.className,
+      sessions: rows.map(s => ({
+        id: s.session_id,
+        className: s.class_name,
         subject: s.subject,
         status: s.status,
-        startTime: s.startTime,
-        stopTime: s.stopTime,
-        presentCount: s.presentCount
+        startTime: s.start_time,
+        stopTime: s.stop_time,
+        presentCount: s.present_count,
+        department: s.department,
+        year: s.year,
+        section: s.section,
+        instructorName: s.instructor_name
       }))
     });
   } catch (error) {
