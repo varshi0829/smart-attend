@@ -16,7 +16,9 @@
           "subject_name": "Cryptography and Network Security",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9553605898",
+      "email": "cse.hod@bvrithyderabad.edu.in"
     },
     "prof r s murali nath": {
       "id": "prof_r_s_murali_nath",
@@ -42,7 +44,9 @@
           "subject_name": "Discrete Mathematics",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9848091992",
+      "email": "muralinath.rs@bvrithyderabad.edu.in"
     },
     "dr r suneetha rani": {
       "id": "dr_r_suneetha_rani",
@@ -68,7 +72,9 @@
           "subject_name": "Cryptography and Network Security Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "7075163248",
+      "email": "suneetharani.r@bvrithyderabad.edu.in"
     },
     "dr g naga satish": {
       "id": "dr_g_naga_satish",
@@ -84,7 +90,9 @@
           "subject_name": "Data Analytics",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9618319616",
+      "email": "nagasatish.g@bvrithyderabad.edu.in"
     },
     "dr m indrasena reddy": {
       "id": "dr_m_indrasena_reddy",
@@ -130,7 +138,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "",
+      "email": ""
     },
     "ms d swapna": {
       "id": "ms_d_swapna",
@@ -186,7 +196,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9177322252",
+      "email": "swapna.d@bvrithyderabad.edu.in"
     },
     "dr b venkatesh": {
       "id": "dr_b_venkatesh",
@@ -222,7 +234,9 @@
           "subject_name": "Project Stage-I",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9963311377",
+      "email": "venkatesh.b@bvrithyderabad.edu.in"
     },
     "dr prasanth vaidya": {
       "id": "dr_prasanth_vaidya",
@@ -258,7 +272,9 @@
           "subject_name": "Compiler Design Lab",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9652733636",
+      "email": "prasanthvaidya.s@bvrithyderabad.edu.in"
     },
     "dr m shanmuga sundari": {
       "id": "dr_m_shanmuga_sundari",
@@ -284,7 +300,9 @@
           "subject_name": "Programming for Problem Solving Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9100447815",
+      "email": "sundari.m@bvrithyderabad.edu.in"
     },
     "dr c nagaraju": {
       "id": "dr_c_nagaraju",
@@ -340,7 +358,9 @@
           "subject_name": "Coding Practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "8861996851",
+      "email": "nagaraju.c@bvrithyderabad.edu.in"
     },
     "dr v surya narayana reddy": {
       "id": "dr_v_surya_narayana_reddy",
@@ -386,7 +406,9 @@
           "subject_name": "Coding Practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "",
+      "email": ""
     },
     "dr kanaka vardhini": {
       "id": "dr_kanaka_vardhini",
@@ -432,7 +454,9 @@
           "subject_name": "Compiler Design Lab",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9704543248",
+      "email": "kanakavardhini.k@bvrithyderabad.edu.in"
     },
     "ms b nagaveni": {
       "id": "ms_b_nagaveni",
@@ -458,7 +482,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9703218899",
+      "email": "nagaveni.b@bvrithyderabad.edu.in"
     },
     "mr k bhargav ram": {
       "id": "mr_k_bhargav_ram",
@@ -504,7 +530,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9160329739",
+      "email": "bhargavram.k@bvrithyderabad.edu.in"
     },
     "mr m dyva sugnana rao": {
       "id": "mr_m_dyva_sugnana_rao",
@@ -530,7 +558,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9603830970",
+      "email": "sugnanarao.m@bvrithyderabad.edu.in"
     },
     "ms e g padmavati": {
       "id": "ms_e_g_padmavati",
@@ -586,7 +616,9 @@
           "subject_name": "DevOps Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "8088977999",
+      "email": "padmavati.e@bvrithyderabad.edu.in"
     },
     "ms suparna das": {
       "id": "ms_suparna_das",
@@ -632,7 +664,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9614135599",
+      "email": "suparna.das@bvrithyderabad.edu.in"
     },
     "ms t durga devi": {
       "id": "ms_t_durga_devi",
@@ -698,7 +732,9 @@
           "subject_name": "Coding Practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9963555439",
+      "email": "durgadevi.t@bvrithyderabad.edu.in"
     },
     "ms s vidyullatha": {
       "id": "ms_s_vidyullatha",
@@ -754,7 +790,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9394575869",
+      "email": "vidyullatha.s@bvrithyderabad.edu.in"
     },
     "ms kbks durga": {
       "id": "ms_kbks_durga",
@@ -800,7 +838,9 @@
           "subject_name": "Programming for Problem Solving Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "8801044143",
+      "email": "durgakbks@bvrithyderabad.edu.in"
     },
     "ms k neha": {
       "id": "ms_k_neha",
@@ -856,7 +896,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "8008268884",
+      "email": "neha.k@bvrithyderabad.edu.in"
     },
     "ms m lakshmi prasudha": {
       "id": "ms_m_lakshmi_prasudha",
@@ -912,7 +954,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9700588347",
+      "email": "lakshmiprasudha.m@bvrithyderabad.edu.in"
     },
     "ms v manya": {
       "id": "ms_v_manya",
@@ -978,7 +1022,9 @@
           "subject_name": "Coding practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "7075321308",
+      "email": "manya.v@bvrithyderabad.edu.in"
     },
     "ms j jhansi goud": {
       "id": "ms_j_jhansi_goud",
@@ -1034,7 +1080,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9030771275",
+      "email": "jhansi.j@bvrithyderabad.edu.in"
     },
     "mr k naresh": {
       "id": "mr_k_naresh",
@@ -1080,7 +1128,9 @@
           "subject_name": "Object Oriented Programming through Java Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9989803310",
+      "email": "naresh.k@bvrithyderabad.edu.in"
     },
     "mr m naga sriharsha": {
       "id": "mr_m_naga_sriharsha",
@@ -1106,7 +1156,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9908055084",
+      "email": "naga sriharsha.m@bvrithyderabad.edu.in"
     },
     "ms m sahaja": {
       "id": "ms_m_sahaja",
@@ -1162,7 +1214,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9550143865",
+      "email": "sahaja.m@bvrithyderabad.edu.in"
     },
     "ms p surya bharathi": {
       "id": "ms_p_surya_bharathi",
@@ -1208,7 +1262,9 @@
           "subject_name": "Programming for Problem Solving Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9490764666",
+      "email": "bharathi.p@bvrithyderabad.edu.in"
     },
     "ms t jhansi renuka": {
       "id": "ms_t_jhansi_renuka",
@@ -1264,7 +1320,9 @@
           "subject_name": "Coding practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9000781166",
+      "email": "jhansirenuka.t@bvrithyderabad.edu.in"
     },
     "ms b pushpa": {
       "id": "ms_b_pushpa",
@@ -1290,7 +1348,9 @@
           "subject_name": "Data visualization-R Programming/Power BI",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9949749844",
+      "email": "pushpa.b@bvrithyderabad.edu.in"
     },
     "ms g rashmitha": {
       "id": "ms_g_rashmitha",
@@ -1316,7 +1376,9 @@
           "subject_name": "Programming for Problem Solving",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9063160407",
+      "email": "rashmitha.g@bvrithyderabad.edu.in"
     },
     "ms g chandana priya": {
       "id": "ms_g_chandana_priya",
@@ -1362,7 +1424,9 @@
           "subject_name": "Cryptography and Network Security Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9885264085",
+      "email": "gchandanapriya85@gmail.com"
     },
     "ms m sandhya vani": {
       "id": "ms_m_sandhya_vani",
@@ -1418,7 +1482,9 @@
           "subject_name": "Database Management Systems",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9542455985",
+      "email": "sandhyavani.m@bvrithyderabad.edu.in"
     },
     "mr n raghava rao": {
       "id": "mr_n_raghava_rao",
@@ -1474,7 +1540,9 @@
           "subject_name": "Object Oriented Programming through Java Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9000318027",
+      "email": "raghavarao.n@bvrithyderabad.edu.in"
     },
     "ms v aneesha": {
       "id": "ms_v_aneesha",
@@ -1540,7 +1608,9 @@
           "subject_name": "Coding Practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9912352227",
+      "email": "aneesha.v@bvrithyderabad.edu.in"
     },
     "ms g rama devi": {
       "id": "ms_g_rama_devi",
@@ -1606,7 +1676,9 @@
           "subject_name": "Coding practice",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "7032704755",
+      "email": "ramadevi.g@bvrithyderabad.edu.in"
     },
     "mr k rajesh": {
       "id": "mr_k_rajesh",
@@ -1622,7 +1694,9 @@
           "subject_name": "Compiler Design",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9505060105",
+      "email": "rajesh.k@bvrithyderabad.edu.in"
     },
     "ms m sri sevitha": {
       "id": "ms_m_sri_sevitha",
@@ -1638,7 +1712,9 @@
           "subject_name": "Data Structures Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9948020059",
+      "email": "srisevitha.m@bvrithyderabad.edu.in"
     },
     "ms s rama devi": {
       "id": "ms_s_rama_devi",
@@ -1664,7 +1740,9 @@
           "subject_name": "Object Oriented Programming through Java Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9866511230",
+      "email": "ramadevi.s@bvrithyderabad.edu.in"
     },
     "ms d sangeetha": {
       "id": "ms_d_sangeetha",
@@ -1720,7 +1798,9 @@
           "subject_name": "Database Management Systems Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9966581857",
+      "email": "sangeetha.d@bvrithyderabad.edu.in"
     },
     "ms k vineela": {
       "id": "ms_k_vineela",
@@ -1766,7 +1846,9 @@
           "subject_name": "Pattern recognitions",
           "class_type": "Theory"
         }
-      ]
+      ],
+      "phone": "9052022235",
+      "email": "vineela.k@bvrithyderabad.edu.in"
     },
     "mr c rajeev": {
       "id": "mr_c_rajeev",
@@ -1792,7 +1874,9 @@
           "subject_name": "Programming for Problem Solving Lab",
           "class_type": "Lab"
         }
-      ]
+      ],
+      "phone": "9701435106",
+      "email": "rajeev.c@bvrithyderabad.edu.in"
     }
   }
 }

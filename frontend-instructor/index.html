@@ -65,6 +65,21 @@
 
         /* Ensure parent panels don't clip the dropdown */
         #sessionSetup, #reportsView { overflow: visible !important; }
+
+        /* History panel active class */
+        .history-class-btn { transition: all 0.15s; }
+        .history-class-btn.active {
+            background-color: rgba(37, 99, 235, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Filter popup animation */
+        #filterPopup { animation: fadeDown 0.12s ease; }
+        @keyframes fadeDown { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Report card chevron */
+        .report-card:hover { background-color: #1e293b; border-color: #475569; }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen text-slate-200 font-sans">
@@ -73,7 +88,13 @@
     <nav id="navbar" class="hidden bg-slate-800 border-b border-slate-700 px-6 py-3 flex justify-between items-center">
         <h1 class="text-lg font-bold text-blue-500 cursor-pointer" onclick="showView('landing')">SmartAttend</h1>
         <div class="flex items-center gap-4">
-            <span id="displayInstructor" class="text-slate-400 text-xs font-bold uppercase tracking-wider"></span>
+            <div class="flex flex-col items-end">
+                <span id="displayInstructor" class="text-slate-400 text-xs font-bold uppercase tracking-wider"></span>
+                <div class="flex gap-3 text-[10px] text-slate-500 mt-0.5">
+                    <span id="displayPhone"></span>
+                    <a id="displayEmail" href="#" class="hover:text-blue-400 transition-colors"></a>
+                </div>
+            </div>
             <button onclick="logout()" class="text-[10px] text-red-500 font-bold uppercase hover:underline">Logout</button>
         </div>
     </nav>
@@ -101,8 +122,8 @@
                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             </button>
             <button onclick="showView('reports')" class="w-full bg-slate-800 p-6 rounded-lg border border-slate-700 hover:border-blue-500 text-left flex items-center justify-between group transition-all">
-                <span class="text-lg font-bold">Reports</span>
-                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"/></svg>
+                <span class="text-lg font-bold">History</span>
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </button>
         </div>
 
@@ -204,21 +225,66 @@
             </div>
         </div>
 
-        <!-- REPORTS VIEW -->
+        <!-- HISTORY VIEW (formerly Reports) -->
         <div id="reportsView" class="hidden space-y-6">
-            <button onclick="showView('landing')" class="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
-            </button>
-            <h2 class="text-xl font-bold text-center uppercase tracking-widest text-slate-400">Reports</h2>
+            <div class="flex items-center gap-3">
+                <button onclick="showView('landing')" class="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
+                </button>
+                <h2 class="text-lg font-bold uppercase tracking-widest text-slate-400">History</h2>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- LEFT: Assigned Classes -->
                 <div class="md:col-span-1 space-y-2">
-                    <h3 class="text-[10px] font-bold uppercase text-slate-500 px-2">Assigned Classes</h3>
+                    <h3 class="text-[10px] font-bold uppercase text-slate-500 px-2 pb-2 border-b border-slate-700 tracking-widest">Assigned Classes</h3>
                     <div id="reportSections" class="space-y-1"></div>
                 </div>
-                <div class="md:col-span-3 space-y-3">
-                    <div id="reportList" class="grid grid-cols-1 gap-2"></div>
-                    <div id="emptyReports" class="hidden py-20 text-center bg-slate-800 rounded border border-slate-700 text-slate-600 font-bold text-xs uppercase">No Reports Available</div>
+
+                <!-- RIGHT: History Panel -->
+                <div class="md:col-span-3">
+                    <!-- Panel header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <span id="historyPanelTitle" class="text-[10px] font-bold uppercase text-slate-500 tracking-widest"></span>
+                        <!-- Filter button + popup (hidden until a class is selected) -->
+                        <div class="relative" id="filterPopupContainer">
+                            <button id="filterToggleBtn" onclick="toggleFilterPopup()" class="hidden items-center gap-1.5 text-[10px] font-bold uppercase text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition-all">
+                                <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>Filter
+                            </button>
+                            <!-- Compact filter popup -->
+                            <div id="filterPopup" class="hidden absolute right-0 top-full mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-4 z-50 w-60 space-y-3">
+                                <p class="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Filter by</p>
+                                <div>
+                                    <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Date</label>
+                                    <input id="reportDateFilter" type="date" onchange="setReportFilter('date', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-xs">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Subject</label>
+                                    <select id="reportSubjectFilter" onchange="setReportFilter('subject', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-xs"></select>
+                                </div>
+                                <button onclick="resetReportFilters()" class="w-full text-[10px] font-bold uppercase text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 py-1.5 rounded transition-all">Reset Filters</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden filter controls kept for JS compatibility -->
+                    <div class="hidden" aria-hidden="true">
+                        <input id="reportMonthFilter" type="month" onchange="setReportFilter('month', this.value)">
+                        <select id="reportSemesterFilter" onchange="setReportFilter('semester', this.value)"></select>
+                        <select id="reportSectionFilter" onchange="setReportFilter('section', this.value)"></select>
+                        <input id="reportFromFilter" type="date" onchange="setReportFilter('from', this.value)">
+                        <input id="reportToFilter" type="date" onchange="setReportFilter('to', this.value)">
+                    </div>
+
+                    <!-- Placeholder shown before any class is selected -->
+                    <div id="historyPlaceholder" class="py-24 text-center bg-slate-800 rounded-lg border border-dashed border-slate-700">
+                        <svg class="w-8 h-8 text-slate-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-slate-500 font-bold text-xs uppercase tracking-widest">Select a class to view history</p>
+                    </div>
+
+                    <!-- Report entry list -->
+                    <div id="reportList" class="space-y-2 hidden"></div>
+                    <div id="emptyReports" class="hidden py-20 text-center bg-slate-800 rounded-lg border border-slate-700 text-slate-600 font-bold text-xs uppercase">No sessions found</div>
                 </div>
             </div>
         </div>
@@ -360,7 +426,12 @@
             viewData: null,
             classList: [],
             intervals: { qr: null, attendance: null, timer: null },
-            form: { year: "", dept: "", section: "", subject: "", subjectCode: "" }
+            form: { year: "", dept: "", section: "", subject: "", subjectCode: "" },
+            reports: {
+                context: null,
+                all: [],
+                filters: { date: "", month: "", semester: "", subject: "", section: "", from: "", to: "" }
+            }
         };
 
         // ── View routing ─────────────────────────────────────────────────────
@@ -405,9 +476,15 @@
             state.instructor = {
                 id:          teacher.id,
                 name:        teacher.display_name,
+                phone:       teacher.phone  || '',
+                email:       teacher.email  || '',
                 assignments: teacher.assignments
             };
             document.getElementById("displayInstructor").innerText = teacher.display_name;
+            const phoneEl = document.getElementById("displayPhone");
+            const emailEl = document.getElementById("displayEmail");
+            if (phoneEl) phoneEl.textContent = teacher.phone || '';
+            if (emailEl) { emailEl.textContent = teacher.email || ''; emailEl.href = teacher.email ? `mailto:${teacher.email}` : '#'; }
             document.getElementById("navbar").classList.remove("hidden");
             showView('landing');
         }
@@ -460,6 +537,8 @@
         window.onclick = (e) => {
             if (!e.target.closest('.custom-select-container'))
                 document.querySelectorAll('.custom-options').forEach(opt => opt.classList.add("hidden"));
+            if (!e.target.closest('#filterPopupContainer'))
+                document.getElementById("filterPopup")?.classList.add("hidden");
         };
 
         // ── Dropdown population ───────────────────────────────────────────────
@@ -845,7 +924,6 @@
 
         // ── Reports ───────────────────────────────────────────────────────────
         function loadReportSections() {
-            // Build unique year+dept+section combos from this teacher's assignments
             const seen = new Set();
             const combos = [];
             for (const a of state.instructor.assignments) {
@@ -855,42 +933,218 @@
                     combos.push({ year: a.year, dept: a.department, sec: a.section });
                 }
             }
-            // Sort: year asc, dept asc, section asc
             combos.sort((a, b) =>
                 Number(a.year) - Number(b.year) ||
                 a.dept.localeCompare(b.dept) ||
                 a.sec.localeCompare(b.sec)
             );
             document.getElementById("reportSections").innerHTML = combos.map(item =>
-                `<button onclick="loadReports('${item.dept}', '${item.year}', '${item.sec}')"
-                    class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 text-[10px] font-bold uppercase transition-all">
+                `<button onclick="selectHistoryClass('${item.dept}', '${item.year}', '${item.sec}', this)"
+                    class="history-class-btn w-full text-left px-4 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wide text-slate-400 hover:bg-slate-700 hover:text-white">
                     Y${item.year} ${item.dept} &ndash; ${item.sec}
                 </button>`
             ).join('');
         }
 
+        function selectHistoryClass(dept, year, sec, btn) {
+            document.querySelectorAll('.history-class-btn').forEach(b => {
+                b.className = "history-class-btn w-full text-left px-4 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wide text-slate-400 hover:bg-slate-700 hover:text-white";
+            });
+            btn.className = "history-class-btn active w-full text-left px-4 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wide";
+            loadReports(dept, year, sec);
+        }
+
+        function toggleFilterPopup() {
+            document.getElementById("filterPopup").classList.toggle("hidden");
+        }
+
+        function toLocalDateKey(value) {
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return "";
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function toLocalMonthKey(value) {
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return "";
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            return `${yyyy}-${mm}`;
+        }
+
+        function getReportStart(report) {
+            return new Date(report?.meta?.start_time || 0);
+        }
+
+        function getReportFilterDefaults() {
+            return {
+                date: "",
+                month: "",
+                semester: "",
+                subject: "",
+                section: state.reports.context?.sec || "",
+                from: "",
+                to: ""
+            };
+        }
+
+        function syncReportFilterControls() {
+            const filters = state.reports.filters;
+            const controls = {
+                date: document.getElementById("reportDateFilter"),
+                month: document.getElementById("reportMonthFilter"),
+                semester: document.getElementById("reportSemesterFilter"),
+                subject: document.getElementById("reportSubjectFilter"),
+                section: document.getElementById("reportSectionFilter"),
+                from: document.getElementById("reportFromFilter"),
+                to: document.getElementById("reportToFilter"),
+            };
+            Object.entries(controls).forEach(([key, el]) => { if (el) el.value = filters[key] || ""; });
+        }
+
+        function populateReportFilterOptions(list) {
+            const semesterSelect = document.getElementById("reportSemesterFilter");
+            const subjectSelect = document.getElementById("reportSubjectFilter");
+            const sectionSelect = document.getElementById("reportSectionFilter");
+            if (!semesterSelect || !subjectSelect || !sectionSelect) return;
+
+            const semesters = [...new Set(list.map(r => String(r?.meta?.semester || "").trim()).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
+            const subjects = [...new Set(list.map(r => String(r?.meta?.subject || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+            const sections = [...new Set(list.map(r => String(r?.meta?.section || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+            semesterSelect.innerHTML = ['<option value="">All Semesters</option>']
+                .concat(semesters.map(s => `<option value="${s}">Semester ${s}</option>`)).join('');
+            subjectSelect.innerHTML = ['<option value="">All Subjects</option>']
+                .concat(subjects.map(s => `<option value="${s}">${s}</option>`)).join('');
+            sectionSelect.innerHTML = ['<option value="">All Sections</option>']
+                .concat(sections.map(s => `<option value="${s}">Section ${s}</option>`)).join('');
+        }
+
+        function renderReports(list) {
+            const container = document.getElementById("reportList");
+            const empty = document.getElementById("emptyReports");
+            if (!container || !empty) return;
+
+            if (!list.length) {
+                empty.classList.remove("hidden");
+                container.innerHTML = "";
+                return;
+            }
+
+            empty.classList.add("hidden");
+            container.innerHTML = list.map(r => {
+                const start = getReportStart(r);
+                const dateStr = start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                const total = r.meta.total_students || r.attendance.length;
+                const present = r.attendance.length;
+                return `<div class="report-card bg-slate-800 px-5 py-4 rounded-lg border border-slate-700 flex items-center justify-between cursor-pointer transition-all" onclick='viewReport(${JSON.stringify(r)})'>
+                    <div class="flex items-center gap-4 min-w-0">
+                        <span class="text-[10px] font-mono text-slate-500 whitespace-nowrap">${dateStr}</span>
+                        <span class="w-px h-3 bg-slate-700 flex-shrink-0"></span>
+                        <span class="font-bold text-white text-sm truncate">${r.meta.subject}</span>
+                    </div>
+                    <div class="flex items-center gap-3 flex-shrink-0 ml-4">
+                        <span class="text-[11px] font-bold text-slate-400">Present <span class="text-green-400">${present}</span><span class="text-slate-600">/${total}</span></span>
+                        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function applyReportFilters() {
+            const filters = state.reports.filters;
+            const filtered = state.reports.all.filter(r => {
+                const meta = r.meta || {};
+                const start = getReportStart(r);
+                if (Number.isNaN(start.getTime())) return false;
+
+                if (filters.date && toLocalDateKey(start) !== filters.date) return false;
+                if (filters.month && toLocalMonthKey(start) !== filters.month) return false;
+                if (filters.semester && String(meta.semester || "") !== filters.semester) return false;
+                if (filters.subject && String(meta.subject || "") !== filters.subject) return false;
+                if (filters.section && String(meta.section || "") !== filters.section) return false;
+                if (filters.from && toLocalDateKey(start) < filters.from) return false;
+                if (filters.to && toLocalDateKey(start) > filters.to) return false;
+                return true;
+            }).sort((a, b) => getReportStart(b) - getReportStart(a));
+
+            renderReports(filtered);
+        }
+
+        function setReportFilter(key, value) {
+            state.reports.filters[key] = value || "";
+            applyReportFilters();
+        }
+
+        function resetReportFilters() {
+            state.reports.filters = getReportFilterDefaults();
+            syncReportFilterControls();
+            applyReportFilters();
+        }
+
+        function applyQuickReportFilter(kind) {
+            const today = new Date();
+            const filters = { ...state.reports.filters };
+
+            if (kind === 'today') {
+                filters.month = "";
+                filters.from = "";
+                filters.to = "";
+                filters.date = toLocalDateKey(today);
+            } else if (kind === 'week') {
+                filters.date = "";
+                filters.month = "";
+                const day = today.getDay();
+                const diff = day === 0 ? 6 : day - 1;
+                const from = new Date(today);
+                from.setDate(today.getDate() - diff);
+                filters.from = toLocalDateKey(from);
+                filters.to = toLocalDateKey(today);
+            } else if (kind === 'month') {
+                filters.date = "";
+                filters.from = "";
+                filters.to = "";
+                filters.month = toLocalMonthKey(today);
+            } else if (kind === 'semester') {
+                filters.date = "";
+                filters.month = "";
+                filters.from = "";
+                filters.to = "";
+                const currentSemester = [...new Set(state.reports.all.map(r => String(r?.meta?.semester || "").trim()).filter(Boolean))][0] || "";
+                filters.semester = String(state.reports.filters.semester || currentSemester);
+            }
+
+            state.reports.filters = filters;
+            syncReportFilterControls();
+            applyReportFilters();
+        }
+
         async function loadReports(dept, year, sec) {
+            state.reports.context = { dept, year, sec };
+            state.reports.filters = getReportFilterDefaults();
+            syncReportFilterControls();
+
+            // Show list panel, hide placeholder
+            document.getElementById("historyPlaceholder").classList.add("hidden");
+            document.getElementById("reportList").classList.remove("hidden");
+            document.getElementById("filterToggleBtn").classList.remove("hidden");
+            document.getElementById("filterToggleBtn").style.display = "inline-flex";
+            document.getElementById("historyPanelTitle").innerText = `Y${year} ${dept} – ${sec}`;
+            document.getElementById("filterPopup").classList.add("hidden");
+
             console.log("[REPORTS] Fetching list - URL:", `${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
             const res  = await fetch(`${API.attendance}/reports/list?instructor_id=${state.instructor.id}&dept=${dept}&year=${year}&sec=${sec}`);
             const json = await res.json();
             console.log("[REPORTS] Response:", json);
             console.log("[REPORTS] Filter:", {dept, year, sec}, "Found:", json.data?.length || 0);
-            const list  = document.getElementById("reportList");
-            const empty = document.getElementById("emptyReports");
-            if (!json.data || json.data.length === 0) {
-                empty.classList.remove("hidden"); list.innerHTML = ""; return;
-            }
-            empty.classList.add("hidden");
-            list.innerHTML = json.data.map(r => {
-                const start = new Date(r.meta.start_time);
-                return `<div class="bg-slate-800 p-4 rounded border border-slate-700 flex justify-between items-center hover:bg-slate-700 cursor-pointer transition-all" onclick='viewReport(${JSON.stringify(r)})'>
-                    <div>
-                        <p class="font-bold text-white text-sm">${r.meta.subject}</p>
-                        <p class="text-[9px] text-slate-500 uppercase font-mono">${start.toLocaleDateString()} | ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${r.attendance.length} Records</p>
-                    </div>
-                    <span class="text-blue-400 text-[9px] font-bold uppercase border border-blue-400/30 px-2 py-1 rounded">View</span>
-                </div>`;
-            }).join('');
+            state.reports.all = Array.isArray(json.data) ? json.data : [];
+            populateReportFilterOptions(state.reports.all);
+            state.reports.filters.section = sec || "";
+            syncReportFilterControls();
+            applyReportFilters();
         }
 
         function viewReport(data) {

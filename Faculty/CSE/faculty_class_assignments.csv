@@ -1,165 +1,165 @@
-teacher_name,teacher_name_normalized,department,year,semester,section,subject_code,subject_acronym,subject_name,class_type,class_str,source_confidence,source_notes
-Dr. S L Aruna Rao,dr s l aruna rao,CSE,4,7,B,CS701PC,CNS,Cryptography and Network Security,Theory,IV CSE B,high,derived from timetable + course CSV
-Prof. R S Murali Nath,prof r s murali nath,CSE,2,3,A,CS303PC,DSM,Discrete Mathematics,Theory,II CSE A,high,derived from timetable + course CSV
-Prof. R S Murali Nath,prof r s murali nath,CSE,2,3,E,CS303PC,DSM,Discrete Mathematics,Theory,II CSE E,high,derived from timetable + course CSV
-Dr .R Suneetha Rani,dr r suneetha rani,CSE,3,5,C,CS513PE,DM,Data Mining,Theory,III CSE C,medium,"code from timetable, not in course CSV"
-Dr .R Suneetha Rani,dr r suneetha rani,ECE,3,5,,EC511PE,COOS,Computer Organization & Operating Systems,Theory,III ECE,medium,"code from timetable, not in course CSV"
-Dr .R Suneetha Rani,dr r suneetha rani,CSE,4,7,B,CS703PC,CNS LAB,Cryptography and Network Security Lab,Lab,IV CSE B,medium,"code from timetable, not in course CSV"
-Dr. G. Naga Satish,dr g naga satish,CSE,3,5,A,CS523PE,DA,Data Analytics,Theory,III CSE A,medium,"code from timetable, not in course CSV"
-Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,A,CS302PC,DS,Data Structures,Theory,II CSE A,high,derived from timetable + course CSV
-Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,B,CS302PC,DS,Data Structures,Theory,II CSE B,high,derived from timetable + course CSV
-Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,A,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE A,high,derived from timetable + course CSV
-Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,B,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE B,high,derived from timetable + course CSV
-Ms. D. Swapna,ms d swapna,CSE,4,7,A,CS702PC,CD,Compiler Design,Theory,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. D. Swapna,ms d swapna,CSE,4,7,B,CS702PC,CD,Compiler Design,Theory,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. D. Swapna,ms d swapna,CSE,4,7,A,CS705PC,CD LAB,Compiler Design Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. D. Swapna,ms d swapna,CSE,4,7,B,CS705PC,CD LAB,Compiler Design Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. D. Swapna,ms d swapna,CSE,2,3,F,CS309PC,DV LAB,Data visualization-R Programming/Power BI,Lab,II CSE F,high,derived from timetable + course CSV
-Dr. B. Venkatesh,dr b venkatesh,CSE,1,1,E,,PPS LAB,Programming for Problem Solving,Lab,"I CSE E,F",low,no code found in timetable
-Dr. B. Venkatesh,dr b venkatesh,CSE,1,1,F,,PPS LAB,Programming for Problem Solving,Lab,"I CSE E,F",low,no code found in timetable
-Dr. B. Venkatesh,dr b venkatesh,CSE,3,5,,,GT,Graph Theory,Theory,III CSE,low,no code found in timetable
-Dr. B. Venkatesh,dr b venkatesh,CSE,4,7,A,CS706PC,PS-I,Project Stage-I,Theory,IV CSE A,high,derived from timetable + course CSV
-Dr. Prasanth Vaidya,dr prasanth vaidya,CSE,4,7,C,CS701PC,CNS,Cryptography and Network Security,Theory,IV CSE C,high,derived from timetable + course CSV
-Dr. Prasanth Vaidya,dr prasanth vaidya,CSE,4,7,C,CS704PC,CNS LAB,Cryptography and Network Security Lab,Lab,IV CSE C,high,derived from timetable + course CSV
-Dr. Prasanth Vaidya,dr prasanth vaidya,CSE,4,7,C,CS705PC,PS-I,Compiler Design Lab,Theory,IV CSE C,high,derived from timetable + course CSV
-Dr. M. Shanmuga Sundari,dr m shanmuga sundari,CSE,1,1,C,,PPS,Programming for Problem Solving,Theory,I CSE C,low,no code found in timetable
-Dr. M. Shanmuga Sundari,dr m shanmuga sundari,CSE,1,1,C,,PPS LAB,Programming for Problem Solving Lab,Lab,I CSE C,low,no code found in timetable
-Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,A,CS507PC,CN LAB,Computer Networks Lab,Lab,"III CSE A,B",high,derived from timetable + course CSV
-Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,B,CS507PC,CN LAB,Computer Networks Lab,Lab,"III CSE A,B",high,derived from timetable + course CSV
-Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,A,CS502PC,CN,Computer Networks,Theory,"III CSE A,B",high,derived from timetable + course CSV
-Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,B,CS502PC,CN,Computer Networks,Theory,"III CSE A,B",high,derived from timetable + course CSV
-Dr. C. Nagaraju,dr c nagaraju,CSE,2,3,C,,CODING,Coding Practice,Theory,II CSE C,low,no code found in timetable
-Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,4,7,A,CS751PE,AA,Advanced Algorithms,Theory,"IV CSE A,C",medium,"code from timetable, not in course CSV"
-Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,4,7,C,CS751PE,AA,Advanced Algorithms,Theory,"IV CSE A,C",medium,"code from timetable, not in course CSV"
-Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,2,3,B,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE B,high,derived from timetable + course CSV
-Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,2,3,D,,CODING,Coding Practice,Theory,II CSE D,low,no code found in timetable
-Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,2,3,D,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE D,high,derived from timetable + course CSV
-Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,2,3,A,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV
-Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,2,3,D,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV
-Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,4,7,B,CS705PC,PS-I,Compiler Design Lab,Theory,IV CSE B,high,derived from timetable + course CSV
-Ms. B. Nagaveni,ms b nagaveni,CSE,3,5,C,CS501PC,DAA,Design and Analysis of Algorithms,Theory,III CSE C,high,derived from timetable + course CSV
-Ms. B. Nagaveni,ms b nagaveni,CSE,2,3,C,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE C,high,derived from timetable + course CSV
-Mr. K. Bhargav Ram,mr k bhargav ram,CSE,3,5,B,CS503PC,DEVOPS,DevOps,Theory,III CSE B,high,derived from timetable + course CSV
-Mr. K. Bhargav Ram,mr k bhargav ram,CSE,3,5,B,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE B,high,derived from timetable + course CSV
-Mr. K. Bhargav Ram,mr k bhargav ram,ECE,4,7,,CS722OE,SE,Software Engineering,Theory,IV ECE,medium,"code from timetable, not in course CSV"
-Mr. K. Bhargav Ram,mr k bhargav ram,CSE,2,3,C,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE C,D",high,derived from timetable + course CSV
-Mr. K. Bhargav Ram,mr k bhargav ram,CSE,2,3,D,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE C,D",high,derived from timetable + course CSV
-Mr. M. Dyva Sugnana Rao,mr m dyva sugnana rao,CSE,2,3,C,CS302PC,DS,Data Structures,Theory,II CSE C,high,derived from timetable + course CSV
-Mr. M. Dyva Sugnana Rao,mr m dyva sugnana rao,CSE,2,3,C,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE C,high,derived from timetable + course CSV
-Ms. E G Padmavati,ms e g padmavati,CSE,3,5,A,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B,C",high,derived from timetable + course CSV
-Ms. E G Padmavati,ms e g padmavati,CSE,3,5,B,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B,C",high,derived from timetable + course CSV
-Ms. E G Padmavati,ms e g padmavati,CSE,3,5,C,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B,C",high,derived from timetable + course CSV
-Ms. E G Padmavati,ms e g padmavati,CSE,4,7,B,CS713PE,CC,Cloud Computing,Theory,IV CSE B,medium,"code from timetable, not in course CSV"
-Ms. E G Padmavati,ms e g padmavati,CSE,3,5,C,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE C,high,derived from timetable + course CSV
-Ms. Suparna Das,ms suparna das,CSE,3,5,C,CS503PC,DEVOPS,DevOps,Theory,III CSE C,high,derived from timetable + course CSV
-Ms. Suparna Das,ms suparna das,CSE,3,5,C,CS504PC,DEVOPS,DevOps Lab,Lab,III CSE C,high,derived from timetable + course CSV
-Ms. Suparna Das,ms suparna das,ECE,4,7,,,SL,Scripting Languages,Theory,IV ECE,low,no code found in timetable
-Ms. Suparna Das,ms suparna das,CSE,2,3,E,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,II CSE E,high,derived from timetable + course CSV
-Ms. Suparna Das,ms suparna das,MINOR,3,5,,,R PROG,R Programming Lab,Lab,III MINOR,low,no code found in timetable
-Ms. Suparna Das,ms suparna das,CSE,2,3,D,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE D,high,derived from timetable + course CSV
-Ms T. Durga Devi,ms t durga devi,CSE,3,5,A,CS503PC,DEVOPS,DevOps,Theory,III CSE A,high,derived from timetable + course CSV
-Ms T. Durga Devi,ms t durga devi,CSE,3,5,A,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE A,high,derived from timetable + course CSV
-Ms T. Durga Devi,ms t durga devi,CSE,4,7,A,CS703PC,CNS LAB,Cryptography and Network security Lab,Lab,IV CSE A,medium,"code from timetable, not in course CSV"
-Ms T. Durga Devi,ms t durga devi,CSE,2,3,F,CS304PC,DBMS,Database Management Systems,Theory,II CSE F,high,derived from timetable + course CSV
-Ms T. Durga Devi,ms t durga devi,CSE,2,3,F,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE F,high,derived from timetable + course CSV
-Ms T. Durga Devi,ms t durga devi,CSE,2,3,E,,CODING,Coding Practice,Theory,II CSE E,low,no code found in timetable
-Ms. S.Vidyullatha,ms s vidyullatha,CSE,3,5,C,CS506PC,UID LAB,UI design-Flutter,Lab,III CSE C,high,derived from timetable + course CSV
-Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,B,CS303PC,DSM,Discrete Mathematics,Theory,"II CSE B,C",high,derived from timetable + course CSV
-Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,C,CS303PC,DSM,Discrete Mathematics,Theory,"II CSE B,C",high,derived from timetable + course CSV
-Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,B,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE B,high,derived from timetable + course CSV
-Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,E,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE E,high,derived from timetable + course CSV
-Ms. S.Vidyullatha,ms s vidyullatha,MINOR,3,5,,,IDS,Introduction of Data Science,Theory,III MINOR,low,no code found in timetable
-Ms. KBKS Durga,ms kbks durga,CSE,1,1,A,,PPS,Programming for Problem Solving,Theory,"I CSE A,B",low,no code found in timetable
-Ms. KBKS Durga,ms kbks durga,CSE,1,1,B,,PPS,Programming for Problem Solving,Theory,"I CSE A,B",low,no code found in timetable
-Ms. KBKS Durga,ms kbks durga,CSE,1,1,A,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable
-Ms. KBKS Durga,ms kbks durga,CSE,1,1,B,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable
-Ms. K.Neha,ms k neha,CSE,2,3,A,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE A,high,derived from timetable + course CSV
-Ms. K.Neha,ms k neha,CSE,2,3,A,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,C,D",high,derived from timetable + course CSV
-Ms. K.Neha,ms k neha,CSE,2,3,C,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,C,D",high,derived from timetable + course CSV
-Ms. K.Neha,ms k neha,CSE,2,3,D,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,C,D",high,derived from timetable + course CSV
-Ms. K.Neha,ms k neha,CSE,2,3,F,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE F,high,derived from timetable + course CSV
-Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,E,CS302PC,DS,Data Structures,Theory,"II CSE E,D",high,derived from timetable + course CSV
-Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,D,CS302PC,DS,Data Structures,Theory,"II CSE E,D",high,derived from timetable + course CSV
-Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,A,CS306PC,DS LAB,Data Structures Lab,Lab,"II CSE A,E,D",high,derived from timetable + course CSV
-Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,E,CS306PC,DS LAB,Data Structures Lab,Lab,"II CSE A,E,D",high,derived from timetable + course CSV
-Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,D,CS306PC,DS LAB,Data Structures Lab,Lab,"II CSE A,E,D",high,derived from timetable + course CSV
-Ms. V. Manya,ms v manya,CSE,3,5,C,CS502PC,CN,Computer Networks,Theory,III CSE C,high,derived from timetable + course CSV
-Ms. V. Manya,ms v manya,CSE,3,5,C,CS507PC,CN LAB,Computer Networks Lab,Lab,III CSE C,high,derived from timetable + course CSV
-Ms. V. Manya,ms v manya,CSE,2,3,B,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE B,high,derived from timetable + course CSV
-Ms. V. Manya,ms v manya,CSE,3,5,B,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE B,high,derived from timetable + course CSV
-Ms. V. Manya,ms v manya,CSE,2,3,D,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE D,high,derived from timetable + course CSV
-Ms. V. Manya,ms v manya,CSE,2,3,B,,CODING,Coding practice,Theory,II CSE B,low,no code found in timetable
-Ms. J .Jhansi Goud,ms j jhansi goud,CSE,3,5,B,CS523PE,DA,Data Analytics,Theory,"III CSE B,C",medium,"code from timetable, not in course CSV"
-Ms. J .Jhansi Goud,ms j jhansi goud,CSE,3,5,C,CS523PE,DA,Data Analytics,Theory,"III CSE B,C",medium,"code from timetable, not in course CSV"
-Ms. J .Jhansi Goud,ms j jhansi goud,CSE,2,3,A,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE A,C",high,derived from timetable + course CSV
-Ms. J .Jhansi Goud,ms j jhansi goud,CSE,2,3,C,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE A,C",high,derived from timetable + course CSV
-Ms. J .Jhansi Goud,ms j jhansi goud,CSE,2,3,E,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE E,high,derived from timetable + course CSV
-Mr. K. Naresh,mr k naresh,CSE,2,3,C,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,"II CSE C, F",high,derived from timetable + course CSV
-Mr. K. Naresh,mr k naresh,CSE,2,3,F,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,"II CSE C, F",high,derived from timetable + course CSV
-Mr. K. Naresh,mr k naresh,CSE,2,3,C,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE C, F",high,derived from timetable + course CSV
-Mr. K. Naresh,mr k naresh,CSE,2,3,F,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE C, F",high,derived from timetable + course CSV
-Mr. M. Naga Sriharsha,mr m naga sriharsha,CSE,2,3,F,CS302PC,DS,Data Structures,Theory,II CSE F,high,derived from timetable + course CSV
-Mr. M. Naga Sriharsha,mr m naga sriharsha,CSE,2,3,F,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE F,high,derived from timetable + course CSV
-Ms. M. Sahaja,ms m sahaja,CSE,3,5,A,CS513PE,DM,Data Mining,Theory,"III CSE A,B",medium,"code from timetable, not in course CSV"
-Ms. M. Sahaja,ms m sahaja,CSE,3,5,B,CS513PE,DM,Data Mining,Theory,"III CSE A,B",medium,"code from timetable, not in course CSV"
-Ms. M. Sahaja,ms m sahaja,CSE,3,5,A,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B",high,derived from timetable + course CSV
-Ms. M. Sahaja,ms m sahaja,CSE,3,5,B,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B",high,derived from timetable + course CSV
-Ms. M. Sahaja,ms m sahaja,CSE,2,3,A,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE A,high,derived from timetable + course CSV
-Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,E,,PPS,Programming for Problem Solving,Theory,"I CSE E,F",low,no code found in timetable
-Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,F,,PPS,Programming for Problem Solving,Theory,"I CSE E,F",low,no code found in timetable
-Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,E,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE E,F",low,no code found in timetable
-Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,F,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE E,F",low,no code found in timetable
-Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,4,7,C,CS744PE,CC,Cloud Computing,Theory,IV CSE C,medium,"code from timetable, not in course CSV"
-Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,3,5,B,CS501PC,DAA,Design and Analysis of Algorithms,Theory,III CSE B,high,derived from timetable + course CSV
-Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,4,7,C,CS703PC,CNS LAB,Cryptography and Network Security Lab,Lab,IV CSE C,medium,"code from timetable, not in course CSV"
-Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,4,7,C,CS704PC,CD LAB,Cryptography and Network Security Lab,Lab,IV CSE C,high,derived from timetable + course CSV
-Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,3,5,B,,CODING,Coding practice,Theory,III CSE B,low,no code found in timetable
-Ms. B. Pushpa,ms b pushpa,CSE,4,7,B,CS751PE,AA,Advanced Algorithms,Theory,IV CSE B,medium,"code from timetable, not in course CSV"
-Ms. B. Pushpa,ms b pushpa,AIML,3,5,,CS506PC,UID LAB,UI design-Flutter,Lab,III AIML,high,derived from timetable + course CSV
-Ms. B. Pushpa,ms b pushpa,CSE,2,3,E,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE E,high,derived from timetable + course CSV
-Ms. G. Rashmitha,ms g rashmitha,CSE,2,3,F,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE F,high,derived from timetable + course CSV
-Ms. G. Rashmitha,ms g rashmitha,CSE,1,1,C,,PPS,Programming for Problem Solving,Theory,I CSE C,low,no code found in timetable
-Ms. G. Chandana Priya,ms g chandana priya,CSE,2,3,F,CS304PC,DBMS,Database Management Systems,Theory,II CSE F,high,derived from timetable + course CSV
-Ms. G. Chandana Priya,ms g chandana priya,CSE,2,3,F,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE F,high,derived from timetable + course CSV
-Ms. G. Chandana Priya,ms g chandana priya,CSE,4,7,A,CS704PC,CD LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. G. Chandana Priya,ms g chandana priya,CSE,4,7,B,CS704PC,CD LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV
-Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,4,7,A,CS713PE,CC,Cloud Computing,Theory,IV CSE A,medium,"code from timetable, not in course CSV"
-Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,3,5,C,,CODING,Coding Practice,Theory,III CSE C,low,no code found in timetable
-Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,3,5,A,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE A,high,derived from timetable + course CSV
-Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,2,3,B,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE B,high,derived from timetable + course CSV
-Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,2,3,B,CS304PC,DBMS,Database Management Systems,Theory,II CSE B,high,derived from timetable + course CSV
-Mr. N. Raghava Rao,mr n raghava rao,CSE,3,5,A,CS501PC,DAA,Design and Analysis of Algorithms,Theory,III CSE A,high,derived from timetable + course CSV
-Mr. N. Raghava Rao,mr n raghava rao,CSE,4,7,C,CS705PC,CD LAB,Compiler Design Lab,Lab,IV CSE C,high,derived from timetable + course CSV
-Mr. N. Raghava Rao,mr n raghava rao,CSE,3,5,A,,CODING,Coding practice,Theory,III CSE A,low,no code found in timetable
-Mr. N. Raghava Rao,mr n raghava rao,CSE,2,3,D,CS303PC,DSM,Discrete Mathematics,Theory,II CSE D,high,derived from timetable + course CSV
-Mr. N. Raghava Rao,mr n raghava rao,CSE,2,3,E,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,II CSE E,high,derived from timetable + course CSV
-Ms. V. Aneesha,ms v aneesha,CSE,4,7,A,CS701PC,CNS,Cryptography and Network Security,Theory,IV CSE A,high,derived from timetable + course CSV
-Ms. V. Aneesha,ms v aneesha,CSE,4,7,A,CS704PC,CNS LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. V. Aneesha,ms v aneesha,CSE,4,7,B,CS704PC,CNS LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV
-Ms. V. Aneesha,ms v aneesha,CSE,2,3,A,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV
-Ms. V. Aneesha,ms v aneesha,CSE,2,3,D,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV
-Ms. V. Aneesha,ms v aneesha,CSE,2,3,A,,CODING,Coding Practice,Theory,II CSE A,low,no code found in timetable
-Ms. G. Rama Devi,ms g rama devi,CSE,2,3,A,CS304PC,DBMS,Database Management Systems,Theory,"II CSE A,D",high,derived from timetable + course CSV
-Ms. G. Rama Devi,ms g rama devi,CSE,2,3,D,CS304PC,DBMS,Database Management Systems,Theory,"II CSE A,D",high,derived from timetable + course CSV
-Ms. G. Rama Devi,ms g rama devi,CSE,2,3,A,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D,E",high,derived from timetable + course CSV
-Ms. G. Rama Devi,ms g rama devi,CSE,2,3,D,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D,E",high,derived from timetable + course CSV
-Ms. G. Rama Devi,ms g rama devi,CSE,2,3,E,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D,E",high,derived from timetable + course CSV
-Ms. G. Rama Devi,ms g rama devi,CSE,2,3,F,,CODING,Coding practice,Theory,II CSE F,low,no code found in timetable
-Mr. K. Rajesh,mr k rajesh,CSE,4,7,C,CS702PC,CD,Compiler Design,Theory,IV CSE C,high,derived from timetable + course CSV
-Ms. M Sri Sevitha,ms m sri sevitha,CSE,2,3,F,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE F,high,derived from timetable + course CSV
-Ms. M Sri Sevitha,ms m sri sevitha,MINOR,4,7,,,DL,Deep Learning,Theory,IV MINOR,low,no code found in timetable
-Ms. M Sri Sevitha,ms m sri sevitha,MINOR,4,7,,,DL LAB,Deep Learning Lab,Lab,IV MINOR,low,no code found in timetable
-Ms. S Rama Devi,ms s rama devi,EEE,4,7,,,OS,Operating Systems,Theory,IV EEE,low,no code found in timetable
-Ms. S Rama Devi,ms s rama devi,CSE,2,3,B,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE B,high,derived from timetable + course CSV
-Ms. S Rama Devi,ms s rama devi,CSE,2,3,B,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,II CSE B,high,derived from timetable + course CSV
-Ms. D Sangeetha,ms d sangeetha,CSE,2,3,E,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE E,high,derived from timetable + course CSV
-Ms. D Sangeetha,ms d sangeetha,CSE,2,3,B,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE B,E",high,derived from timetable + course CSV
-Ms. D Sangeetha,ms d sangeetha,CSE,2,3,E,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE B,E",high,derived from timetable + course CSV
-Ms. D Sangeetha,ms d sangeetha,CSE,2,3,F,CS303PC,DSM,Discrete Mathematics,Theory,II CSE F,high,derived from timetable + course CSV
-Ms. D Sangeetha,ms d sangeetha,CSE,2,3,C,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE C,high,derived from timetable + course CSV
-Ms. K Vineela,ms k vineela,CSE,2,3,C,CS304PC,DBMS,Database Management Systems,Theory,II CSE C,high,derived from timetable + course CSV
-Ms. K Vineela,ms k vineela,CSE,2,3,B,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE B,C",high,derived from timetable + course CSV
-Ms. K Vineela,ms k vineela,CSE,2,3,C,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE B,C",high,derived from timetable + course CSV
-Ms. K Vineela,ms k vineela,IT,3,5,A,,PR,Pattern recognitions,Theory,III IT A,low,no code found in timetable
-Mr. C Rajeev,mr c rajeev,CSE,1,1,A,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable
-Mr. C Rajeev,mr c rajeev,CSE,1,1,B,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable
+teacher_name,teacher_name_normalized,department,year,semester,section,subject_code,subject_acronym,subject_name,class_type,class_str,source_confidence,source_notes,phone,email
+Dr. S L Aruna Rao,dr s l aruna rao,CSE,4,7,B,CS701PC,CNS,Cryptography and Network Security,Theory,IV CSE B,high,derived from timetable + course CSV,9553605898,cse.hod@bvrithyderabad.edu.in
+Prof. R S Murali Nath,prof r s murali nath,CSE,2,3,A,CS303PC,DSM,Discrete Mathematics,Theory,II CSE A,high,derived from timetable + course CSV,9848091992,muralinath.rs@bvrithyderabad.edu.in
+Prof. R S Murali Nath,prof r s murali nath,CSE,2,3,E,CS303PC,DSM,Discrete Mathematics,Theory,II CSE E,high,derived from timetable + course CSV,9848091992,muralinath.rs@bvrithyderabad.edu.in
+Dr .R Suneetha Rani,dr r suneetha rani,CSE,3,5,C,CS513PE,DM,Data Mining,Theory,III CSE C,medium,"code from timetable, not in course CSV",7075163248,suneetharani.r@bvrithyderabad.edu.in
+Dr .R Suneetha Rani,dr r suneetha rani,ECE,3,5,,EC511PE,COOS,Computer Organization & Operating Systems,Theory,III ECE,medium,"code from timetable, not in course CSV",7075163248,suneetharani.r@bvrithyderabad.edu.in
+Dr .R Suneetha Rani,dr r suneetha rani,CSE,4,7,B,CS703PC,CNS LAB,Cryptography and Network Security Lab,Lab,IV CSE B,medium,"code from timetable, not in course CSV",7075163248,suneetharani.r@bvrithyderabad.edu.in
+Dr. G. Naga Satish,dr g naga satish,CSE,3,5,A,CS523PE,DA,Data Analytics,Theory,III CSE A,medium,"code from timetable, not in course CSV",9618319616,nagasatish.g@bvrithyderabad.edu.in
+Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,A,CS302PC,DS,Data Structures,Theory,II CSE A,high,derived from timetable + course CSV,,
+Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,B,CS302PC,DS,Data Structures,Theory,II CSE B,high,derived from timetable + course CSV,,
+Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,A,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE A,high,derived from timetable + course CSV,,
+Dr. M. Indrasena Reddy,dr m indrasena reddy,CSE,2,3,B,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE B,high,derived from timetable + course CSV,,
+Ms. D. Swapna,ms d swapna,CSE,4,7,A,CS702PC,CD,Compiler Design,Theory,"IV CSE A,B",high,derived from timetable + course CSV,9177322252,swapna.d@bvrithyderabad.edu.in
+Ms. D. Swapna,ms d swapna,CSE,4,7,B,CS702PC,CD,Compiler Design,Theory,"IV CSE A,B",high,derived from timetable + course CSV,9177322252,swapna.d@bvrithyderabad.edu.in
+Ms. D. Swapna,ms d swapna,CSE,4,7,A,CS705PC,CD LAB,Compiler Design Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV,9177322252,swapna.d@bvrithyderabad.edu.in
+Ms. D. Swapna,ms d swapna,CSE,4,7,B,CS705PC,CD LAB,Compiler Design Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV,9177322252,swapna.d@bvrithyderabad.edu.in
+Ms. D. Swapna,ms d swapna,CSE,2,3,F,CS309PC,DV LAB,Data visualization-R Programming/Power BI,Lab,II CSE F,high,derived from timetable + course CSV,9177322252,swapna.d@bvrithyderabad.edu.in
+Dr. B. Venkatesh,dr b venkatesh,CSE,1,1,E,,PPS LAB,Programming for Problem Solving,Lab,"I CSE E,F",low,no code found in timetable,9963311377,venkatesh.b@bvrithyderabad.edu.in
+Dr. B. Venkatesh,dr b venkatesh,CSE,1,1,F,,PPS LAB,Programming for Problem Solving,Lab,"I CSE E,F",low,no code found in timetable,9963311377,venkatesh.b@bvrithyderabad.edu.in
+Dr. B. Venkatesh,dr b venkatesh,CSE,3,5,,,GT,Graph Theory,Theory,III CSE,low,no code found in timetable,9963311377,venkatesh.b@bvrithyderabad.edu.in
+Dr. B. Venkatesh,dr b venkatesh,CSE,4,7,A,CS706PC,PS-I,Project Stage-I,Theory,IV CSE A,high,derived from timetable + course CSV,9963311377,venkatesh.b@bvrithyderabad.edu.in
+Dr. Prasanth Vaidya,dr prasanth vaidya,CSE,4,7,C,CS701PC,CNS,Cryptography and Network Security,Theory,IV CSE C,high,derived from timetable + course CSV,9652733636,prasanthvaidya.s@bvrithyderabad.edu.in
+Dr. Prasanth Vaidya,dr prasanth vaidya,CSE,4,7,C,CS704PC,CNS LAB,Cryptography and Network Security Lab,Lab,IV CSE C,high,derived from timetable + course CSV,9652733636,prasanthvaidya.s@bvrithyderabad.edu.in
+Dr. Prasanth Vaidya,dr prasanth vaidya,CSE,4,7,C,CS705PC,PS-I,Compiler Design Lab,Theory,IV CSE C,high,derived from timetable + course CSV,9652733636,prasanthvaidya.s@bvrithyderabad.edu.in
+Dr. M. Shanmuga Sundari,dr m shanmuga sundari,CSE,1,1,C,,PPS,Programming for Problem Solving,Theory,I CSE C,low,no code found in timetable,9100447815,sundari.m@bvrithyderabad.edu.in
+Dr. M. Shanmuga Sundari,dr m shanmuga sundari,CSE,1,1,C,,PPS LAB,Programming for Problem Solving Lab,Lab,I CSE C,low,no code found in timetable,9100447815,sundari.m@bvrithyderabad.edu.in
+Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,A,CS507PC,CN LAB,Computer Networks Lab,Lab,"III CSE A,B",high,derived from timetable + course CSV,8861996851,nagaraju.c@bvrithyderabad.edu.in
+Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,B,CS507PC,CN LAB,Computer Networks Lab,Lab,"III CSE A,B",high,derived from timetable + course CSV,8861996851,nagaraju.c@bvrithyderabad.edu.in
+Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,A,CS502PC,CN,Computer Networks,Theory,"III CSE A,B",high,derived from timetable + course CSV,8861996851,nagaraju.c@bvrithyderabad.edu.in
+Dr. C. Nagaraju,dr c nagaraju,CSE,3,5,B,CS502PC,CN,Computer Networks,Theory,"III CSE A,B",high,derived from timetable + course CSV,8861996851,nagaraju.c@bvrithyderabad.edu.in
+Dr. C. Nagaraju,dr c nagaraju,CSE,2,3,C,,CODING,Coding Practice,Theory,II CSE C,low,no code found in timetable,8861996851,nagaraju.c@bvrithyderabad.edu.in
+Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,4,7,A,CS751PE,AA,Advanced Algorithms,Theory,"IV CSE A,C",medium,"code from timetable, not in course CSV",,
+Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,4,7,C,CS751PE,AA,Advanced Algorithms,Theory,"IV CSE A,C",medium,"code from timetable, not in course CSV",,
+Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,2,3,B,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE B,high,derived from timetable + course CSV,,
+Dr. V. Surya Narayana Reddy,dr v surya narayana reddy,CSE,2,3,D,,CODING,Coding Practice,Theory,II CSE D,low,no code found in timetable,,
+Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,2,3,D,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE D,high,derived from timetable + course CSV,9704543248,kanakavardhini.k@bvrithyderabad.edu.in
+Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,2,3,A,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV,9704543248,kanakavardhini.k@bvrithyderabad.edu.in
+Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,2,3,D,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV,9704543248,kanakavardhini.k@bvrithyderabad.edu.in
+Dr. Kanaka Vardhini,dr kanaka vardhini,CSE,4,7,B,CS705PC,PS-I,Compiler Design Lab,Theory,IV CSE B,high,derived from timetable + course CSV,9704543248,kanakavardhini.k@bvrithyderabad.edu.in
+Ms. B. Nagaveni,ms b nagaveni,CSE,3,5,C,CS501PC,DAA,Design and Analysis of Algorithms,Theory,III CSE C,high,derived from timetable + course CSV,9703218899,nagaveni.b@bvrithyderabad.edu.in
+Ms. B. Nagaveni,ms b nagaveni,CSE,2,3,C,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE C,high,derived from timetable + course CSV,9703218899,nagaveni.b@bvrithyderabad.edu.in
+Mr. K. Bhargav Ram,mr k bhargav ram,CSE,3,5,B,CS503PC,DEVOPS,DevOps,Theory,III CSE B,high,derived from timetable + course CSV,9160329739,bhargavram.k@bvrithyderabad.edu.in
+Mr. K. Bhargav Ram,mr k bhargav ram,CSE,3,5,B,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE B,high,derived from timetable + course CSV,9160329739,bhargavram.k@bvrithyderabad.edu.in
+Mr. K. Bhargav Ram,mr k bhargav ram,ECE,4,7,,CS722OE,SE,Software Engineering,Theory,IV ECE,medium,"code from timetable, not in course CSV",9160329739,bhargavram.k@bvrithyderabad.edu.in
+Mr. K. Bhargav Ram,mr k bhargav ram,CSE,2,3,C,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE C,D",high,derived from timetable + course CSV,9160329739,bhargavram.k@bvrithyderabad.edu.in
+Mr. K. Bhargav Ram,mr k bhargav ram,CSE,2,3,D,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE C,D",high,derived from timetable + course CSV,9160329739,bhargavram.k@bvrithyderabad.edu.in
+Mr. M. Dyva Sugnana Rao,mr m dyva sugnana rao,CSE,2,3,C,CS302PC,DS,Data Structures,Theory,II CSE C,high,derived from timetable + course CSV,9603830970,sugnanarao.m@bvrithyderabad.edu.in
+Mr. M. Dyva Sugnana Rao,mr m dyva sugnana rao,CSE,2,3,C,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE C,high,derived from timetable + course CSV,9603830970,sugnanarao.m@bvrithyderabad.edu.in
+Ms. E G Padmavati,ms e g padmavati,CSE,3,5,A,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B,C",high,derived from timetable + course CSV,8088977999,padmavati.e@bvrithyderabad.edu.in
+Ms. E G Padmavati,ms e g padmavati,CSE,3,5,B,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B,C",high,derived from timetable + course CSV,8088977999,padmavati.e@bvrithyderabad.edu.in
+Ms. E G Padmavati,ms e g padmavati,CSE,3,5,C,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B,C",high,derived from timetable + course CSV,8088977999,padmavati.e@bvrithyderabad.edu.in
+Ms. E G Padmavati,ms e g padmavati,CSE,4,7,B,CS713PE,CC,Cloud Computing,Theory,IV CSE B,medium,"code from timetable, not in course CSV",8088977999,padmavati.e@bvrithyderabad.edu.in
+Ms. E G Padmavati,ms e g padmavati,CSE,3,5,C,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE C,high,derived from timetable + course CSV,8088977999,padmavati.e@bvrithyderabad.edu.in
+Ms. Suparna Das,ms suparna das,CSE,3,5,C,CS503PC,DEVOPS,DevOps,Theory,III CSE C,high,derived from timetable + course CSV,9614135599,suparna.das@bvrithyderabad.edu.in
+Ms. Suparna Das,ms suparna das,CSE,3,5,C,CS504PC,DEVOPS,DevOps Lab,Lab,III CSE C,high,derived from timetable + course CSV,9614135599,suparna.das@bvrithyderabad.edu.in
+Ms. Suparna Das,ms suparna das,ECE,4,7,,,SL,Scripting Languages,Theory,IV ECE,low,no code found in timetable,9614135599,suparna.das@bvrithyderabad.edu.in
+Ms. Suparna Das,ms suparna das,CSE,2,3,E,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,II CSE E,high,derived from timetable + course CSV,9614135599,suparna.das@bvrithyderabad.edu.in
+Ms. Suparna Das,ms suparna das,MINOR,3,5,,,R PROG,R Programming Lab,Lab,III MINOR,low,no code found in timetable,9614135599,suparna.das@bvrithyderabad.edu.in
+Ms. Suparna Das,ms suparna das,CSE,2,3,D,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE D,high,derived from timetable + course CSV,9614135599,suparna.das@bvrithyderabad.edu.in
+Ms T. Durga Devi,ms t durga devi,CSE,3,5,A,CS503PC,DEVOPS,DevOps,Theory,III CSE A,high,derived from timetable + course CSV,9963555439,durgadevi.t@bvrithyderabad.edu.in
+Ms T. Durga Devi,ms t durga devi,CSE,3,5,A,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE A,high,derived from timetable + course CSV,9963555439,durgadevi.t@bvrithyderabad.edu.in
+Ms T. Durga Devi,ms t durga devi,CSE,4,7,A,CS703PC,CNS LAB,Cryptography and Network security Lab,Lab,IV CSE A,medium,"code from timetable, not in course CSV",9963555439,durgadevi.t@bvrithyderabad.edu.in
+Ms T. Durga Devi,ms t durga devi,CSE,2,3,F,CS304PC,DBMS,Database Management Systems,Theory,II CSE F,high,derived from timetable + course CSV,9963555439,durgadevi.t@bvrithyderabad.edu.in
+Ms T. Durga Devi,ms t durga devi,CSE,2,3,F,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE F,high,derived from timetable + course CSV,9963555439,durgadevi.t@bvrithyderabad.edu.in
+Ms T. Durga Devi,ms t durga devi,CSE,2,3,E,,CODING,Coding Practice,Theory,II CSE E,low,no code found in timetable,9963555439,durgadevi.t@bvrithyderabad.edu.in
+Ms. S.Vidyullatha,ms s vidyullatha,CSE,3,5,C,CS506PC,UID LAB,UI design-Flutter,Lab,III CSE C,high,derived from timetable + course CSV,9394575869,vidyullatha.s@bvrithyderabad.edu.in
+Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,B,CS303PC,DSM,Discrete Mathematics,Theory,"II CSE B,C",high,derived from timetable + course CSV,9394575869,vidyullatha.s@bvrithyderabad.edu.in
+Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,C,CS303PC,DSM,Discrete Mathematics,Theory,"II CSE B,C",high,derived from timetable + course CSV,9394575869,vidyullatha.s@bvrithyderabad.edu.in
+Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,B,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE B,high,derived from timetable + course CSV,9394575869,vidyullatha.s@bvrithyderabad.edu.in
+Ms. S.Vidyullatha,ms s vidyullatha,CSE,2,3,E,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE E,high,derived from timetable + course CSV,9394575869,vidyullatha.s@bvrithyderabad.edu.in
+Ms. S.Vidyullatha,ms s vidyullatha,MINOR,3,5,,,IDS,Introduction of Data Science,Theory,III MINOR,low,no code found in timetable,9394575869,vidyullatha.s@bvrithyderabad.edu.in
+Ms. KBKS Durga,ms kbks durga,CSE,1,1,A,,PPS,Programming for Problem Solving,Theory,"I CSE A,B",low,no code found in timetable,8801044143,durgakbks@bvrithyderabad.edu.in
+Ms. KBKS Durga,ms kbks durga,CSE,1,1,B,,PPS,Programming for Problem Solving,Theory,"I CSE A,B",low,no code found in timetable,8801044143,durgakbks@bvrithyderabad.edu.in
+Ms. KBKS Durga,ms kbks durga,CSE,1,1,A,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable,8801044143,durgakbks@bvrithyderabad.edu.in
+Ms. KBKS Durga,ms kbks durga,CSE,1,1,B,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable,8801044143,durgakbks@bvrithyderabad.edu.in
+Ms. K.Neha,ms k neha,CSE,2,3,A,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE A,high,derived from timetable + course CSV,8008268884,neha.k@bvrithyderabad.edu.in
+Ms. K.Neha,ms k neha,CSE,2,3,A,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,C,D",high,derived from timetable + course CSV,8008268884,neha.k@bvrithyderabad.edu.in
+Ms. K.Neha,ms k neha,CSE,2,3,C,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,C,D",high,derived from timetable + course CSV,8008268884,neha.k@bvrithyderabad.edu.in
+Ms. K.Neha,ms k neha,CSE,2,3,D,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE A,C,D",high,derived from timetable + course CSV,8008268884,neha.k@bvrithyderabad.edu.in
+Ms. K.Neha,ms k neha,CSE,2,3,F,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE F,high,derived from timetable + course CSV,8008268884,neha.k@bvrithyderabad.edu.in
+Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,E,CS302PC,DS,Data Structures,Theory,"II CSE E,D",high,derived from timetable + course CSV,9700588347,lakshmiprasudha.m@bvrithyderabad.edu.in
+Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,D,CS302PC,DS,Data Structures,Theory,"II CSE E,D",high,derived from timetable + course CSV,9700588347,lakshmiprasudha.m@bvrithyderabad.edu.in
+Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,A,CS306PC,DS LAB,Data Structures Lab,Lab,"II CSE A,E,D",high,derived from timetable + course CSV,9700588347,lakshmiprasudha.m@bvrithyderabad.edu.in
+Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,E,CS306PC,DS LAB,Data Structures Lab,Lab,"II CSE A,E,D",high,derived from timetable + course CSV,9700588347,lakshmiprasudha.m@bvrithyderabad.edu.in
+Ms. M Lakshmi Prasudha,ms m lakshmi prasudha,CSE,2,3,D,CS306PC,DS LAB,Data Structures Lab,Lab,"II CSE A,E,D",high,derived from timetable + course CSV,9700588347,lakshmiprasudha.m@bvrithyderabad.edu.in
+Ms. V. Manya,ms v manya,CSE,3,5,C,CS502PC,CN,Computer Networks,Theory,III CSE C,high,derived from timetable + course CSV,7075321308,manya.v@bvrithyderabad.edu.in
+Ms. V. Manya,ms v manya,CSE,3,5,C,CS507PC,CN LAB,Computer Networks Lab,Lab,III CSE C,high,derived from timetable + course CSV,7075321308,manya.v@bvrithyderabad.edu.in
+Ms. V. Manya,ms v manya,CSE,2,3,B,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE B,high,derived from timetable + course CSV,7075321308,manya.v@bvrithyderabad.edu.in
+Ms. V. Manya,ms v manya,CSE,3,5,B,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE B,high,derived from timetable + course CSV,7075321308,manya.v@bvrithyderabad.edu.in
+Ms. V. Manya,ms v manya,CSE,2,3,D,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE D,high,derived from timetable + course CSV,7075321308,manya.v@bvrithyderabad.edu.in
+Ms. V. Manya,ms v manya,CSE,2,3,B,,CODING,Coding practice,Theory,II CSE B,low,no code found in timetable,7075321308,manya.v@bvrithyderabad.edu.in
+Ms. J .Jhansi Goud,ms j jhansi goud,CSE,3,5,B,CS523PE,DA,Data Analytics,Theory,"III CSE B,C",medium,"code from timetable, not in course CSV",9030771275,jhansi.j@bvrithyderabad.edu.in
+Ms. J .Jhansi Goud,ms j jhansi goud,CSE,3,5,C,CS523PE,DA,Data Analytics,Theory,"III CSE B,C",medium,"code from timetable, not in course CSV",9030771275,jhansi.j@bvrithyderabad.edu.in
+Ms. J .Jhansi Goud,ms j jhansi goud,CSE,2,3,A,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE A,C",high,derived from timetable + course CSV,9030771275,jhansi.j@bvrithyderabad.edu.in
+Ms. J .Jhansi Goud,ms j jhansi goud,CSE,2,3,C,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,"II CSE A,C",high,derived from timetable + course CSV,9030771275,jhansi.j@bvrithyderabad.edu.in
+Ms. J .Jhansi Goud,ms j jhansi goud,CSE,2,3,E,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE E,high,derived from timetable + course CSV,9030771275,jhansi.j@bvrithyderabad.edu.in
+Mr. K. Naresh,mr k naresh,CSE,2,3,C,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,"II CSE C, F",high,derived from timetable + course CSV,9989803310,naresh.k@bvrithyderabad.edu.in
+Mr. K. Naresh,mr k naresh,CSE,2,3,F,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,"II CSE C, F",high,derived from timetable + course CSV,9989803310,naresh.k@bvrithyderabad.edu.in
+Mr. K. Naresh,mr k naresh,CSE,2,3,C,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE C, F",high,derived from timetable + course CSV,9989803310,naresh.k@bvrithyderabad.edu.in
+Mr. K. Naresh,mr k naresh,CSE,2,3,F,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE C, F",high,derived from timetable + course CSV,9989803310,naresh.k@bvrithyderabad.edu.in
+Mr. M. Naga Sriharsha,mr m naga sriharsha,CSE,2,3,F,CS302PC,DS,Data Structures,Theory,II CSE F,high,derived from timetable + course CSV,9908055084,naga sriharsha.m@bvrithyderabad.edu.in
+Mr. M. Naga Sriharsha,mr m naga sriharsha,CSE,2,3,F,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE F,high,derived from timetable + course CSV,9908055084,naga sriharsha.m@bvrithyderabad.edu.in
+Ms. M. Sahaja,ms m sahaja,CSE,3,5,A,CS513PE,DM,Data Mining,Theory,"III CSE A,B",medium,"code from timetable, not in course CSV",9550143865,sahaja.m@bvrithyderabad.edu.in
+Ms. M. Sahaja,ms m sahaja,CSE,3,5,B,CS513PE,DM,Data Mining,Theory,"III CSE A,B",medium,"code from timetable, not in course CSV",9550143865,sahaja.m@bvrithyderabad.edu.in
+Ms. M. Sahaja,ms m sahaja,CSE,3,5,A,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B",high,derived from timetable + course CSV,9550143865,sahaja.m@bvrithyderabad.edu.in
+Ms. M. Sahaja,ms m sahaja,CSE,3,5,B,CS506PC,UID LAB,UI design-Flutter,Lab,"III CSE A,B",high,derived from timetable + course CSV,9550143865,sahaja.m@bvrithyderabad.edu.in
+Ms. M. Sahaja,ms m sahaja,CSE,2,3,A,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE A,high,derived from timetable + course CSV,9550143865,sahaja.m@bvrithyderabad.edu.in
+Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,E,,PPS,Programming for Problem Solving,Theory,"I CSE E,F",low,no code found in timetable,9490764666,bharathi.p@bvrithyderabad.edu.in
+Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,F,,PPS,Programming for Problem Solving,Theory,"I CSE E,F",low,no code found in timetable,9490764666,bharathi.p@bvrithyderabad.edu.in
+Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,E,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE E,F",low,no code found in timetable,9490764666,bharathi.p@bvrithyderabad.edu.in
+Ms. P Surya Bharathi,ms p surya bharathi,CSE,1,1,F,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE E,F",low,no code found in timetable,9490764666,bharathi.p@bvrithyderabad.edu.in
+Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,4,7,C,CS744PE,CC,Cloud Computing,Theory,IV CSE C,medium,"code from timetable, not in course CSV",9000781166,jhansirenuka.t@bvrithyderabad.edu.in
+Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,3,5,B,CS501PC,DAA,Design and Analysis of Algorithms,Theory,III CSE B,high,derived from timetable + course CSV,9000781166,jhansirenuka.t@bvrithyderabad.edu.in
+Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,4,7,C,CS703PC,CNS LAB,Cryptography and Network Security Lab,Lab,IV CSE C,medium,"code from timetable, not in course CSV",9000781166,jhansirenuka.t@bvrithyderabad.edu.in
+Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,4,7,C,CS704PC,CD LAB,Cryptography and Network Security Lab,Lab,IV CSE C,high,derived from timetable + course CSV,9000781166,jhansirenuka.t@bvrithyderabad.edu.in
+Ms. T. Jhansi Renuka,ms t jhansi renuka,CSE,3,5,B,,CODING,Coding practice,Theory,III CSE B,low,no code found in timetable,9000781166,jhansirenuka.t@bvrithyderabad.edu.in
+Ms. B. Pushpa,ms b pushpa,CSE,4,7,B,CS751PE,AA,Advanced Algorithms,Theory,IV CSE B,medium,"code from timetable, not in course CSV",9949749844,pushpa.b@bvrithyderabad.edu.in
+Ms. B. Pushpa,ms b pushpa,AIML,3,5,,CS506PC,UID LAB,UI design-Flutter,Lab,III AIML,high,derived from timetable + course CSV,9949749844,pushpa.b@bvrithyderabad.edu.in
+Ms. B. Pushpa,ms b pushpa,CSE,2,3,E,CS309PC,DV/RP LAB,Data visualization-R Programming/Power BI,Lab,II CSE E,high,derived from timetable + course CSV,9949749844,pushpa.b@bvrithyderabad.edu.in
+Ms. G. Rashmitha,ms g rashmitha,CSE,2,3,F,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE F,high,derived from timetable + course CSV,9063160407,rashmitha.g@bvrithyderabad.edu.in
+Ms. G. Rashmitha,ms g rashmitha,CSE,1,1,C,,PPS,Programming for Problem Solving,Theory,I CSE C,low,no code found in timetable,9063160407,rashmitha.g@bvrithyderabad.edu.in
+Ms. G. Chandana Priya,ms g chandana priya,CSE,2,3,F,CS304PC,DBMS,Database Management Systems,Theory,II CSE F,high,derived from timetable + course CSV,9885264085,gchandanapriya85@gmail.com
+Ms. G. Chandana Priya,ms g chandana priya,CSE,2,3,F,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE F,high,derived from timetable + course CSV,9885264085,gchandanapriya85@gmail.com
+Ms. G. Chandana Priya,ms g chandana priya,CSE,4,7,A,CS704PC,CD LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV,9885264085,gchandanapriya85@gmail.com
+Ms. G. Chandana Priya,ms g chandana priya,CSE,4,7,B,CS704PC,CD LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV,9885264085,gchandanapriya85@gmail.com
+Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,4,7,A,CS713PE,CC,Cloud Computing,Theory,IV CSE A,medium,"code from timetable, not in course CSV",9542455985,sandhyavani.m@bvrithyderabad.edu.in
+Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,3,5,C,,CODING,Coding Practice,Theory,III CSE C,low,no code found in timetable,9542455985,sandhyavani.m@bvrithyderabad.edu.in
+Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,3,5,A,CS504PC,DEVOPS LAB,DevOps Lab,Lab,III CSE A,high,derived from timetable + course CSV,9542455985,sandhyavani.m@bvrithyderabad.edu.in
+Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,2,3,B,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE B,high,derived from timetable + course CSV,9542455985,sandhyavani.m@bvrithyderabad.edu.in
+Ms.    M. Sandhya Vani,ms m sandhya vani,CSE,2,3,B,CS304PC,DBMS,Database Management Systems,Theory,II CSE B,high,derived from timetable + course CSV,9542455985,sandhyavani.m@bvrithyderabad.edu.in
+Mr. N. Raghava Rao,mr n raghava rao,CSE,3,5,A,CS501PC,DAA,Design and Analysis of Algorithms,Theory,III CSE A,high,derived from timetable + course CSV,9000318027,raghavarao.n@bvrithyderabad.edu.in
+Mr. N. Raghava Rao,mr n raghava rao,CSE,4,7,C,CS705PC,CD LAB,Compiler Design Lab,Lab,IV CSE C,high,derived from timetable + course CSV,9000318027,raghavarao.n@bvrithyderabad.edu.in
+Mr. N. Raghava Rao,mr n raghava rao,CSE,3,5,A,,CODING,Coding practice,Theory,III CSE A,low,no code found in timetable,9000318027,raghavarao.n@bvrithyderabad.edu.in
+Mr. N. Raghava Rao,mr n raghava rao,CSE,2,3,D,CS303PC,DSM,Discrete Mathematics,Theory,II CSE D,high,derived from timetable + course CSV,9000318027,raghavarao.n@bvrithyderabad.edu.in
+Mr. N. Raghava Rao,mr n raghava rao,CSE,2,3,E,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,II CSE E,high,derived from timetable + course CSV,9000318027,raghavarao.n@bvrithyderabad.edu.in
+Ms. V. Aneesha,ms v aneesha,CSE,4,7,A,CS701PC,CNS,Cryptography and Network Security,Theory,IV CSE A,high,derived from timetable + course CSV,9912352227,aneesha.v@bvrithyderabad.edu.in
+Ms. V. Aneesha,ms v aneesha,CSE,4,7,A,CS704PC,CNS LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV,9912352227,aneesha.v@bvrithyderabad.edu.in
+Ms. V. Aneesha,ms v aneesha,CSE,4,7,B,CS704PC,CNS LAB,Cryptography and Network Security Lab,Lab,"IV CSE A,B",high,derived from timetable + course CSV,9912352227,aneesha.v@bvrithyderabad.edu.in
+Ms. V. Aneesha,ms v aneesha,CSE,2,3,A,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV,9912352227,aneesha.v@bvrithyderabad.edu.in
+Ms. V. Aneesha,ms v aneesha,CSE,2,3,D,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D",high,derived from timetable + course CSV,9912352227,aneesha.v@bvrithyderabad.edu.in
+Ms. V. Aneesha,ms v aneesha,CSE,2,3,A,,CODING,Coding Practice,Theory,II CSE A,low,no code found in timetable,9912352227,aneesha.v@bvrithyderabad.edu.in
+Ms. G. Rama Devi,ms g rama devi,CSE,2,3,A,CS304PC,DBMS,Database Management Systems,Theory,"II CSE A,D",high,derived from timetable + course CSV,7032704755,ramadevi.g@bvrithyderabad.edu.in
+Ms. G. Rama Devi,ms g rama devi,CSE,2,3,D,CS304PC,DBMS,Database Management Systems,Theory,"II CSE A,D",high,derived from timetable + course CSV,7032704755,ramadevi.g@bvrithyderabad.edu.in
+Ms. G. Rama Devi,ms g rama devi,CSE,2,3,A,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D,E",high,derived from timetable + course CSV,7032704755,ramadevi.g@bvrithyderabad.edu.in
+Ms. G. Rama Devi,ms g rama devi,CSE,2,3,D,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D,E",high,derived from timetable + course CSV,7032704755,ramadevi.g@bvrithyderabad.edu.in
+Ms. G. Rama Devi,ms g rama devi,CSE,2,3,E,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE A,D,E",high,derived from timetable + course CSV,7032704755,ramadevi.g@bvrithyderabad.edu.in
+Ms. G. Rama Devi,ms g rama devi,CSE,2,3,F,,CODING,Coding practice,Theory,II CSE F,low,no code found in timetable,7032704755,ramadevi.g@bvrithyderabad.edu.in
+Mr. K. Rajesh,mr k rajesh,CSE,4,7,C,CS702PC,CD,Compiler Design,Theory,IV CSE C,high,derived from timetable + course CSV,9505060105,rajesh.k@bvrithyderabad.edu.in
+Ms. M Sri Sevitha,ms m sri sevitha,CSE,2,3,F,CS306PC,DS LAB,Data Structures Lab,Lab,II CSE F,high,derived from timetable + course CSV,9948020059,srisevitha.m@bvrithyderabad.edu.in
+Ms. M Sri Sevitha,ms m sri sevitha,MINOR,4,7,,,DL,Deep Learning,Theory,IV MINOR,low,no code found in timetable,9948020059,srisevitha.m@bvrithyderabad.edu.in
+Ms. M Sri Sevitha,ms m sri sevitha,MINOR,4,7,,,DL LAB,Deep Learning Lab,Lab,IV MINOR,low,no code found in timetable,9948020059,srisevitha.m@bvrithyderabad.edu.in
+Ms. S Rama Devi,ms s rama devi,EEE,4,7,,,OS,Operating Systems,Theory,IV EEE,low,no code found in timetable,9866511230,ramadevi.s@bvrithyderabad.edu.in
+Ms. S Rama Devi,ms s rama devi,CSE,2,3,B,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE B,high,derived from timetable + course CSV,9866511230,ramadevi.s@bvrithyderabad.edu.in
+Ms. S Rama Devi,ms s rama devi,CSE,2,3,B,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,II CSE B,high,derived from timetable + course CSV,9866511230,ramadevi.s@bvrithyderabad.edu.in
+Ms. D Sangeetha,ms d sangeetha,CSE,2,3,E,CS305PC,OOP JP,Object Oriented Programming through Java,Theory,II CSE E,high,derived from timetable + course CSV,9966581857,sangeetha.d@bvrithyderabad.edu.in
+Ms. D Sangeetha,ms d sangeetha,CSE,2,3,B,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE B,E",high,derived from timetable + course CSV,9966581857,sangeetha.d@bvrithyderabad.edu.in
+Ms. D Sangeetha,ms d sangeetha,CSE,2,3,E,CS307PC,OOP JP LAB,Object Oriented Programming through Java Lab,Lab,"II CSE B,E",high,derived from timetable + course CSV,9966581857,sangeetha.d@bvrithyderabad.edu.in
+Ms. D Sangeetha,ms d sangeetha,CSE,2,3,F,CS303PC,DSM,Discrete Mathematics,Theory,II CSE F,high,derived from timetable + course CSV,9966581857,sangeetha.d@bvrithyderabad.edu.in
+Ms. D Sangeetha,ms d sangeetha,CSE,2,3,C,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,II CSE C,high,derived from timetable + course CSV,9966581857,sangeetha.d@bvrithyderabad.edu.in
+Ms. K Vineela,ms k vineela,CSE,2,3,C,CS304PC,DBMS,Database Management Systems,Theory,II CSE C,high,derived from timetable + course CSV,9052022235,vineela.k@bvrithyderabad.edu.in
+Ms. K Vineela,ms k vineela,CSE,2,3,B,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE B,C",high,derived from timetable + course CSV,9052022235,vineela.k@bvrithyderabad.edu.in
+Ms. K Vineela,ms k vineela,CSE,2,3,C,CS308PC,DBMS LAB,Database Management Systems Lab,Lab,"II CSE B,C",high,derived from timetable + course CSV,9052022235,vineela.k@bvrithyderabad.edu.in
+Ms. K Vineela,ms k vineela,IT,3,5,A,,PR,Pattern recognitions,Theory,III IT A,low,no code found in timetable,9052022235,vineela.k@bvrithyderabad.edu.in
+Mr. C Rajeev,mr c rajeev,CSE,1,1,A,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable,9701435106,rajeev.c@bvrithyderabad.edu.in
+Mr. C Rajeev,mr c rajeev,CSE,1,1,B,,PPS LAB,Programming for Problem Solving Lab,Lab,"I CSE A,B",low,no code found in timetable,9701435106,rajeev.c@bvrithyderabad.edu.in
